@@ -12,7 +12,7 @@
 	"format_version": 2,
 	"header": {
 		"description": "Made with moderate amounts of care.",
-		"min_engine_version": [26, 21],
+		"min_engine_version": [1, 26, 21],
 		"name": "Gametest Starter Addon",
 		"uuid": "f15047db-ad9d-4dc8-9b5e-88bcaa0666df",
 		"version": [2, 0, 0]
