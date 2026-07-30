@@ -2,20 +2,20 @@
 	"dependencies": [
 		{
 			"module_name": "@minecraft/server",
-			"version": "2.7.0"
+			"version": "2.8.0"
 		},
 		{
 			"module_name": "@minecraft/server-ui",
-			"version": "2.0.0"
+			"version": "2.1.0"
 		}
 	],
 	"format_version": 2,
 	"header": {
 		"description": "Made with moderate amounts of care.",
-		"min_engine_version": [1, 26, 21],
+		"min_engine_version": [1, 26, 33],
 		"name": "Gametest Starter Addon",
 		"uuid": "f15047db-ad9d-4dc8-9b5e-88bcaa0666df",
-		"version": [2, 0, 0]
+		"version": [2, 1, 0]
 	},
 	"modules": [
 		{
@@ -26,7 +26,7 @@
 		},
 		{
 			"description": "Scripting Module",
-			"entry": "scripts/index.esm.js",
+			"entry": "scripts/main.esm.js",
 			"language": "javascript",
 			"type": "script",
 			"uuid": "785762b9-6e55-46a3-bc2f-ec983a3927e2",

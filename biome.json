@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
 	"assist": {
 		"actions": {
 			"source": {
@@ -10,30 +10,12 @@
 		},
 		"enabled": true
 	},
-	"css": {
-		"formatter": {
-			"enabled": true,
-			"quoteStyle": "double"
-		},
-		"linter": {
-			"enabled": true
-		}
-	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 4,
 		"lineEnding": "lf",
 		"lineWidth": 100
-	},
-	"html": {
-		"experimentalFullSupportEnabled": true,
-		"formatter": {
-			"enabled": true
-		},
-		"linter": {
-			"enabled": true
-		}
 	},
 	"javascript": {
 		"experimentalEmbeddedSnippetsEnabled": true,
@@ -47,27 +29,58 @@
 		"enabled": true,
 		"rules": {
 			"complexity": {
-				"noForEach": "error"
+				"noExcessiveCognitiveComplexity": "info",
+				"noForEach": "error",
+				"noVoid": "error",
+				"useSimplifiedLogicExpression": "error"
 			},
 			"correctness": {
+				"noConstantCondition": "error",
+				"noInnerDeclarations": "error",
+				"noSelfAssign": "error",
+				"noSwitchDeclarations": "error",
 				"noUndeclaredDependencies": "error",
 				"noUnusedImports": "error",
-				"noUnusedVariables": "error"
+				"noUnusedPrivateClassMembers": "error",
+				"noUnusedVariables": "error",
+				"useYield": "error"
 			},
 			"nursery": {
+				"useExplicitReturnType": "error",
+				"useExplicitType": "error",
 				"useSortedClasses": "warn"
 			},
-			"recommended": true,
+			"performance": {
+				"noAccumulatingSpread": "error",
+				"noDelete": "error",
+				"useTopLevelRegex": "error"
+			},
 			"style": {
 				"noNonNullAssertion": "error",
+				"useAsConstAssertion": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentArrayType": "error",
 				"useConst": "error",
+				"useDefaultParameterLast": "error",
 				"useExportType": "error",
+				"useFilenamingConvention": "error",
 				"useImportType": "error",
-				"useNamingConvention": "error"
+				"useNamingConvention": "error",
+				"useNumberNamespace": "error",
+				"useNumericSeparators": "error",
+				"useTemplate": "error"
 			},
 			"suspicious": {
+				"noAsyncPromiseExecutor": "error",
 				"noConsole": "warn",
-				"noExplicitAny": "error"
+				"noDoubleEquals": "error",
+				"noEvolvingTypes": "error",
+				"noExplicitAny": "error",
+				"noImplicitAnyLet": "error",
+				"noMisrefactoredShorthandAssign": "error",
+				"noSelfCompare": "error",
+				"noShadowRestrictedNames": "error"
 			}
 		}
 	},

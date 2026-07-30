@@ -12,7 +12,9 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
 		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
 		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
@@ -20,7 +22,8 @@
 		"strict": true,
 		"stripInternal": true,
 		"target": "es2023",
-		"types": []
+		"types": [],
+		"verbatimModuleSyntax": true
 	},
 	"exclude": ["scripts", "node_modules"],
 	"include": ["source"]
