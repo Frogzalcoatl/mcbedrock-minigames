@@ -13,15 +13,15 @@
 	"header": {
 		"description": "Made with moderate amounts of care.",
 		"min_engine_version": [1, 26, 33],
-		"name": "Gametest Starter Addon",
-		"uuid": "f15047db-ad9d-4dc8-9b5e-88bcaa0666df",
-		"version": [2, 1, 0]
+		"name": "Minigames",
+		"uuid": "b38e4023-fc5b-4596-8218-359678e95f0a",
+		"version": [1, 0, 0]
 	},
 	"modules": [
 		{
 			"description": "Addon Module",
 			"type": "data",
-			"uuid": "335a6ee7-c060-426b-bee1-28752ed2e6f8",
+			"uuid": "7c620361-c880-4d06-8485-08d7fda6272f",
 			"version": [1, 0, 0]
 		},
 		{
@@ -29,7 +29,7 @@
 			"entry": "scripts/main.esm.js",
 			"language": "javascript",
 			"type": "script",
-			"uuid": "785762b9-6e55-46a3-bc2f-ec983a3927e2",
+			"uuid": "ab25a2e2-aa7a-412c-ab84-82451e4ece11",
 			"version": [1, 0, 0]
 		}
 	]
