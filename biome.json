@@ -1,0 +1,92 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on",
+				"useSortedKeys": "on",
+				"useSortedProperties": "on"
+			}
+		},
+		"enabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 4,
+		"lineEnding": "lf",
+		"lineWidth": 100
+	},
+	"javascript": {
+		"experimentalEmbeddedSnippetsEnabled": true,
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "always",
+			"trailingCommas": "all"
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"complexity": {
+				"noExcessiveCognitiveComplexity": "info",
+				"noForEach": "error",
+				"noVoid": "error",
+				"useSimplifiedLogicExpression": "error"
+			},
+			"correctness": {
+				"noConstantCondition": "error",
+				"noInnerDeclarations": "error",
+				"noSelfAssign": "error",
+				"noSwitchDeclarations": "error",
+				"noUndeclaredDependencies": "error",
+				"noUnusedImports": "error",
+				"noUnusedPrivateClassMembers": "error",
+				"noUnusedVariables": "error",
+				"useYield": "error"
+			},
+			"nursery": {
+				"useExplicitReturnType": "error",
+				"useExplicitType": "error",
+				"useSortedClasses": "warn"
+			},
+			"performance": {
+				"noAccumulatingSpread": "error",
+				"noDelete": "error",
+				"useTopLevelRegex": "error"
+			},
+			"style": {
+				"noNonNullAssertion": "error",
+				"useAsConstAssertion": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentArrayType": "error",
+				"useConst": "error",
+				"useDefaultParameterLast": "error",
+				"useExportType": "error",
+				"useFilenamingConvention": "error",
+				"useImportType": "error",
+				"useNamingConvention": "error",
+				"useNumberNamespace": "error",
+				"useNumericSeparators": "error",
+				"useTemplate": "error"
+			},
+			"suspicious": {
+				"noAsyncPromiseExecutor": "error",
+				"noConsole": "warn",
+				"noDoubleEquals": "error",
+				"noEvolvingTypes": "error",
+				"noExplicitAny": "error",
+				"noImplicitAnyLet": "error",
+				"noMisrefactoredShorthandAssign": "error",
+				"noSelfCompare": "error",
+				"noShadowRestrictedNames": "error"
+			}
+		}
+	},
+	"vcs": {
+		"clientKind": "git",
+		"enabled": true,
+		"useIgnoreFile": true
+	}
+}
