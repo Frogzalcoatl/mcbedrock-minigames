@@ -1,8 +1,0 @@
-ghostlySpawn1: -55 -61 -66
-ghostlySpawn2: -55 -61 -2
-ghostlySpawn3: 9 -61 -66
-ghostlySpawn4: 9 -61 -2
-
-ghostlyMangrove1: -33 -55 -239
-ghostlyMangrove2: -1 -55 -239
-ghostlyMangrove3: -1 -54 -175
