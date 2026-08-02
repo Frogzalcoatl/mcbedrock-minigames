@@ -42,8 +42,8 @@ function schemaToStructures(schema: StructureSchema): OurStructure[] {
 	return arr;
 }
 
-function getBaseStructure(id: string): OurStructure {
-	return { id: id, relLocation: { x: 0, y: 0, z: 0 } };
+function getDefaultStructureArr(id: string): OurStructure[] {
+	return [{ id: id, relLocation: { x: 0, y: 0, z: 0 } }];
 }
 
 export function getOurStructures(name: string): OurStructure[] | null {
@@ -53,7 +53,7 @@ export function getOurStructures(name: string): OurStructure[] | null {
 		case "ghostlyMangrove":
 			return schemaToStructures(ghostlyMangrove);
 		case "ghostlyCrate":
-			return [getBaseStructure("ghostlyCrate")];
+			return getDefaultStructureArr("ghostlyCrate");
 		case "kitPvpArena":
 			return schemaToStructures(kitPvpArena);
 		default:
