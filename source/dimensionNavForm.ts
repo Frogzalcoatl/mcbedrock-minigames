@@ -17,17 +17,13 @@ export async function showDimensionNavForm(player: Player): Promise<void> {
 	if (!player.isValid) {
 		return;
 	}
-	const form: ActionFormData = new ActionFormData().title("Dimension Navigation");
+	const form: ActionFormData = new ActionFormData();
+	form.title("Dimension Navigation");
 	for (const d of DimensionSpawns) {
 		form.button(d.id);
 	}
 	const resp: ActionFormResponse = await form.show(player);
-	if (
-		resp.canceled ||
-		resp.selection === undefined ||
-		resp.selection >= DimensionSpawns.length ||
-		!player.isValid
-	) {
+	if (resp.selection === undefined || !player.isValid) {
 		return;
 	}
 	const dimensionSpawn: DimensionSpawn | undefined = DimensionSpawns[resp.selection];

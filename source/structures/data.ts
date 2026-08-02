@@ -46,7 +46,7 @@ function getBaseStructure(id: string): OurStructure {
 	return { id: id, relLocation: { x: 0, y: 0, z: 0 } };
 }
 
-export function getOurStructures(name: string): OurStructure[] {
+export function getOurStructures(name: string): OurStructure[] | null {
 	switch (name) {
 		case "ghostlySpawn":
 			return schemaToStructures(ghostlySpawn);
@@ -57,6 +57,6 @@ export function getOurStructures(name: string): OurStructure[] {
 		case "kitPvpArena":
 			return schemaToStructures(kitPvpArena);
 		default:
-			return [];
+			return null;
 	}
 }

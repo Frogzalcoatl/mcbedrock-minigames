@@ -12,11 +12,10 @@ export function loadOurStructure(
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
 	animationSeconds: number = 0,
 ): boolean {
-	const structures: OurStructure[] = getOurStructures(structure);
-	if (structures.length === 0) {
+	const structures: OurStructure[] | null = getOurStructures(structure);
+	if (structures === null) {
 		return false;
 	}
-	let successCount: number = 0;
 	for (const s of structures) {
 		const absLocation: Vector3 = {
 			x: s.relLocation.x + location.x,
@@ -27,10 +26,6 @@ export function loadOurStructure(
 			animationMode: animationMode,
 			animationSeconds: animationSeconds,
 		});
-		successCount++;
-	}
-	if (successCount === 0) {
-		return false;
 	}
 	return true;
 }

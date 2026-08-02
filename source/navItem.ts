@@ -8,9 +8,9 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showDimensionNavForm } from "./dimesnionNavForm";
+import { showDimensionNavForm } from "./dimensionNavForm";
 
-export let NavItem: ItemStack;
+let NavItem: ItemStack;
 system.run(() => {
 	NavItem = new ItemStack(MinecraftItemTypes.Compass);
 	NavItem.nameTag = "§r§dDimension Navigation§r";
@@ -25,7 +25,7 @@ export function giveNavItem(container: Container): void {
 		container.addItem(NavItem);
 	} catch (error) {
 		if (error instanceof Error) {
-			world.sendMessage(`§cFailed to give compass item to container: ${error.message}`);
+			world.sendMessage(`§cFailed to give nav item to container: ${error.message}`);
 		}
 	}
 }
