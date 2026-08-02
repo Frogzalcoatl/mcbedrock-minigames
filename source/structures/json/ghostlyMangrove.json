@@ -1,5 +1,1 @@
-[
-	["ghostlyMangrove1", -33, -55, -239],
-	["ghostlyMangrove2", -1, -55, -239],
-	["ghostlyMangrove3", -1, -54, -175]
-]
+[["ghostlyMangrove1", 0, 0, 0], ["ghostlyMangrove2", 32, 0, 0], ["ghostlyMangrove3", 32, 0, 64]]
