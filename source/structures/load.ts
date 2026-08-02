@@ -1,7 +1,17 @@
-import { type DimensionLocation, type Vector3, world } from "@minecraft/server";
+import {
+	type DimensionLocation,
+	StructureAnimationMode,
+	type Vector3,
+	world,
+} from "@minecraft/server";
 import { getOurStructures, type OurStructure } from "./data";
 
-export function loadOurStructure(structure: string, location: DimensionLocation): boolean {
+export function loadOurStructure(
+	structure: string,
+	location: DimensionLocation,
+	animationMode: StructureAnimationMode = StructureAnimationMode.None,
+	animationSeconds: number = 0,
+): boolean {
 	const structures: OurStructure[] = getOurStructures(structure);
 	if (structures.length === 0) {
 		return false;
@@ -13,7 +23,10 @@ export function loadOurStructure(structure: string, location: DimensionLocation)
 			y: s.relLocation.y + location.y,
 			z: s.relLocation.z + location.z,
 		};
-		world.structureManager.place(s.id, location.dimension, absLocation);
+		world.structureManager.place(s.id, location.dimension, absLocation, {
+			animationMode: animationMode,
+			animationSeconds: animationSeconds,
+		});
 		successCount++;
 	}
 	if (successCount === 0) {

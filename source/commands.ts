@@ -5,9 +5,12 @@ import {
 	CustomCommandParamType,
 	type CustomCommandResult,
 	CustomCommandStatus,
+	type Dimension,
 	type DimensionLocation,
 	Player,
+	StructureAnimationMode,
 	system,
+	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "./constants";
 import { showDimensionNavForm } from "./dimesnionNavForm";
@@ -26,32 +29,36 @@ function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | undefined {
 
 function getDimensionLocationFromOrigin(
 	origin: CustomCommandOrigin,
+	locationOverride?: Vector3,
 ): DimensionLocation | undefined {
-	if (origin.sourceBlock) {
-		return {
-			dimension: origin.sourceBlock.dimension,
-			x: origin.sourceBlock.x,
-			y: origin.sourceBlock.y,
-			z: origin.sourceBlock.z,
-		};
+	let dimension: Dimension;
+	if (origin.sourceBlock !== undefined) {
+		dimension = origin.sourceBlock.dimension;
+	} else if (origin.sourceEntity !== undefined) {
+		dimension = origin.sourceEntity.dimension;
+	} else if (origin.initiator !== undefined) {
+		dimension = origin.initiator.dimension;
+	} else {
+		return undefined;
 	}
-	if (origin.sourceEntity) {
-		return {
-			dimension: origin.sourceEntity.dimension,
-			x: origin.sourceEntity.location.x,
-			y: origin.sourceEntity.location.y,
-			z: origin.sourceEntity.location.z,
-		};
+	let location: Vector3;
+	if (locationOverride !== undefined) {
+		location = locationOverride;
+	} else if (origin.sourceBlock !== undefined) {
+		location = origin.sourceBlock.location;
+	} else if (origin.sourceEntity !== undefined) {
+		location = origin.sourceEntity.location;
+	} else if (origin.initiator !== undefined) {
+		location = origin.initiator.location;
+	} else {
+		return undefined;
 	}
-	if (origin.initiator) {
-		return {
-			dimension: origin.initiator.dimension,
-			x: origin.initiator.location.x,
-			y: origin.initiator.location.y,
-			z: origin.initiator.location.z,
-		};
-	}
-	return undefined;
+	return {
+		dimension: dimension,
+		x: location.x,
+		y: location.y,
+		z: location.z,
+	};
 }
 
 const dimension: CustomCommand = {
@@ -75,16 +82,28 @@ function dimensionCallback(origin: CustomCommandOrigin): CustomCommandResult {
 }
 
 const structureEnumName: string = `${PACK_NAMESPACE}:ourStructure`;
+const animationModeEnumName: string = `${PACK_NAMESPACE}:animationMode`;
 
 const structure: CustomCommand = {
 	description: "Load structure from minigame behavior pack.",
 	mandatoryParameters: [{ name: structureEnumName, type: CustomCommandParamType.Enum }],
 	name: `${PACK_NAMESPACE}:structure`,
+	optionalParameters: [
+		{ name: "to", type: CustomCommandParamType.Location },
+		{ name: animationModeEnumName, type: CustomCommandParamType.Enum },
+		{ name: "anumationSeconds", type: CustomCommandParamType.Integer },
+	],
 	permissionLevel: CommandPermissionLevel.Host,
 };
 
-function structureCallback(origin: CustomCommandOrigin, id: string): CustomCommandResult {
-	const location: DimensionLocation | undefined = getDimensionLocationFromOrigin(origin);
+function structureCallback(
+	origin: CustomCommandOrigin,
+	id: string,
+	to?: Vector3,
+	animationMode?: StructureAnimationMode,
+	animationSeconds?: number,
+): CustomCommandResult {
+	const location: DimensionLocation | undefined = getDimensionLocationFromOrigin(origin, to);
 	if (!location) {
 		return {
 			message: "§cUnable to get valid location from command origin",
@@ -97,7 +116,7 @@ function structureCallback(origin: CustomCommandOrigin, id: string): CustomComma
 			status: CustomCommandStatus.Failure,
 		};
 	}
-	system.run(() => loadOurStructure(id, location));
+	system.run(() => loadOurStructure(id, location, animationMode, animationSeconds));
 	return {
 		status: CustomCommandStatus.Success,
 	};
@@ -105,6 +124,10 @@ function structureCallback(origin: CustomCommandOrigin, id: string): CustomComma
 
 system.beforeEvents.startup.subscribe((e) => {
 	e.customCommandRegistry.registerCommand(dimension, dimensionCallback);
-	e.customCommandRegistry.registerEnum(structureEnumName, Object.keys(ourStructureIds));
+	e.customCommandRegistry.registerEnum(structureEnumName, ourStructureIds);
+	e.customCommandRegistry.registerEnum(
+		animationModeEnumName,
+		Object.values(StructureAnimationMode),
+	);
 	e.customCommandRegistry.registerCommand(structure, structureCallback);
 });
