@@ -4,6 +4,7 @@ import {
 	CustomCommandParamType,
 	type CustomCommandResult,
 	CustomCommandStatus,
+	type Dimension,
 	type DimensionLocation,
 	Player,
 	StructureAnimationMode,
@@ -12,8 +13,9 @@ import {
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "./constants";
 import { showDimensionNavForm } from "./dimensionNavForm";
-import { isOurStructureId, ourStructureIds } from "./structures/data";
-import { loadOurStructure } from "./structures/load";
+import { structureIds } from "./structures/data";
+import { placeStructureBlocks } from "./structures/export";
+import { importStructure } from "./structures/import";
 
 function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 	return origin.initiator instanceof Player
@@ -21,6 +23,14 @@ function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 		: origin.sourceEntity instanceof Player
 			? origin.sourceEntity
 			: null;
+}
+
+function getDimensionFromOrigin(origin: CustomCommandOrigin): Dimension | null {
+	const source = origin.sourceBlock ?? origin.sourceEntity ?? origin.initiator;
+	if (source === undefined) {
+		return null;
+	}
+	return source.dimension;
 }
 
 function getDimensionLocationFromOrigin(origin: CustomCommandOrigin): DimensionLocation | null {
@@ -40,7 +50,7 @@ function getDimensionLocationFromOrigin(origin: CustomCommandOrigin): DimensionL
 system.beforeEvents.startup.subscribe((e) => {
 	const structureEnumName: string = `${PACK_NAMESPACE}:ourStructure`;
 	const animationModeEnumName: string = `${PACK_NAMESPACE}:animationMode`;
-	e.customCommandRegistry.registerEnum(structureEnumName, ourStructureIds);
+	e.customCommandRegistry.registerEnum(structureEnumName, structureIds);
 	e.customCommandRegistry.registerEnum(
 		animationModeEnumName,
 		Object.values(StructureAnimationMode),
@@ -69,7 +79,7 @@ system.beforeEvents.startup.subscribe((e) => {
 		{
 			description: "Load structure from minigame behavior pack.",
 			mandatoryParameters: [{ name: structureEnumName, type: CustomCommandParamType.Enum }],
-			name: `${PACK_NAMESPACE}:structure`,
+			name: `${PACK_NAMESPACE}:load`,
 			optionalParameters: [
 				{ name: "to", type: CustomCommandParamType.Location },
 				{ name: animationModeEnumName, type: CustomCommandParamType.Enum },
@@ -96,7 +106,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				location.y = to.y;
 				location.z = to.z;
 			}
-			if (!isOurStructureId(id)) {
+			if (!structureIds.includes(id)) {
 				return {
 					message: `Invalid structure id "${id}"`,
 					status: CustomCommandStatus.Failure,
@@ -117,7 +127,52 @@ system.beforeEvents.startup.subscribe((e) => {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() => loadOurStructure(id, location, animationMode, animationSeconds));
+			system.run(() => importStructure(id, location, animationMode, animationSeconds));
+			return {
+				status: CustomCommandStatus.Success,
+			};
+		},
+	);
+	e.customCommandRegistry.registerCommand(
+		{
+			description: "Place structure blocks for export based on total size.",
+			mandatoryParameters: [
+				{ name: "from", type: CustomCommandParamType.Location },
+				{ name: "to", type: CustomCommandParamType.Location },
+			],
+			name: `${PACK_NAMESPACE}:save`,
+			permissionLevel: CommandPermissionLevel.Host,
+		},
+		(origin: CustomCommandOrigin, from: Vector3, to: Vector3): CustomCommandResult => {
+			const dimension: Dimension | null = getDimensionFromOrigin(origin);
+			if (dimension === null) {
+				return {
+					message: "§cUnable to get dimension from command origin",
+					status: CustomCommandStatus.Failure,
+				};
+			}
+			if (
+				from.y < dimension.heightRange.min ||
+				to.y < dimension.heightRange.min ||
+				from.y > dimension.heightRange.max ||
+				to.y > dimension.heightRange.max
+			) {
+				return {
+					message: "§cInvalid y value",
+					status: CustomCommandStatus.Failure,
+				};
+			}
+			const player: Player | null = getPlayerFromOrigin(origin);
+			if (from.y === dimension.heightRange.min || to.y === dimension.heightRange.min) {
+				if (player) {
+					player.sendMessage(
+						"§6You might want to increase your min y value so that structure blocks are not included in your save...",
+					);
+				}
+			}
+			system.run(() => {
+				placeStructureBlocks(from, to, dimension);
+			});
 			return {
 				status: CustomCommandStatus.Success,
 			};

@@ -4,18 +4,15 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { getOurStructures, type OurStructure } from "./data";
+import { getStructureInfoArr, type StructureInfo } from "./data";
 
-export function loadOurStructure(
+export function importStructure(
 	structure: string,
 	location: DimensionLocation,
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
 	animationSeconds: number = 0,
-): boolean {
-	const structures: OurStructure[] | null = getOurStructures(structure);
-	if (structures === null) {
-		return false;
-	}
+): void {
+	const structures: StructureInfo[] = getStructureInfoArr(structure);
 	for (const s of structures) {
 		const absLocation: Vector3 = {
 			x: s.relLocation.x + location.x,
@@ -27,5 +24,4 @@ export function loadOurStructure(
 			animationSeconds: animationSeconds,
 		});
 	}
-	return true;
 }

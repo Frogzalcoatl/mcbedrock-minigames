@@ -11,24 +11,20 @@ const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
 const ghostlyMangrove = rawGhostlyMangrove as unknown as StructureSchema;
 const kitPvpArena = rawKitPvpArena as unknown as StructureSchema;
 
-export type OurStructure = {
+export type StructureInfo = {
 	id: string;
 	relLocation: Vector3;
 };
 
-export const ourStructureIds: string[] = [
+export const structureIds: string[] = [
 	"ghostlyCrate",
 	"ghostlyMangrove",
 	"ghostlySpawn",
 	"kitPvpArena",
 ];
 
-export function isOurStructureId(val: string): boolean {
-	return ourStructureIds.includes(val);
-}
-
-function schemaToStructures(schema: StructureSchema): OurStructure[] {
-	const arr: OurStructure[] = [];
+function schemaToStructures(schema: StructureSchema): StructureInfo[] {
+	const arr: StructureInfo[] = [];
 	for (let i: number = 0; i < schema.length; i++) {
 		const entry: JsonStructureEntry | undefined = schema[i];
 		if (entry === undefined) {
@@ -42,21 +38,19 @@ function schemaToStructures(schema: StructureSchema): OurStructure[] {
 	return arr;
 }
 
-function getDefaultStructureArr(id: string): OurStructure[] {
+function getDefaultStructureInfoArr(id: string): StructureInfo[] {
 	return [{ id: id, relLocation: { x: 0, y: 0, z: 0 } }];
 }
 
-export function getOurStructures(name: string): OurStructure[] | null {
+export function getStructureInfoArr(name: string): StructureInfo[] {
 	switch (name) {
 		case "ghostlySpawn":
 			return schemaToStructures(ghostlySpawn);
 		case "ghostlyMangrove":
 			return schemaToStructures(ghostlyMangrove);
-		case "ghostlyCrate":
-			return getDefaultStructureArr("ghostlyCrate");
 		case "kitPvpArena":
 			return schemaToStructures(kitPvpArena);
 		default:
-			return null;
+			return getDefaultStructureInfoArr(name);
 	}
 }
