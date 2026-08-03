@@ -21,6 +21,8 @@ export const structureIds: string[] = [
 	"ghostlyMangrove",
 	"ghostlySpawn",
 	"kitPvpArena",
+	"ghostlyTree",
+	"ghostlyMountain",
 ];
 
 function schemaToStructureInfoArr(schema: StructureSchema): StructureInfo[] {
