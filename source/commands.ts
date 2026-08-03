@@ -14,8 +14,8 @@ import {
 import { PACK_NAMESPACE } from "./constants";
 import { showDimensionNavForm } from "./dimensionNavForm";
 import { structureIds } from "./structures/data";
-import { placeStructureBlocks } from "./structures/export";
-import { importStructure } from "./structures/import";
+import { loadStructure } from "./structures/load";
+import { placeStructureBlocks } from "./structures/save";
 
 function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 	return origin.initiator instanceof Player
@@ -37,18 +37,17 @@ function getDimensionLocationFromOrigin(origin: CustomCommandOrigin): DimensionL
 	const source = origin.sourceBlock ?? origin.sourceEntity ?? origin.initiator;
 	if (source === undefined) {
 		return null;
-	} else {
-		return {
-			dimension: source.dimension,
-			x: source.location.x,
-			y: source.location.y,
-			z: source.location.z,
-		};
 	}
+	return {
+		dimension: source.dimension,
+		x: source.location.x,
+		y: source.location.y,
+		z: source.location.z,
+	};
 }
 
 system.beforeEvents.startup.subscribe((e) => {
-	const structureEnumName: string = `${PACK_NAMESPACE}:ourStructure`;
+	const structureEnumName: string = `${PACK_NAMESPACE}:structureId`;
 	const animationModeEnumName: string = `${PACK_NAMESPACE}:animationMode`;
 	e.customCommandRegistry.registerEnum(structureEnumName, structureIds);
 	e.customCommandRegistry.registerEnum(
@@ -127,7 +126,7 @@ system.beforeEvents.startup.subscribe((e) => {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() => importStructure(id, location, animationMode, animationSeconds));
+			system.run(() => loadStructure(id, location, animationMode, animationSeconds));
 			return {
 				status: CustomCommandStatus.Success,
 			};
@@ -135,7 +134,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	);
 	e.customCommandRegistry.registerCommand(
 		{
-			description: "Place structure blocks for export based on total size.",
+			description: "Place structure blocks for save based on bounds.",
 			mandatoryParameters: [
 				{ name: "from", type: CustomCommandParamType.Location },
 				{ name: "to", type: CustomCommandParamType.Location },

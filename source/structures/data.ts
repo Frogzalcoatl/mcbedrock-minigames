@@ -4,7 +4,7 @@ import rawGhostlyMangrove from "./json/ghostlyMangrove.json" with { type: "json"
 import rawGhostlySpawn from "./json/ghostlySpawn.json" with { type: "json" };
 import rawKitPvpArena from "./json/kitPvpArena.json" with { type: "json" };
 
-type JsonStructureEntry = [string, number, number, number];
+type JsonStructureEntry = [string, number, number, number]; // [structureId, relX, relY, relZ]
 type StructureSchema = JsonStructureEntry[];
 
 const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
@@ -17,13 +17,13 @@ export type StructureInfo = {
 };
 
 export const structureIds: string[] = [
-	"ghostlyCrate",
+	"ghostlyCrates",
 	"ghostlyMangrove",
 	"ghostlySpawn",
 	"kitPvpArena",
 ];
 
-function schemaToStructures(schema: StructureSchema): StructureInfo[] {
+function schemaToStructureInfoArr(schema: StructureSchema): StructureInfo[] {
 	const arr: StructureInfo[] = [];
 	for (let i: number = 0; i < schema.length; i++) {
 		const entry: JsonStructureEntry | undefined = schema[i];
@@ -39,17 +39,17 @@ function schemaToStructures(schema: StructureSchema): StructureInfo[] {
 }
 
 function getDefaultStructureInfoArr(id: string): StructureInfo[] {
-	return [{ id: id, relLocation: { x: 0, y: 0, z: 0 } }];
+	return [{ id: `${STRUCTURE_NAMESPACE}:${id}`, relLocation: { x: 0, y: 0, z: 0 } }];
 }
 
 export function getStructureInfoArr(name: string): StructureInfo[] {
 	switch (name) {
 		case "ghostlySpawn":
-			return schemaToStructures(ghostlySpawn);
+			return schemaToStructureInfoArr(ghostlySpawn);
 		case "ghostlyMangrove":
-			return schemaToStructures(ghostlyMangrove);
+			return schemaToStructureInfoArr(ghostlyMangrove);
 		case "kitPvpArena":
-			return schemaToStructures(kitPvpArena);
+			return schemaToStructureInfoArr(kitPvpArena);
 		default:
 			return getDefaultStructureInfoArr(name);
 	}

@@ -7,12 +7,14 @@ interface DimensionSpawn {
 	id: string;
 	location: Vector3;
 }
+
 const DimensionSpawns: DimensionSpawn[] = [
 	{ id: MinecraftDimensionTypes.Overworld, location: { x: 0.5, y: -50, z: 0.5 } },
 	{ id: MinecraftDimensionTypes.Nether, location: { x: 0.5, y: 50, z: 0.5 } },
 	{ id: MinecraftDimensionTypes.TheEnd, location: { x: 0.5, y: 100.5, z: 0.5 } },
 	{ id: TEST_DIMENSION_ID, location: { x: 0.5, y: 0, z: 0.5 } },
 ];
+
 export async function showDimensionNavForm(player: Player): Promise<void> {
 	if (!player.isValid) {
 		return;

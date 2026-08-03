@@ -6,7 +6,7 @@ import {
 } from "@minecraft/server";
 import { getStructureInfoArr, type StructureInfo } from "./data";
 
-export function importStructure(
+export function loadStructure(
 	structure: string,
 	location: DimensionLocation,
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
