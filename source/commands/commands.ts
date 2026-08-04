@@ -13,11 +13,9 @@ import {
 } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
-import {
-	entityDimensionTransfer as sendEntityToDimension,
-	showDimensionNavForm,
-} from "../dimensions/dimensions";
 import { showKitsForm } from "../games/kitPvp/ui";
+import { showRoomNavForm } from "../rooms/roomForm";
+import { joinRoom } from "../rooms/roomManager";
 import { structureIds } from "../structures/data";
 import { loadStructure } from "../structures/load";
 import { placeStructureBlocks } from "../structures/save";
@@ -62,7 +60,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	e.customCommandRegistry.registerCommand(
 		{
 			description: "Transfer to another dimension.",
-			name: `${PACK_NAMESPACE}:dim`,
+			name: `${PACK_NAMESPACE}:room`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(origin: CustomCommandOrigin): CustomCommandResult => {
@@ -74,7 +72,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				};
 			}
 			system.run(() => {
-				showDimensionNavForm(player);
+				showRoomNavForm(player);
 			});
 			return { status: CustomCommandStatus.Success };
 		},
@@ -207,7 +205,7 @@ system.beforeEvents.startup.subscribe((e) => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player !== null) {
 				system.run(() => {
-					sendEntityToDimension(player, MinecraftDimensionTypes.Overworld);
+					joinRoom(player, MinecraftDimensionTypes.Overworld);
 				});
 			}
 		},

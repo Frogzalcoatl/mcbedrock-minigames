@@ -34,7 +34,7 @@ world.afterEvents.entityRemove.subscribe((e) => {
 	}
 });
 
-export function killPlayerTridents(player: Player): void {
+export function removePlayerTridents(player: Player): void {
 	for (const [tridentId, playerId] of tridentTracker) {
 		if (playerId === player.id) {
 			const tridentEntity: Entity | undefined = world.getEntity(tridentId);
