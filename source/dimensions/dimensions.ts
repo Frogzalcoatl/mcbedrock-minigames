@@ -11,9 +11,9 @@ import {
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { MinecraftDimensionTypes, MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
+import { clearEntityInventory } from "../entities/clearEntityInventory";
 import { clearEntityEffects } from "../entities/effects";
 import { killPlayerTridents as removePlayerTridents } from "../entities/tridentTracker";
-import { clearEntityInventory } from "../items/clearEntityInventory";
 import { KitItem } from "../items/hubItems";
 
 export interface DimensionInfo {
@@ -31,6 +31,8 @@ function teleportToDimension(entity: Entity, dimensionInfo: DimensionInfo): void
 	}
 	entity.teleport(dimensionInfo.spawn, { dimension: dimension });
 }
+
+export const KITPVP_DIMENSION_ID: string = `${PACK_NAMESPACE}:kitpvp`;
 
 const dimensions: DimensionInfo[] = [
 	{
@@ -62,7 +64,7 @@ const dimensions: DimensionInfo[] = [
 	},
 	{
 		displayName: "Kit Pvp",
-		id: `${PACK_NAMESPACE}:kitpvp`,
+		id: KITPVP_DIMENSION_ID,
 		joinCallback(entity: Entity): void {
 			clearEntityEffects(entity);
 			entity.addEffect(MinecraftEffectTypes.Saturation, 2e7, {
@@ -79,8 +81,6 @@ const dimensions: DimensionInfo[] = [
 		spawn: { x: 194.5, y: 9, z: 75.5 },
 	},
 ];
-
-export const KITPVP_DIMENSION_ID: string = `${PACK_NAMESPACE}:kitpvp`;
 
 system.beforeEvents.startup.subscribe((e) => {
 	for (const d of dimensions) {
@@ -112,6 +112,9 @@ export async function showDimensionNavForm(player: Player): Promise<void> {
 }
 
 export function entityDimensionTransfer(entity: Entity, dimensionId: string): void {
+	if (!entity.isValid) {
+		return;
+	}
 	const oldDimensionInfo: DimensionInfo | undefined = dimensions.find(
 		(d) => d.id === entity.dimension.id,
 	);

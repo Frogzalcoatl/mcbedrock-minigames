@@ -27,21 +27,13 @@ export const structureIds: string[] = [
 
 function schemaToStructureInfoArr(schema: StructureSchema): StructureInfo[] {
 	const arr: StructureInfo[] = [];
-	for (let i: number = 0; i < schema.length; i++) {
-		const entry: JsonStructureEntry | undefined = schema[i];
-		if (entry === undefined) {
-			continue;
-		}
+	for (const entry of schema) {
 		arr.push({
 			id: `${STRUCTURE_NAMESPACE}:${entry[0]}`,
 			relLocation: { x: entry[1], y: entry[2], z: entry[3] },
 		});
 	}
 	return arr;
-}
-
-function getDefaultStructureInfoArr(id: string): StructureInfo[] {
-	return [{ id: `${STRUCTURE_NAMESPACE}:${id}`, relLocation: { x: 0, y: 0, z: 0 } }];
 }
 
 export function getStructureInfoArr(name: string): StructureInfo[] {
@@ -53,6 +45,6 @@ export function getStructureInfoArr(name: string): StructureInfo[] {
 		case "kitPvpArena":
 			return schemaToStructureInfoArr(kitPvpArena);
 		default:
-			return getDefaultStructureInfoArr(name);
+			return [{ id: `${STRUCTURE_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
 	}
 }

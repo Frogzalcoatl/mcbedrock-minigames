@@ -15,9 +15,9 @@ export function loadStructure(
 	const structures: StructureInfo[] = getStructureInfoArr(structure);
 	for (const s of structures) {
 		const absLocation: Vector3 = {
-			x: s.relLocation.x + location.x,
-			y: s.relLocation.y + location.y,
-			z: s.relLocation.z + location.z,
+			x: location.x + s.relLocation.x,
+			y: location.y + s.relLocation.y,
+			z: location.z + s.relLocation.z,
 		};
 		world.structureManager.place(s.id, location.dimension, absLocation, {
 			animationMode: animationMode,

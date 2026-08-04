@@ -18,5 +18,6 @@ export function setDurability(item: ItemStack, value: number | "unbreakable"): v
 	if (value > durabilityComponent.maxDurability || value < 0) {
 		return;
 	}
+	durabilityComponent.unbreakable = false;
 	durabilityComponent.damage = durabilityComponent.maxDurability - value;
 }
