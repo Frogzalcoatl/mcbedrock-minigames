@@ -12,7 +12,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "./constants";
-import { showDimensionNavForm } from "./dimensionNavForm";
+import { showDimensionNavForm } from "./dimensions";
 import { showKitsForm } from "./kitPvp/ui";
 import { structureIds } from "./structures/data";
 import { loadStructure } from "./structures/load";

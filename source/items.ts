@@ -6,7 +6,8 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showDimensionNavForm } from "./dimensionNavForm";
+import { clearEntityInventory } from "./clearEntityInventory";
+import { showDimensionNavForm } from "./dimensions";
 import { showKitsForm } from "./kitPvp/ui";
 
 let NavItem: ItemStack | undefined;
@@ -18,10 +19,11 @@ world.afterEvents.worldLoad.subscribe(() => {
 	NavItem.lockMode = ItemLockMode.inventory;
 	KitItem = new ItemStack(MinecraftItemTypes.TotemOfUndying);
 	KitItem.nameTag = "§r§eKit Selection";
-	NavItem.lockMode = ItemLockMode.inventory;
+	KitItem.lockMode = ItemLockMode.inventory;
 });
 
 world.afterEvents.playerSpawn.subscribe((e) => {
+	clearEntityInventory(e.player);
 	const inventory: EntityInventoryComponent | undefined = e.player.getComponent(
 		EntityComponentTypes.Inventory,
 	);
