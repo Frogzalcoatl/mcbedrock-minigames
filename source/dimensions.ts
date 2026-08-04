@@ -14,10 +14,18 @@ interface DimensionSpawn {
 	location: Vector3;
 }
 
-const DimensionSpawns: DimensionSpawn[] = [
+const dimensionSpawns: DimensionSpawn[] = [
 	{ id: MinecraftDimensionTypes.Overworld, location: { x: 55.5, y: 11, z: 59.5 } },
 	{ id: KITPVP_DIMENSION_ID, location: { x: 194.5, y: 9, z: 75.5 } },
 ];
+
+function teleportToDimensionSpawn(player: Player, spawn: DimensionSpawn): void {
+	const dimension: Dimension | undefined = world.getDimension(spawn.id);
+	if (dimension === undefined) {
+		return;
+	}
+	player.teleport(spawn.location, { dimension: dimension });
+}
 
 export async function showDimensionNavForm(player: Player): Promise<void> {
 	if (!player.isValid) {
@@ -25,20 +33,24 @@ export async function showDimensionNavForm(player: Player): Promise<void> {
 	}
 	const form: ActionFormData = new ActionFormData();
 	form.title("Dimension Navigation");
-	for (const d of DimensionSpawns) {
+	for (const d of dimensionSpawns) {
 		form.button(d.id);
 	}
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined || !player.isValid) {
 		return;
 	}
-	const dimensionSpawn: DimensionSpawn | undefined = DimensionSpawns[resp.selection];
-	if (dimensionSpawn === undefined) {
+	const spawn: DimensionSpawn | undefined = dimensionSpawns[resp.selection];
+	if (spawn === undefined) {
 		return;
 	}
-	const dimension: Dimension | undefined = world.getDimension(dimensionSpawn.id);
-	if (dimension === undefined) {
+	teleportToDimensionSpawn(player, spawn);
+}
+
+export function sendToDimension(player: Player, dimensionId: string): void {
+	const spawn: DimensionSpawn | undefined = dimensionSpawns.find((d) => d.id === dimensionId);
+	if (spawn === undefined) {
 		return;
 	}
-	player.teleport(dimensionSpawn.location, { dimension: dimension });
+	teleportToDimensionSpawn(player, spawn);
 }

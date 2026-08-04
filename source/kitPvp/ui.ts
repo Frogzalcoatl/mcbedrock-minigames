@@ -1,6 +1,7 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { clearEntityInventory } from "../clearEntityInventory";
+import { KITPVP_DIMENSION_ID, sendToDimension } from "../dimensions";
 import { giveKit, kits } from "./kitManager";
 
 export async function showKitsForm(player: Player): Promise<void> {
@@ -15,4 +16,5 @@ export async function showKitsForm(player: Player): Promise<void> {
 	}
 	clearEntityInventory(player);
 	giveKit(player, resp.selection);
+	sendToDimension(player, KITPVP_DIMENSION_ID);
 }
