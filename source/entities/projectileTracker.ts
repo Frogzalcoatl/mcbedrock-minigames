@@ -36,6 +36,7 @@ export function getProjectileTracker(
 		},
 		entitySpawnCallback: (event: EntitySpawnAfterEvent): void => {
 			if (
+				!event.entity.isValid ||
 				event.entity.dimension.id !== tracker.dimensionId ||
 				!tracker.projectileTypeIds.includes(event.entity.typeId)
 			) {

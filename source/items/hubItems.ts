@@ -1,21 +1,20 @@
 import { ItemLockMode, ItemStack, world } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showKitsForm } from "../games/kitPvp/ui";
+import { itemNameMatches } from "./utils/matches";
 
-export let KitItem: ItemStack | undefined;
+const typeId: string = MinecraftItemTypes.TotemOfUndying;
+const nameTag: string = "§r§eKit Selection";
 
-world.afterEvents.worldLoad.subscribe(() => {
-	KitItem = new ItemStack(MinecraftItemTypes.TotemOfUndying);
-	KitItem.nameTag = "§r§eKit Selection";
-	KitItem.lockMode = ItemLockMode.inventory;
-});
+export function itemKitSelect(): ItemStack {
+	const item = new ItemStack(typeId);
+	item.nameTag = nameTag;
+	item.lockMode = ItemLockMode.inventory;
+	return item;
+}
 
 world.afterEvents.itemUse.subscribe((e) => {
-	if (
-		KitItem !== undefined &&
-		e.itemStack.typeId === KitItem.typeId &&
-		e.itemStack.nameTag === KitItem.nameTag
-	) {
+	if (itemNameMatches(e.itemStack, typeId, nameTag)) {
 		showKitsForm(e.source);
 	}
 });

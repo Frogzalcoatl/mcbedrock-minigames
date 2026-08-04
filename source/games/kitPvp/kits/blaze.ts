@@ -1,6 +1,7 @@
 import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { setDurability } from "../../../items/durability";
+import { itemFireStick } from "../../../items/fireStick";
+import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
 import {
 	kitArmorDurability,
@@ -26,8 +27,7 @@ export function getKitBlaze(): Kit {
 	setDurability(goldenSword, "unbreakable");
 	const blazeFireballs = new ItemStack(MinecraftItemTypes.FireCharge);
 	blazeFireballs.nameTag = "§rFireball (+2 on Kill)";
-	const fireStick = new ItemStack(MinecraftItemTypes.BlazeRod);
-	fireStick.nameTag = "§rFire Stick";
+	const fireStick = itemFireStick();
 	kit.inventory = [
 		{ item: goldenSword, slot: 0 },
 		{ item: blazeFireballs, slot: 1 },

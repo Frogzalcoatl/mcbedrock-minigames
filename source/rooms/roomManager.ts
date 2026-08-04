@@ -15,7 +15,7 @@ import { clearEntityInventory } from "../entities/clearEntityInventory";
 import { clearEntityEffects } from "../entities/effects";
 import { setEntityHealth } from "../entities/health";
 import { getProjectileTracker } from "../entities/projectileTracker";
-import { KitItem } from "../items/hubItems";
+import { itemKitSelect } from "../items/hubItems";
 import { KITPVP_DIMENSION_ID } from "./dimensionIds";
 import { Room } from "./room";
 
@@ -49,9 +49,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
 					return;
 				}
-				if (KitItem !== undefined) {
-					inventory.container.addItem(KitItem);
-				}
+				inventory.container.addItem(itemKitSelect());
 			},
 			roomIndex: 0,
 			spawn: { x: 55.5, y: 11, z: 59.5 },

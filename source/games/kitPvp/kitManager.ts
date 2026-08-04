@@ -68,7 +68,7 @@ function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void
 	equippable.setEquipment(EquipmentSlot.Offhand, kit.offhand);
 }
 
-const entityKits = new Map<string, number>(); // [playerId, kitIndex]
+const entityKits = new Map<string, number>(); // [entityId, kitIndex]
 
 export function giveKit(entity: Entity, kitIndex: number): void {
 	if (kitIndex < 0 || kitIndex >= kits.length) {
@@ -100,6 +100,14 @@ export function clearKit(entity: Entity): void {
 }
 
 // -1 on undefined
-export function getEntityKitIndex(entity: Entity): number {
+function getEntityKitIndex(entity: Entity): number {
 	return entityKits.get(entity.id) ?? -1;
+}
+
+export function getEntityKit(entity: Entity): Kit | null {
+	const kitIndex: number = getEntityKitIndex(entity);
+	if (kitIndex === -1) {
+		return null;
+	}
+	return kits[kitIndex] ?? null;
 }

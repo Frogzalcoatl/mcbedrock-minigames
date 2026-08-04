@@ -1,6 +1,6 @@
 import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { setDurability } from "../../../items/durability";
+import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
 import {
 	kitArmorDurability,
