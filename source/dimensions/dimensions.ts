@@ -10,11 +10,11 @@ import {
 } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { MinecraftDimensionTypes, MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { clearEntityInventory } from "./clearEntityInventory";
-import { PACK_NAMESPACE } from "./constants";
-import { clearEntityEffects } from "./effects";
-import { KitItem } from "./items";
-import { killPlayerTridents as removePlayerTridents } from "./tridentTracker";
+import { PACK_NAMESPACE } from "../constants";
+import { clearEntityEffects } from "../entities/effects";
+import { killPlayerTridents as removePlayerTridents } from "../entities/tridentTracker";
+import { clearEntityInventory } from "../items/clearEntityInventory";
+import { KitItem } from "../items/hubItems";
 
 export interface DimensionInfo {
 	displayName: string;

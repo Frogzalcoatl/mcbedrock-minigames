@@ -1,6 +1,6 @@
 import { ItemLockMode, ItemStack, world } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showKitsForm } from "./kitPvp/ui";
+import { showKitsForm } from "../games/kitPvp/ui";
 
 export let KitItem: ItemStack | undefined;
 

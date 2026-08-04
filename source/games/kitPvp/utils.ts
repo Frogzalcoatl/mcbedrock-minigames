@@ -1,6 +1,6 @@
 import type { ItemLockMode } from "@minecraft/server";
-import { setDurability } from "../durability";
-import { applyEnchant } from "../enchant";
+import { setDurability } from "../../items/durability";
+import { applyEnchant } from "../../items/enchant";
 import type { Kit } from "./kitManager";
 
 export function kitArmorEnchant(kit: Kit, id: string, level: number = 1): void {

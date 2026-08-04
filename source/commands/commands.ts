@@ -12,15 +12,15 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
-import { PACK_NAMESPACE } from "./constants";
+import { PACK_NAMESPACE } from "../constants";
 import {
 	entityDimensionTransfer as sendEntityToDimension,
 	showDimensionNavForm,
-} from "./dimensions";
-import { showKitsForm } from "./kitPvp/ui";
-import { structureIds } from "./structures/data";
-import { loadStructure } from "./structures/load";
-import { placeStructureBlocks } from "./structures/save";
+} from "../dimensions/dimensions";
+import { showKitsForm } from "../games/kitPvp/ui";
+import { structureIds } from "../structures/data";
+import { loadStructure } from "../structures/load";
+import { placeStructureBlocks } from "../structures/save";
 
 function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 	return origin.initiator instanceof Player
