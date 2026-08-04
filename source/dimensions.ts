@@ -1,31 +1,95 @@
-import { type Dimension, type Player, system, type Vector3, world } from "@minecraft/server";
+import {
+	type Dimension,
+	type Entity,
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	Player,
+	system,
+	type Vector3,
+	world,
+} from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
+import { MinecraftDimensionTypes, MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { clearEntityInventory } from "./clearEntityInventory";
 import { PACK_NAMESPACE } from "./constants";
+import { clearEntityEffects } from "./effects";
+import { KitItem } from "./items";
+import { killPlayerTridents as removePlayerTridents } from "./tridentTracker";
+
+export interface DimensionInfo {
+	displayName: string;
+	id: string;
+	spawn: Vector3;
+	joinCallback(entity: Entity): void;
+	leaveCallback?(entity: Entity): void;
+}
+
+function teleportToDimension(entity: Entity, dimensionInfo: DimensionInfo): void {
+	const dimension: Dimension | undefined = world.getDimension(dimensionInfo.id);
+	if (dimension === undefined) {
+		return;
+	}
+	entity.teleport(dimensionInfo.spawn, { dimension: dimension });
+}
+
+const dimensions: DimensionInfo[] = [
+	{
+		displayName: "Hub",
+		id: MinecraftDimensionTypes.Overworld,
+		joinCallback(entity: Entity): void {
+			clearEntityInventory(entity);
+			clearEntityEffects(entity);
+			entity.addEffect(MinecraftEffectTypes.Saturation, 2e7, {
+				amplifier: 255,
+				showParticles: false,
+			});
+			entity.addEffect(MinecraftEffectTypes.Weakness, 2e7, {
+				amplifier: 255,
+				showParticles: false,
+			});
+			const inventory: EntityInventoryComponent | undefined = entity.getComponent(
+				EntityComponentTypes.Inventory,
+			);
+			if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
+				return;
+			}
+			if (KitItem !== undefined) {
+				inventory.container.addItem(KitItem);
+			}
+			teleportToDimension(entity, this);
+		},
+		spawn: { x: 55.5, y: 11, z: 59.5 },
+	},
+	{
+		displayName: "Kit Pvp",
+		id: `${PACK_NAMESPACE}:kitpvp`,
+		joinCallback(entity: Entity): void {
+			clearEntityEffects(entity);
+			entity.addEffect(MinecraftEffectTypes.Saturation, 2e7, {
+				amplifier: 255,
+				showParticles: false,
+			});
+			teleportToDimension(entity, this);
+		},
+		leaveCallback(entity: Entity): void {
+			if (entity instanceof Player) {
+				removePlayerTridents(entity);
+			}
+		},
+		spawn: { x: 194.5, y: 9, z: 75.5 },
+	},
+];
 
 export const KITPVP_DIMENSION_ID: string = `${PACK_NAMESPACE}:kitpvp`;
 
 system.beforeEvents.startup.subscribe((e) => {
-	e.dimensionRegistry.registerCustomDimension(KITPVP_DIMENSION_ID);
-});
-
-interface DimensionSpawn {
-	id: string;
-	location: Vector3;
-}
-
-const dimensionSpawns: DimensionSpawn[] = [
-	{ id: MinecraftDimensionTypes.Overworld, location: { x: 55.5, y: 11, z: 59.5 } },
-	{ id: KITPVP_DIMENSION_ID, location: { x: 194.5, y: 9, z: 75.5 } },
-];
-
-function teleportToDimensionSpawn(player: Player, spawn: DimensionSpawn): void {
-	const dimension: Dimension | undefined = world.getDimension(spawn.id);
-	if (dimension === undefined) {
-		return;
+	for (const d of dimensions) {
+		if (d.id.startsWith("minecraft:")) {
+			continue;
+		}
+		e.dimensionRegistry.registerCustomDimension(d.id);
 	}
-	player.teleport(spawn.location, { dimension: dimension });
-}
+});
 
 export async function showDimensionNavForm(player: Player): Promise<void> {
 	if (!player.isValid) {
@@ -33,24 +97,32 @@ export async function showDimensionNavForm(player: Player): Promise<void> {
 	}
 	const form: ActionFormData = new ActionFormData();
 	form.title("Dimension Navigation");
-	for (const d of dimensionSpawns) {
-		form.button(d.id);
+	for (const d of dimensions) {
+		form.button(d.displayName);
 	}
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined || !player.isValid) {
 		return;
 	}
-	const spawn: DimensionSpawn | undefined = dimensionSpawns[resp.selection];
-	if (spawn === undefined) {
+	const dimensionInfo: DimensionInfo | undefined = dimensions[resp.selection];
+	if (dimensionInfo === undefined) {
 		return;
 	}
-	teleportToDimensionSpawn(player, spawn);
+	dimensionInfo.joinCallback(player);
 }
 
-export function sendToDimension(player: Player, dimensionId: string): void {
-	const spawn: DimensionSpawn | undefined = dimensionSpawns.find((d) => d.id === dimensionId);
-	if (spawn === undefined) {
+export function entityDimensionTransfer(entity: Entity, dimensionId: string): void {
+	const oldDimensionInfo: DimensionInfo | undefined = dimensions.find(
+		(d) => d.id === entity.dimension.id,
+	);
+	if (oldDimensionInfo !== undefined && oldDimensionInfo.leaveCallback !== undefined) {
+		oldDimensionInfo.leaveCallback(entity);
+	}
+	const newDimensionInfo: DimensionInfo | undefined = dimensions.find(
+		(d) => d.id === dimensionId,
+	);
+	if (newDimensionInfo === undefined) {
 		return;
 	}
-	teleportToDimensionSpawn(player, spawn);
+	newDimensionInfo.joinCallback(entity);
 }

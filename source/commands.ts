@@ -11,8 +11,12 @@ import {
 	system,
 	type Vector3,
 } from "@minecraft/server";
+import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "./constants";
-import { showDimensionNavForm } from "./dimensions";
+import {
+	entityDimensionTransfer as sendEntityToDimension,
+	showDimensionNavForm,
+} from "./dimensions";
 import { showKitsForm } from "./kitPvp/ui";
 import { structureIds } from "./structures/data";
 import { loadStructure } from "./structures/load";
@@ -184,14 +188,28 @@ system.beforeEvents.startup.subscribe((e) => {
 			name: `${PACK_NAMESPACE}:kit`,
 			permissionLevel: CommandPermissionLevel.Host,
 		},
-		(origin: CustomCommandOrigin): CustomCommandResult => {
+		(origin: CustomCommandOrigin): undefined => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player !== null) {
 				system.run(() => {
 					showKitsForm(player);
 				});
 			}
-			return { status: CustomCommandStatus.Success };
+		},
+	);
+	e.customCommandRegistry.registerCommand(
+		{
+			description: "Go back to hub",
+			name: `${PACK_NAMESPACE}:hub`,
+			permissionLevel: CommandPermissionLevel.Any,
+		},
+		(origin: CustomCommandOrigin): undefined => {
+			const player: Player | null = getPlayerFromOrigin(origin);
+			if (player !== null) {
+				system.run(() => {
+					sendEntityToDimension(player, MinecraftDimensionTypes.Overworld);
+				});
+			}
 		},
 	);
 });
