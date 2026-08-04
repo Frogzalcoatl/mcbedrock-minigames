@@ -7,6 +7,9 @@ import {
 } from "@minecraft/server";
 
 export function clearEntityInventory(entity: Entity): void {
+	if (!entity.isValid) {
+		return;
+	}
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
 	);

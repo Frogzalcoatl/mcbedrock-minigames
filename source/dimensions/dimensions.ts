@@ -13,6 +13,7 @@ import { MinecraftDimensionTypes, MinecraftEffectTypes } from "@minecraft/vanill
 import { PACK_NAMESPACE } from "../constants";
 import { clearEntityInventory } from "../entities/clearEntityInventory";
 import { clearEntityEffects } from "../entities/effects";
+import { setEntityHealth } from "../entities/health";
 import { killPlayerTridents as removePlayerTridents } from "../entities/tridentTracker";
 import { KitItem } from "../items/hubItems";
 
@@ -41,6 +42,7 @@ const dimensions: DimensionInfo[] = [
 		joinCallback(entity: Entity): void {
 			clearEntityInventory(entity);
 			clearEntityEffects(entity);
+			setEntityHealth(entity, "max");
 			entity.addEffect(MinecraftEffectTypes.Saturation, 2e7, {
 				amplifier: 255,
 				showParticles: false,
@@ -67,6 +69,7 @@ const dimensions: DimensionInfo[] = [
 		id: KITPVP_DIMENSION_ID,
 		joinCallback(entity: Entity): void {
 			clearEntityEffects(entity);
+			setEntityHealth(entity, "max");
 			entity.addEffect(MinecraftEffectTypes.Saturation, 2e7, {
 				amplifier: 255,
 				showParticles: false,

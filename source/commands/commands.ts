@@ -199,7 +199,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	);
 	e.customCommandRegistry.registerCommand(
 		{
-			description: "Go back to hub",
+			description: "Go back to hub.",
 			name: `${PACK_NAMESPACE}:hub`,
 			permissionLevel: CommandPermissionLevel.Any,
 		},
