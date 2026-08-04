@@ -13,6 +13,7 @@ import {
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "./constants";
 import { showDimensionNavForm } from "./dimensionNavForm";
+import { showKitsForm } from "./kitPvp/ui";
 import { structureIds } from "./structures/data";
 import { loadStructure } from "./structures/load";
 import { placeStructureBlocks } from "./structures/save";
@@ -175,6 +176,22 @@ system.beforeEvents.startup.subscribe((e) => {
 			return {
 				status: CustomCommandStatus.Success,
 			};
+		},
+	);
+	e.customCommandRegistry.registerCommand(
+		{
+			description: "Select a kit.",
+			name: `${PACK_NAMESPACE}:kit`,
+			permissionLevel: CommandPermissionLevel.Host,
+		},
+		(origin: CustomCommandOrigin): CustomCommandResult => {
+			const player: Player | null = getPlayerFromOrigin(origin);
+			if (player !== null) {
+				system.run(() => {
+					showKitsForm(player);
+				});
+			}
+			return { status: CustomCommandStatus.Success };
 		},
 	);
 });

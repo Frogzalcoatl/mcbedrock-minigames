@@ -1,3 +1,3 @@
 import "./dimensions";
 import "./commands";
-import "./navItem";
+import "./items";
