@@ -118,17 +118,17 @@ export function entityDimensionTransfer(entity: Entity, dimensionId: string): vo
 	if (!entity.isValid) {
 		return;
 	}
-	const oldDimensionInfo: DimensionInfo | undefined = dimensions.find(
-		(d) => d.id === entity.dimension.id,
-	);
-	if (oldDimensionInfo !== undefined && oldDimensionInfo.leaveCallback !== undefined) {
-		oldDimensionInfo.leaveCallback(entity);
-	}
 	const newDimensionInfo: DimensionInfo | undefined = dimensions.find(
 		(d) => d.id === dimensionId,
 	);
 	if (newDimensionInfo === undefined) {
 		return;
+	}
+	const oldDimensionInfo: DimensionInfo | undefined = dimensions.find(
+		(d) => d.id === entity.dimension.id,
+	);
+	if (oldDimensionInfo !== undefined && oldDimensionInfo.leaveCallback !== undefined) {
+		oldDimensionInfo.leaveCallback(entity);
 	}
 	newDimensionInfo.joinCallback(entity);
 }
