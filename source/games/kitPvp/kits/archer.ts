@@ -1,8 +1,10 @@
 import {
+	type DimensionLocation,
 	EntityComponentTypes,
 	type EntityInventoryComponent,
 	ItemLockMode,
 	ItemStack,
+	type Vector3,
 	world,
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
@@ -61,5 +63,12 @@ world.afterEvents.entityDie.subscribe((e) => {
 	}
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, arrowsOnKill);
 	arrows.lockMode = ItemLockMode.inventory;
-	giveItem(inventory.container, arrows);
+	const v: Vector3 = e.damageSource.damagingEntity.location;
+	const location: DimensionLocation = {
+		dimension: e.damageSource.damagingEntity.dimension,
+		x: v.x,
+		y: v.y,
+		z: v.z,
+	};
+	giveItem(arrows, inventory.container, location, false);
 });
