@@ -11,6 +11,7 @@ import {
 	MinecraftEffectTypes,
 	MinecraftEntityTypes,
 } from "@minecraft/vanilla-data";
+import { getBlockInteractionManager } from "../entities/blockInteraction";
 import { clearEntityInventory } from "../entities/clearEntityInventory";
 import { clearEntityEffects } from "../entities/effects";
 import { setEntityHealth } from "../entities/health";
@@ -26,6 +27,7 @@ export const playerRoomTracker = new Map<string, number>(); // [playerId, roomIn
 system.beforeEvents.startup.subscribe((e) => {
 	rooms.push(
 		new Room({
+			blockInteraction: getBlockInteractionManager(MinecraftDimensionTypes.Overworld, null),
 			dimensionId: MinecraftDimensionTypes.Overworld,
 			displayName: "Hub",
 			onJoin: (entity: Entity): void => {

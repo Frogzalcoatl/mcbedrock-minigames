@@ -7,6 +7,7 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import type { BlockInteractionManager } from "../entities/blockInteraction";
 import type { ProjectileTracker } from "../entities/projectileTracker";
 import { playerRoomTracker, rooms } from "./roomManager";
 
@@ -18,6 +19,7 @@ export interface RoomConfig {
 	onJoin?: (entity: Entity) => void;
 	onLeave?: (entity: Entity) => void;
 	projectileTracker?: ProjectileTracker;
+	blockInteraction?: BlockInteractionManager;
 }
 
 export class Room {
@@ -29,6 +31,7 @@ export class Room {
 	private _onLeave: ((entity: Entity) => void) | undefined;
 	private _dimension: Dimension | undefined;
 	private projectileTracker: ProjectileTracker | undefined;
+	private blockInteraction: BlockInteractionManager | undefined;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -41,6 +44,12 @@ export class Room {
 			this.projectileTracker = config.projectileTracker;
 			world.afterEvents.entityRemove.subscribe(this.projectileTracker.entityRemoveCallback);
 			world.afterEvents.entitySpawn.subscribe(this.projectileTracker.entitySpawnCallback);
+		}
+		if (config.blockInteraction !== undefined) {
+			this.blockInteraction = config.blockInteraction;
+			world.beforeEvents.playerInteractWithBlock.subscribe(
+				this.blockInteraction.playerInteractWithBlock,
+			);
 		}
 	}
 
