@@ -59,7 +59,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	);
 	e.customCommandRegistry.registerCommand(
 		{
-			description: "Transfer to another dimension.",
+			description: "Transfer to another room.",
 			name: `${PACK_NAMESPACE}:room`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
@@ -87,7 +87,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				{ name: animationModeEnumName, type: CustomCommandParamType.Enum },
 				{ name: "animationSeconds", type: CustomCommandParamType.Integer },
 			],
-			permissionLevel: CommandPermissionLevel.Host,
+			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(
 			origin: CustomCommandOrigin,
@@ -143,7 +143,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				{ name: "to", type: CustomCommandParamType.Location },
 			],
 			name: `${PACK_NAMESPACE}:save`,
-			permissionLevel: CommandPermissionLevel.Host,
+			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(origin: CustomCommandOrigin, from: Vector3, to: Vector3): CustomCommandResult => {
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
@@ -184,7 +184,7 @@ system.beforeEvents.startup.subscribe((e) => {
 		{
 			description: "Select a kit.",
 			name: `${PACK_NAMESPACE}:kit`,
-			permissionLevel: CommandPermissionLevel.Host,
+			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(origin: CustomCommandOrigin): undefined => {
 			const player: Player | null = getPlayerFromOrigin(origin);
