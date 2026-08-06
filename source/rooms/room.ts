@@ -1,8 +1,7 @@
 import {
 	type Dimension,
 	type DimensionRegistry,
-	type Entity,
-	Player,
+	type Player,
 	system,
 	type Vector3,
 	world,
@@ -11,7 +10,7 @@ import { loadStructure } from "../structures/load";
 import type { BlockInteractionManager } from "./modules/blockInteraction";
 import type { DeathMessageManager } from "./modules/deathMessages";
 import type { ProjectileTracker } from "./modules/projectileTracker";
-import { getEntityRoom, playerRoomTracker } from "./roomManager";
+import { getPlayerRoom, playerRoomTracker } from "./roomManager";
 
 interface RoomStructure {
 	id: string;
@@ -20,11 +19,14 @@ interface RoomStructure {
 
 export interface RoomConfig {
 	dimensionId: string;
+	roomTypeIndex: number;
 	roomIndex: number;
 	displayName: string;
 	spawn: Vector3;
-	onJoin?: (entity: Entity) => void;
-	onLeave?: (entity: Entity) => void;
+	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
+	onJoin?: (player: Player) => void;
+	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
+	onLeave?: (player: Player) => void;
 	structures?: RoomStructure[];
 	projectileTracker?: ProjectileTracker;
 	blockInteraction?: BlockInteractionManager;
@@ -32,6 +34,7 @@ export interface RoomConfig {
 }
 
 export type RoomCreationFunc = (
+	roomTypeIndex: number,
 	roomIndex: number,
 	dimensionId: string,
 	displayName: string,
@@ -39,13 +42,16 @@ export type RoomCreationFunc = (
 
 export class Room {
 	public readonly dimensionId: string;
-	public roomIndex: number;
+	public readonly roomTypeIndex: number;
+	public readonly roomIndex: number;
 	public displayName: string;
 	private _dimension: Dimension | undefined;
 	private _playerCount: number;
 	private _spawn: Vector3;
-	private _onJoin: ((entity: Entity) => void) | undefined;
-	private _onLeave: ((entity: Entity) => void) | undefined;
+	private _beforeJoin: ((player: Player) => Promise<boolean>) | undefined;
+	private _onJoin: ((player: Player) => void) | undefined;
+	private _beforeLeave: ((player: Player) => Promise<boolean>) | undefined;
+	private _onLeave: ((player: Player) => void) | undefined;
 	private _structures: RoomStructure[];
 	private _projectileTracker: ProjectileTracker | null;
 	private _blockInteraction: BlockInteractionManager | null;
@@ -53,11 +59,14 @@ export class Room {
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
+		this.roomTypeIndex = config.roomTypeIndex;
 		this.roomIndex = config.roomIndex;
 		this.displayName = config.displayName;
 		this._playerCount = 0;
 		this._spawn = config.spawn;
+		this._beforeJoin = config.beforeJoin;
 		this._onJoin = config.onJoin;
+		this._beforeLeave = config.beforeLeave;
 		this._onLeave = config.onLeave;
 		this._structures = config.structures ?? [];
 		if (config.projectileTracker === undefined) {
@@ -100,41 +109,53 @@ export class Room {
 		});
 	}
 
-	public join(entity: Entity): void {
-		if (!entity.isValid || this._dimension === undefined) {
+	public async join(player: Player): Promise<void> {
+		if (!player.isValid || this._dimension === undefined) {
 			return;
 		}
-		const previousRoom: Room | null = getEntityRoom(entity);
+		if (this._beforeJoin !== undefined) {
+			const result: boolean = await this._beforeJoin(player);
+			if (!result) {
+				return;
+			}
+		}
+		const previousRoom: Room | null = getPlayerRoom(player);
 		if (previousRoom !== null) {
-			previousRoom.leave(entity);
+			previousRoom.leave(player);
 		}
-		entity.teleport(this._spawn, { dimension: this._dimension });
+		player.teleport(this._spawn, { dimension: this._dimension });
 		if (this._onJoin) {
-			this._onJoin(entity);
+			this._onJoin(player);
 		}
-		if (entity instanceof Player) {
-			playerRoomTracker.set(entity.id, this.roomIndex);
-			this._playerCount++;
+		player.sendMessage(`§7Joining ${this.dimensionId}`);
+		playerRoomTracker.set(player.id, [this.roomTypeIndex, this.roomIndex]);
+		this._playerCount++;
+	}
+
+	public async leave(player: Player): Promise<void> {
+		if (!player.isValid) {
+			return;
+		}
+		if (this._beforeLeave !== undefined) {
+			const result: boolean = await this._beforeLeave(player);
+			if (!result) {
+				return;
+			}
+		}
+		if (this._onLeave) {
+			this._onLeave(player);
+		}
+		playerRoomTracker.delete(player.id);
+		this._playerCount--;
+		if (this._projectileTracker !== null) {
+			this._projectileTracker.removePlayerProjectiles(player);
 		}
 	}
 
-	public leave(entity: Entity): void {
-		if (!entity.isValid) {
-			return;
-		}
-		if (this._onLeave) {
-			this._onLeave(entity);
-		}
-		if (!(entity instanceof Player)) {
-			return;
-		}
-		if (entity instanceof Player) {
-			playerRoomTracker.delete(entity.id);
-			this._playerCount--;
-		}
-		if (this._projectileTracker !== null) {
-			this._projectileTracker.removePlayerProjectiles(entity);
-		}
+	// joins without running any join/leave callbacks or teleportation
+	public addPlayer(player: Player): void {
+		playerRoomTracker.set(player.id, [this.roomTypeIndex, this.roomIndex]);
+		this._playerCount++;
 	}
 
 	public loadStructures(): void {

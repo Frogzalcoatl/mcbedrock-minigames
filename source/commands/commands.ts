@@ -11,9 +11,13 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { showRoomNavForm } from "../rooms/roomForm";
-import { joinRoomType } from "../rooms/roomManager";
-import typeNames from "../roomTypeNames";
+import { showPlayerProfileForm, showPlayersForm } from "../player/playerForm";
+import { showRoomForm } from "../rooms/roomForm";
+import { joinRoomType, roomTypes } from "../rooms/roomManager";
+import type { RoomType } from "../rooms/types/roomType";
+import { showRoomTypeForm, showRoomTypeRoomSelectForm } from "../rooms/types/roomTypeForm";
+import roomTypeIds from "../roomTypeIds";
+
 import { structureIds } from "../structures/data";
 import { loadStructure } from "../structures/load";
 
@@ -43,28 +47,30 @@ function getLocationFromOrigin(origin: CustomCommandOrigin): Vector3 | null {
 
 system.beforeEvents.startup.subscribe((e) => {
 	const structureEnumName: string = `${PACK_NAMESPACE}:structureId`;
-	const animationModeEnumName: string = `${PACK_NAMESPACE}:animationMode`;
 	e.customCommandRegistry.registerEnum(structureEnumName, structureIds);
+	const animationModeEnumName: string = `${PACK_NAMESPACE}:animationMode`;
 	e.customCommandRegistry.registerEnum(
 		animationModeEnumName,
 		Object.values(StructureAnimationMode),
 	);
+	const roomTypeEnumName: string = `${PACK_NAMESPACE}:roomTypeId`;
+	e.customCommandRegistry.registerEnum(roomTypeEnumName, Object.values(roomTypeIds));
 	e.customCommandRegistry.registerCommand(
 		{
 			description: "Manage active rooms.",
-			name: `${PACK_NAMESPACE}:room`,
+			name: `${PACK_NAMESPACE}:rooms`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(origin: CustomCommandOrigin): CustomCommandResult => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player === null || !player.isValid) {
 				return {
-					message: "§cNo valid player for ui",
+					message: "No valid player for ui",
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			system.run(() => {
-				showRoomNavForm(player);
+				showRoomForm(player);
 			});
 			return { status: CustomCommandStatus.Success };
 		},
@@ -92,7 +98,7 @@ system.beforeEvents.startup.subscribe((e) => {
 			const location: Vector3 | null = getLocationFromOrigin(origin);
 			if (dimension === null || location === null) {
 				return {
-					message: "§cUnable to get valid location from command origin",
+					message: "Unable to get valid location from command origin",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -140,9 +146,79 @@ system.beforeEvents.startup.subscribe((e) => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player !== null) {
 				system.run(() => {
-					joinRoomType(player, typeNames.hub);
+					joinRoomType(player, roomTypeIds.hub);
 				});
 			}
+		},
+	);
+	e.customCommandRegistry.registerCommand(
+		{
+			description: "View a player profile.",
+			name: `${PACK_NAMESPACE}:player`,
+			optionalParameters: [{ name: "player", type: CustomCommandParamType.PlayerSelector }],
+			permissionLevel: CommandPermissionLevel.Any,
+		},
+		(origin: CustomCommandOrigin, players?: Player[]): undefined | CustomCommandResult => {
+			const viewer: Player | null = getPlayerFromOrigin(origin);
+			if (viewer === null) {
+				return {
+					message: "No valid player for form.",
+					status: CustomCommandStatus.Failure,
+				};
+			}
+			if (players === undefined) {
+				system.run(() => showPlayersForm(viewer));
+				return;
+			}
+			const player: Player | undefined = players[0];
+			if (player === undefined) {
+				return {
+					message: "No valid players selected.",
+					status: CustomCommandStatus.Failure,
+				};
+			} else if (players.length > 1) {
+				return {
+					message: "Cannot select more than one player.",
+					status: CustomCommandStatus.Failure,
+				};
+			} else {
+				system.run(() => showPlayerProfileForm(viewer, player, false));
+				return {
+					status: CustomCommandStatus.Success,
+				};
+			}
+		},
+	);
+	e.customCommandRegistry.registerCommand(
+		{
+			description: "Queue for a game.",
+			name: `${PACK_NAMESPACE}:queue`,
+			optionalParameters: [{ name: roomTypeEnumName, type: CustomCommandParamType.Enum }],
+			permissionLevel: CommandPermissionLevel.Any,
+		},
+		(origin: CustomCommandOrigin, roomTypeId?: string): CustomCommandResult | undefined => {
+			const player: Player | null = getPlayerFromOrigin(origin);
+			if (player === null) {
+				return {
+					message: "No valid player to queue",
+					status: CustomCommandStatus.Failure,
+				};
+			}
+			system.run(() => {
+				if (roomTypeId === undefined) {
+					showRoomTypeForm(player);
+					return;
+				}
+				const roomType: RoomType | undefined = roomTypes.find(
+					(t) => t.typeId === roomTypeId,
+				);
+				if (roomType !== undefined) {
+					showRoomTypeRoomSelectForm(player, roomType, false);
+				}
+			});
+			return {
+				status: CustomCommandStatus.Success,
+			};
 		},
 	);
 });

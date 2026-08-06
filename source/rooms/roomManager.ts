@@ -1,20 +1,38 @@
-import { type Entity, system } from "@minecraft/server";
+import { type Player, system, world } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
-import typeNames from "../roomTypeNames";
+import { getRoomKitPvp } from "../games/kitPvp/room";
+import roomTypeIds from "../roomTypeIds";
 import type { Room } from "./room";
 import { getRoomHub } from "./types/hub";
-import { getRoomKitPvp } from "./types/kitPvp";
 import { initRoomType, type RoomType } from "./types/roomType";
 
 export const roomTypes: RoomType[] = [];
 export const rooms: Room[] = [];
 
-export const playerRoomTracker = new Map<string, number>(); // [playerId, roomIndex]
+export const playerRoomTracker = new Map<string, [number, number]>(); // [playerId, [roomTypeIndex, roomIndex]]
 
 system.beforeEvents.startup.subscribe((e) => {
-	roomTypes.push(initRoomType(typeNames.hub, MinecraftDimensionTypes.Overworld, getRoomHub, 1));
-	roomTypes.push(initRoomType(typeNames.kitPvp, `${PACK_NAMESPACE}:kitpvp`, getRoomKitPvp, 2));
+	roomTypes.push(
+		initRoomType({
+			defaultDimensionId: MinecraftDimensionTypes.Overworld,
+			displayName: "Hub",
+			roomCount: 1,
+			roomCreationFunc: getRoomHub,
+			roomTypeIndex: 0,
+			typeId: roomTypeIds.hub,
+		}),
+	);
+	roomTypes.push(
+		initRoomType({
+			defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
+			displayName: "Kit Pvp",
+			roomCount: 2,
+			roomCreationFunc: getRoomKitPvp,
+			roomTypeIndex: 1,
+			typeId: roomTypeIds.kitPvp,
+		}),
+	);
 	for (const type of roomTypes) {
 		for (const room of type.rooms) {
 			room.registerDimension(e.dimensionRegistry);
@@ -23,22 +41,35 @@ system.beforeEvents.startup.subscribe((e) => {
 	}
 });
 
-export function joinRoomType(entity: Entity, typeName: string, roomIndex: number = 0): void {
+export function joinRoomType(player: Player, typeId: string, roomIndex: number = 0): void {
 	for (const type of roomTypes) {
-		if (type.typeName !== typeName) {
+		if (type.typeId !== typeId) {
 			continue;
 		}
 		const room: Room | undefined = type.rooms[roomIndex];
 		if (room !== undefined) {
-			room.join(entity);
+			room.join(player);
 		}
 	}
 }
 
-export function getEntityRoom(entity: Entity): Room | null {
-	const roomIndex: number | undefined = playerRoomTracker.get(entity.id);
-	if (roomIndex === undefined) {
+export function getPlayerRoom(player: Player): Room | null {
+	const entry: [number, number] | undefined = playerRoomTracker.get(player.id);
+	if (entry === undefined) {
 		return null;
 	}
-	return rooms[roomIndex] ?? null;
+	return roomTypes[entry[0]]?.rooms[entry[1]] ?? null;
 }
+
+world.afterEvents.worldLoad.subscribe(() => {
+	for (const p of world.getAllPlayers()) {
+		if (!p.isValid) {
+			continue;
+		}
+		const room: Room | undefined = rooms.find((r) => r.dimensionId === p.dimension.id);
+		if (room === undefined) {
+			continue;
+		}
+		room.addPlayer(p);
+	}
+});

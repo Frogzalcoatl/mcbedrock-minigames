@@ -1,20 +1,20 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showKitsForm } from "../games/kitPvp/ui";
+import { showRoomTypeForm } from "../rooms/types/roomTypeForm";
 import { itemNameMatches } from "./utils/matches";
 
-const typeId: string = MinecraftItemTypes.TotemOfUndying;
-const nameTag: string = "§r§eKit Selection";
+const typeId: string = MinecraftItemTypes.LodestoneCompass;
+const nameTag: string = "§r§dTeleporter §7(Use)";
 
-export function itemKitSelect(): ItemStack {
+export function itemTeleporter(): ItemStack {
 	const item = new ItemStack(typeId);
 	item.nameTag = nameTag;
 	item.lockMode = ItemLockMode.inventory;
 	return item;
 }
 
-export function itemKitSelectRun(event: ItemUseAfterEvent): void {
+export function itemTeleporterRun(event: ItemUseAfterEvent): void {
 	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
-		showKitsForm(event.source);
+		showRoomTypeForm(event.source);
 	}
 }

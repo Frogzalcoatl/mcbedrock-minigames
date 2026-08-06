@@ -1,8 +1,8 @@
 import { world } from "@minecraft/server";
 import { itemBlazeFireballRun } from "../blazeFireballs";
-import { itemKitSelectRun } from "../hubItems";
+import { itemTeleporterRun } from "../hubItems";
 
 world.afterEvents.itemUse.subscribe((event) => {
-	itemKitSelectRun(event);
+	itemTeleporterRun(event);
 	itemBlazeFireballRun(event);
 });

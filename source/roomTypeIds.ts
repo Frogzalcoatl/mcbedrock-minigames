@@ -1,4 +1,4 @@
 export default {
-	hub: "Hub",
-	kitPvp: "Kit Pvp",
+	hub: "hub",
+	kitPvp: "kit",
 } satisfies Record<string, string>;

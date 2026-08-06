@@ -18,7 +18,7 @@ async function showRoomInfo(player: Player, room: Room): Promise<void> {
 	const structuresButtonIndex: number = 1;
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined) {
-		showRoomNavForm(player);
+		showRoomForm(player);
 		return;
 	}
 	if (resp.selection === joinButtonIndex) {
@@ -28,7 +28,7 @@ async function showRoomInfo(player: Player, room: Room): Promise<void> {
 	}
 }
 
-export async function showRoomNavForm(player: Player): Promise<void> {
+export async function showRoomForm(player: Player): Promise<void> {
 	if (!player.isValid) {
 		return;
 	}
