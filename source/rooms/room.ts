@@ -132,7 +132,7 @@ export class Room {
 			this._onJoin(player);
 		}
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
-			player.sendMessage(`§7Joining ${this.dimensionId}`);
+			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
 		playerRoomTracker.set(player.id, [this.roomTypeIndex, this.roomIndex]);
 		this._playerCount++;
