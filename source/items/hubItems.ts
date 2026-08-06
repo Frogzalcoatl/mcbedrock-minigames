@@ -3,7 +3,7 @@ import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showRoomTypeForm } from "../rooms/types/roomTypeForm";
 import { itemNameMatches } from "./utils/matches";
 
-const typeId: string = MinecraftItemTypes.LodestoneCompass;
+const typeId: string = MinecraftItemTypes.Compass;
 const nameTag: string = "§r§dTeleporter §7(Use)";
 
 export function itemTeleporter(): ItemStack {

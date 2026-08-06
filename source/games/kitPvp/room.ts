@@ -14,7 +14,8 @@ export function getRoomKitPvp(
 	roomTypeIndex: number,
 	roomIndex: number,
 	dimensionId: string,
-	displayName: string = "Kit Pvp",
+	displayName: string,
+	icon: string,
 ): Room {
 	return new Room({
 		beforeJoin: async (player: Player): Promise<boolean> => {
@@ -36,6 +37,7 @@ export function getRoomKitPvp(
 		deathMessages: getDeathMessageManager(roomIndex),
 		dimensionId: dimensionId,
 		displayName: displayName,
+		icon: icon,
 		projectileTracker: getProjectileTracker(dimensionId, [MinecraftEntityTypes.ThrownTrident]),
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,

@@ -3,6 +3,7 @@ import type { Room, RoomCreationFunc } from "../room";
 
 export interface RoomType {
 	displayName: string;
+	icon: string; // server-ui icon
 	rooms: Room[];
 	typeId: string;
 }
@@ -11,6 +12,7 @@ interface RoomTypeConfig {
 	roomTypeIndex: number;
 	typeId: string;
 	displayName: string;
+	icon?: string;
 	defaultDimensionId: string;
 	roomCreationFunc: RoomCreationFunc;
 	roomCount: number;
@@ -19,6 +21,7 @@ interface RoomTypeConfig {
 export function initRoomType(config: RoomTypeConfig): RoomType {
 	const type: RoomType = {
 		displayName: config.displayName,
+		icon: config.icon ?? "",
 		rooms: [],
 		typeId: config.typeId,
 	};
@@ -39,6 +42,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 				0,
 				config.defaultDimensionId,
 				`${config.displayName}`,
+				config.icon ?? "",
 			),
 		);
 	} else {
@@ -49,6 +53,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 					i,
 					`${config.defaultDimensionId}-${i + 1}`,
 					`${type.displayName}${i > 0 ? ` ${i + 1}` : ""}`,
+					config.icon ?? "",
 				),
 			);
 		}

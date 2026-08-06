@@ -12,8 +12,8 @@ import {
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
 import { showPlayerProfileForm, showPlayersForm } from "../player/playerForm";
-import { showRoomForm } from "../rooms/roomForm";
 import { joinRoomType, roomTypes } from "../rooms/roomManager";
+import { showRoomsForm } from "../rooms/roomsForm";
 import type { RoomType } from "../rooms/types/roomType";
 import { showRoomTypeForm, showRoomTypeRoomSelectForm } from "../rooms/types/roomTypeForm";
 import roomTypeIds from "../roomTypeIds";
@@ -70,7 +70,7 @@ system.beforeEvents.startup.subscribe((e) => {
 				};
 			}
 			system.run(() => {
-				showRoomForm(player);
+				showRoomsForm(player);
 			});
 			return { status: CustomCommandStatus.Success };
 		},

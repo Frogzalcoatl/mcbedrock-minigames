@@ -17,12 +17,14 @@ export function getRoomHub(
 	roomTypeIndex: number,
 	roomIndex: number,
 	dimensionId: string,
-	displayName: string = "Hub",
+	displayName: string,
+	icon: string,
 ): Room {
 	return new Room({
 		blockInteraction: getBlockInteractionManager(dimensionId, null),
 		dimensionId: dimensionId,
 		displayName: displayName,
+		icon: icon,
 		onJoin: (player: Player): void => {
 			player.setGameMode(GameMode.Adventure);
 			clearEntityInventory(player);

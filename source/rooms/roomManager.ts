@@ -17,6 +17,7 @@ system.beforeEvents.startup.subscribe((e) => {
 		initRoomType({
 			defaultDimensionId: MinecraftDimensionTypes.Overworld,
 			displayName: "Hub",
+			icon: "textures/items/ender_eye.png",
 			roomCount: 1,
 			roomCreationFunc: getRoomHub,
 			roomTypeIndex: 0,
@@ -27,6 +28,7 @@ system.beforeEvents.startup.subscribe((e) => {
 		initRoomType({
 			defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
 			displayName: "Kit Pvp",
+			icon: "textures/items/diamond_sword.png",
 			roomCount: 2,
 			roomCreationFunc: getRoomKitPvp,
 			roomTypeIndex: 1,

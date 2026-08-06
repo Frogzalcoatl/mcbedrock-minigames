@@ -24,7 +24,7 @@ export async function showRoomTypeRoomSelectForm(
 	const form = new ActionFormData();
 	form.title(`§0${selectedType.displayName} Rooms`);
 	for (const room of selectedType.rooms) {
-		form.button(room.displayName);
+		form.button(room.displayName, room.icon);
 	}
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined) {
@@ -45,7 +45,7 @@ export async function showRoomTypeForm(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Teleporter");
 	for (const type of roomTypes) {
-		form.button(type.displayName);
+		form.button(type.displayName, type.icon);
 	}
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined) {

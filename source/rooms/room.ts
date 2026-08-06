@@ -22,6 +22,7 @@ export interface RoomConfig {
 	roomTypeIndex: number;
 	roomIndex: number;
 	displayName: string;
+	icon: string;
 	spawn: Vector3;
 	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
 	onJoin?: (player: Player) => void;
@@ -38,6 +39,7 @@ export type RoomCreationFunc = (
 	roomIndex: number,
 	dimensionId: string,
 	displayName: string,
+	icon: string,
 ) => Room;
 
 export class Room {
@@ -45,6 +47,7 @@ export class Room {
 	public readonly roomTypeIndex: number;
 	public readonly roomIndex: number;
 	public displayName: string;
+	public icon: string;
 	private _dimension: Dimension | undefined;
 	private _playerCount: number;
 	private _spawn: Vector3;
@@ -62,6 +65,7 @@ export class Room {
 		this.roomTypeIndex = config.roomTypeIndex;
 		this.roomIndex = config.roomIndex;
 		this.displayName = config.displayName;
+		this.icon = config.icon ?? "";
 		this._playerCount = 0;
 		this._spawn = config.spawn;
 		this._beforeJoin = config.beforeJoin;
@@ -174,6 +178,7 @@ export class Room {
 Dimension ID: §e${this.dimensionId}§r
 Room Index: §e${this.roomIndex}§r
 Display Name: §e${this.displayName}§r
+Icon: §e${this.icon}§r
 Player Count: §e${this._playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this._structures.length}§r
