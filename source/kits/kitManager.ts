@@ -10,26 +10,26 @@ import {
 } from "@minecraft/server";
 import { clearEntityInventory } from "../entities/clearEntityInventory";
 import "./entityDie";
-import { getKitArcher } from "../games/kitPvp/archer";
-import { getKitBlaze } from "../games/kitPvp/blaze";
-import { getKitBreeze } from "../games/kitPvp/breeze";
-import { getKitFisherman } from "../games/kitPvp/fisherman";
-import { getKitLancer } from "../games/kitPvp/lancer";
-import { getKitPoseidon } from "../games/kitPvp/poseidon";
-import { getKitRabbit } from "../games/kitPvp/rabbit";
-import { getKitSnowman } from "../games/kitPvp/snowman";
+import { getKitArcher } from "../games/kitPvp/kits/archer";
+import { getKitBlaze } from "../games/kitPvp/kits/blaze";
+import { getKitBreeze } from "../games/kitPvp/kits/breeze";
+import { getKitFisherman } from "../games/kitPvp/kits/fisherman";
+import { getKitLancer } from "../games/kitPvp/kits/lancer";
+import { getKitPoseidon } from "../games/kitPvp/kits/poseidon";
+import { getKitRabbit } from "../games/kitPvp/kits/rabbit";
+import { getKitSnowman } from "../games/kitPvp/kits/snowman";
 
 type KitInventory = { item: ItemStack; slot: number }[];
 
 export interface Kit {
 	name: string;
-	icon: string; // server-ui icon
 	inventory: KitInventory;
 	helmet?: ItemStack;
 	chestplate?: ItemStack;
 	leggings?: ItemStack;
 	boots?: ItemStack;
 	offhand?: ItemStack;
+	icon?: string; // server-ui icon
 	onDeath?: (kitUser: Entity, killer?: Entity) => void;
 	onKill?: (kitUser: Entity, dead: Entity) => void;
 }

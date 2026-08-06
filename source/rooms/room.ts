@@ -7,10 +7,16 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import { loadStructure } from "../structures/load";
 import type { BlockInteractionManager } from "./modules/blockInteraction";
 import type { DeathMessageManager } from "./modules/deathMessages";
 import type { ProjectileTracker } from "./modules/projectileTracker";
 import { playerRoomTracker, rooms } from "./roomManager";
+
+interface RoomStructure {
+	id: string;
+	pos: Vector3;
+}
 
 export interface RoomConfig {
 	dimensionId: string;
@@ -19,6 +25,7 @@ export interface RoomConfig {
 	spawn: Vector3;
 	onJoin?: (entity: Entity) => void;
 	onLeave?: (entity: Entity) => void;
+	structures?: RoomStructure[];
 	projectileTracker?: ProjectileTracker;
 	blockInteraction?: BlockInteractionManager;
 	deathMessages?: DeathMessageManager;
@@ -28,13 +35,14 @@ export class Room {
 	public readonly dimensionId: string;
 	public roomIndex: number;
 	public displayName: string;
+	private _dimension: Dimension | undefined;
 	private _spawn: Vector3;
 	private _onJoin: ((entity: Entity) => void) | undefined;
 	private _onLeave: ((entity: Entity) => void) | undefined;
-	private _dimension: Dimension | undefined;
-	private projectileTracker: ProjectileTracker | undefined;
-	private blockInteraction: BlockInteractionManager | undefined;
-	private deathMessages: DeathMessageManager | undefined;
+	private _structures: RoomStructure[];
+	private _projectileTracker: ProjectileTracker | null;
+	private _blockInteraction: BlockInteractionManager | null;
+	private _deathMessages: DeathMessageManager | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -43,20 +51,27 @@ export class Room {
 		this._spawn = config.spawn;
 		this._onJoin = config.onJoin;
 		this._onLeave = config.onLeave;
-		if (config.projectileTracker !== undefined) {
-			this.projectileTracker = config.projectileTracker;
-			world.afterEvents.entityRemove.subscribe(this.projectileTracker.entityRemoveCallback);
-			world.afterEvents.entitySpawn.subscribe(this.projectileTracker.entitySpawnCallback);
+		this._structures = config.structures ?? [];
+		if (config.projectileTracker === undefined) {
+			this._projectileTracker = null;
+		} else {
+			this._projectileTracker = config.projectileTracker;
+			world.afterEvents.entityRemove.subscribe(this._projectileTracker.entityRemoveCallback);
+			world.afterEvents.entitySpawn.subscribe(this._projectileTracker.entitySpawnCallback);
 		}
-		if (config.blockInteraction !== undefined) {
-			this.blockInteraction = config.blockInteraction;
+		if (config.blockInteraction === undefined) {
+			this._blockInteraction = null;
+		} else {
+			this._blockInteraction = config.blockInteraction;
 			world.beforeEvents.playerInteractWithBlock.subscribe(
-				this.blockInteraction.playerInteractWithBlock,
+				this._blockInteraction.playerInteractWithBlock,
 			);
 		}
-		if (config.deathMessages !== undefined) {
-			this.deathMessages = config.deathMessages;
-			world.afterEvents.entityDie.subscribe(this.deathMessages.entityDie);
+		if (config.deathMessages === undefined) {
+			this._deathMessages = null;
+		} else {
+			this._deathMessages = config.deathMessages;
+			world.afterEvents.entityDie.subscribe(this._deathMessages.entityDie);
 		}
 	}
 
@@ -104,8 +119,30 @@ export class Room {
 			return;
 		}
 		playerRoomTracker.delete(entity.id);
-		if (this.projectileTracker !== undefined) {
-			this.projectileTracker.removePlayerProjectiles(entity);
+		if (this._projectileTracker !== null) {
+			this._projectileTracker.removePlayerProjectiles(entity);
 		}
+	}
+
+	public loadStructures(): void {
+		if (this._dimension === undefined) {
+			return;
+		}
+		for (const s of this._structures) {
+			loadStructure(s.id, s.pos, this._dimension);
+		}
+	}
+
+	public info(): string {
+		return `
+Dimension ID: §e${this.dimensionId}§r
+Room Index: §e${this.roomIndex}§r
+Display Name: §e${this.displayName}§r
+Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
+Saved Structures: §e${this._structures.length}§r
+Projectile Tracker: §e${this._projectileTracker !== null}§r
+Block Interaction Manager: §e${this._blockInteraction !== null}§r
+Death Message Manager: §e${this._deathMessages !== null}§r
+`.trim();
 	}
 }

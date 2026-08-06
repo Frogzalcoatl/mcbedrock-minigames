@@ -5,7 +5,6 @@ import {
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
-	type DimensionLocation,
 	Player,
 	StructureAnimationMode,
 	system,
@@ -13,12 +12,10 @@ import {
 } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
-import { showKitsForm } from "../games/kitPvp/ui";
 import { showRoomNavForm } from "../rooms/roomForm";
 import { joinRoom } from "../rooms/roomManager";
 import { structureIds } from "../structures/data";
 import { loadStructure } from "../structures/load";
-import { placeStructureBlocks } from "../structures/save";
 
 function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 	return origin.initiator instanceof Player
@@ -30,23 +27,18 @@ function getPlayerFromOrigin(origin: CustomCommandOrigin): Player | null {
 
 function getDimensionFromOrigin(origin: CustomCommandOrigin): Dimension | null {
 	const source = origin.sourceBlock ?? origin.sourceEntity ?? origin.initiator;
-	if (source === undefined) {
+	if (source === undefined || !source.isValid) {
 		return null;
 	}
 	return source.dimension;
 }
 
-function getDimensionLocationFromOrigin(origin: CustomCommandOrigin): DimensionLocation | null {
+function getLocationFromOrigin(origin: CustomCommandOrigin): Vector3 | null {
 	const source = origin.sourceBlock ?? origin.sourceEntity ?? origin.initiator;
-	if (source === undefined) {
+	if (source === undefined || !source.isValid) {
 		return null;
 	}
-	return {
-		dimension: source.dimension,
-		x: source.location.x,
-		y: source.location.y,
-		z: source.location.z,
-	};
+	return source.location;
 }
 
 system.beforeEvents.startup.subscribe((e) => {
@@ -59,7 +51,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	);
 	e.customCommandRegistry.registerCommand(
 		{
-			description: "Transfer to another room.",
+			description: "Manage active rooms.",
 			name: `${PACK_NAMESPACE}:room`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
@@ -96,8 +88,9 @@ system.beforeEvents.startup.subscribe((e) => {
 			animationMode?: StructureAnimationMode,
 			animationSeconds?: number,
 		): CustomCommandResult => {
-			const location: DimensionLocation | null = getDimensionLocationFromOrigin(origin);
-			if (location === null) {
+			const dimension: Dimension | null = getDimensionFromOrigin(origin);
+			const location: Vector3 | null = getLocationFromOrigin(origin);
+			if (dimension === null || location === null) {
 				return {
 					message: "§cUnable to get valid location from command origin",
 					status: CustomCommandStatus.Failure,
@@ -129,70 +122,12 @@ system.beforeEvents.startup.subscribe((e) => {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() => loadStructure(id, location, animationMode, animationSeconds));
+			system.run(() =>
+				loadStructure(id, location, dimension, animationMode, animationSeconds),
+			);
 			return {
 				status: CustomCommandStatus.Success,
 			};
-		},
-	);
-	e.customCommandRegistry.registerCommand(
-		{
-			description: "Place structure blocks for save based on bounds.",
-			mandatoryParameters: [
-				{ name: "from", type: CustomCommandParamType.Location },
-				{ name: "to", type: CustomCommandParamType.Location },
-			],
-			name: `${PACK_NAMESPACE}:save`,
-			permissionLevel: CommandPermissionLevel.Admin,
-		},
-		(origin: CustomCommandOrigin, from: Vector3, to: Vector3): CustomCommandResult => {
-			const dimension: Dimension | null = getDimensionFromOrigin(origin);
-			if (dimension === null) {
-				return {
-					message: "§cUnable to get dimension from command origin",
-					status: CustomCommandStatus.Failure,
-				};
-			}
-			if (
-				from.y < dimension.heightRange.min ||
-				to.y < dimension.heightRange.min ||
-				from.y > dimension.heightRange.max ||
-				to.y > dimension.heightRange.max
-			) {
-				return {
-					message: "§cInvalid y value",
-					status: CustomCommandStatus.Failure,
-				};
-			}
-			const player: Player | null = getPlayerFromOrigin(origin);
-			if (from.y === dimension.heightRange.min || to.y === dimension.heightRange.min) {
-				if (player) {
-					player.sendMessage(
-						"§6You might want to increase your min y value so that structure blocks are not included in your save...",
-					);
-				}
-			}
-			system.run(() => {
-				placeStructureBlocks(from, to, dimension);
-			});
-			return {
-				status: CustomCommandStatus.Success,
-			};
-		},
-	);
-	e.customCommandRegistry.registerCommand(
-		{
-			description: "Select a kit.",
-			name: `${PACK_NAMESPACE}:kit`,
-			permissionLevel: CommandPermissionLevel.Admin,
-		},
-		(origin: CustomCommandOrigin): undefined => {
-			const player: Player | null = getPlayerFromOrigin(origin);
-			if (player !== null) {
-				system.run(() => {
-					showKitsForm(player);
-				});
-			}
 		},
 	);
 	e.customCommandRegistry.registerCommand(
