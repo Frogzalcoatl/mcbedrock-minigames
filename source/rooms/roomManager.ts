@@ -11,13 +11,14 @@ import {
 	MinecraftEffectTypes,
 	MinecraftEntityTypes,
 } from "@minecraft/vanilla-data";
-import { getBlockInteractionManager } from "../entities/blockInteraction";
 import { clearEntityInventory } from "../entities/clearEntityInventory";
 import { clearEntityEffects } from "../entities/effects";
 import { setEntityHealth } from "../entities/health";
-import { getProjectileTracker } from "../entities/projectileTracker";
 import { itemKitSelect } from "../items/hubItems";
 import { KITPVP_DIMENSION_ID } from "./dimensionIds";
+import { getBlockInteractionManager } from "./modules/blockInteraction";
+import { getDeathMessageManager } from "./modules/deathMessages";
+import { getProjectileTracker } from "./modules/projectileTracker";
 import { Room } from "./room";
 
 export const rooms: Room[] = [];
@@ -59,6 +60,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	);
 	rooms.push(
 		new Room({
+			deathMessages: getDeathMessageManager(1),
 			dimensionId: KITPVP_DIMENSION_ID,
 			displayName: "Kit Pvp",
 			onJoin: (entity: Entity) => {

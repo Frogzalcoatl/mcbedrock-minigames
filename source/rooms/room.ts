@@ -7,8 +7,9 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import type { BlockInteractionManager } from "../entities/blockInteraction";
-import type { ProjectileTracker } from "../entities/projectileTracker";
+import type { BlockInteractionManager } from "./modules/blockInteraction";
+import type { DeathMessageManager } from "./modules/deathMessages";
+import type { ProjectileTracker } from "./modules/projectileTracker";
 import { playerRoomTracker, rooms } from "./roomManager";
 
 export interface RoomConfig {
@@ -20,6 +21,7 @@ export interface RoomConfig {
 	onLeave?: (entity: Entity) => void;
 	projectileTracker?: ProjectileTracker;
 	blockInteraction?: BlockInteractionManager;
+	deathMessages?: DeathMessageManager;
 }
 
 export class Room {
@@ -32,6 +34,7 @@ export class Room {
 	private _dimension: Dimension | undefined;
 	private projectileTracker: ProjectileTracker | undefined;
 	private blockInteraction: BlockInteractionManager | undefined;
+	private deathMessages: DeathMessageManager | undefined;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -50,6 +53,10 @@ export class Room {
 			world.beforeEvents.playerInteractWithBlock.subscribe(
 				this.blockInteraction.playerInteractWithBlock,
 			);
+		}
+		if (config.deathMessages !== undefined) {
+			this.deathMessages = config.deathMessages;
+			world.afterEvents.entityDie.subscribe(this.deathMessages.entityDie);
 		}
 	}
 
