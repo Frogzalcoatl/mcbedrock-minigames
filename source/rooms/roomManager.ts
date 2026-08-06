@@ -1,4 +1,4 @@
-import { type Player, system, world } from "@minecraft/server";
+import { GameMode, type Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
 import { getRoomKitPvp } from "../games/kitPvp/room";
@@ -66,10 +66,18 @@ world.afterEvents.worldLoad.subscribe(() => {
 		if (!p.isValid) {
 			continue;
 		}
-		const room: Room | undefined = rooms.find((r) => r.dimensionId === p.dimension.id);
-		if (room === undefined) {
-			continue;
+		if (
+			p.playerPermissionLevel === PlayerPermissionLevel.Operator &&
+			p.getGameMode() === GameMode.Creative
+		) {
+			// Dont teleport contributors to hub on reload
+			const room: Room | undefined = rooms.find((r) => r.dimensionId === p.dimension.id);
+			if (room === undefined) {
+				continue;
+			}
+			room.addPlayer(p);
+		} else {
+			joinRoomType(p, roomTypeIds.hub);
 		}
-		room.addPlayer(p);
 	}
 });
