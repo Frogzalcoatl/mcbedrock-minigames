@@ -6,13 +6,13 @@ import {
 	Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "./constants";
-import { clearEntityInventory } from "./entities/clearEntityInventory";
-import { clearEntityEffects } from "./entities/effects";
-import { setEntityHealth } from "./entities/health";
-import { itemKitSelect } from "./items/hubItems";
-import { getBlockInteractionManager } from "./rooms/modules/blockInteraction";
-import { Room } from "./rooms/room";
+import { MAX_EFFECT_DURATION } from "../../constants";
+import { clearEntityInventory } from "../../entities/clearEntityInventory";
+import { clearEntityEffects } from "../../entities/effects";
+import { setEntityHealth } from "../../entities/health";
+import { itemKitSelect } from "../../items/hubItems";
+import { getBlockInteractionManager } from "../modules/blockInteraction";
+import { Room } from "../room";
 
 export function getRoomHub(
 	roomIndex: number,

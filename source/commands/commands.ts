@@ -10,10 +10,10 @@ import {
 	system,
 	type Vector3,
 } from "@minecraft/server";
-import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
 import { showRoomNavForm } from "../rooms/roomForm";
-import { joinRoom } from "../rooms/roomManager";
+import { joinRoomType } from "../rooms/roomManager";
+import typeNames from "../roomTypeNames";
 import { structureIds } from "../structures/data";
 import { loadStructure } from "../structures/load";
 
@@ -140,7 +140,7 @@ system.beforeEvents.startup.subscribe((e) => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player !== null) {
 				system.run(() => {
-					joinRoom(player, MinecraftDimensionTypes.Overworld);
+					joinRoomType(player, typeNames.hub);
 				});
 			}
 		},

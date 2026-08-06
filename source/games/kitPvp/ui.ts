@@ -2,8 +2,8 @@ import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { clearEntityInventory } from "../../entities/clearEntityInventory";
 import { giveKit, kits } from "../../kits/kitManager";
-import { KITPVP_DIMENSION_ID } from "../../rooms/dimensionIds";
-import { joinRoom } from "../../rooms/roomManager";
+import { joinRoomType } from "../../rooms/roomManager";
+import roomTypes from "../../roomTypeNames";
 
 export async function showKitsForm(player: Player): Promise<void> {
 	const form = new ActionFormData();
@@ -17,5 +17,5 @@ export async function showKitsForm(player: Player): Promise<void> {
 	}
 	clearEntityInventory(player);
 	giveKit(player, resp.selection);
-	joinRoom(player, KITPVP_DIMENSION_ID);
+	joinRoomType(player, roomTypes.kitPvp);
 }

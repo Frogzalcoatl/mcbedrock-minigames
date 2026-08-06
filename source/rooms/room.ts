@@ -11,7 +11,7 @@ import { loadStructure } from "../structures/load";
 import type { BlockInteractionManager } from "./modules/blockInteraction";
 import type { DeathMessageManager } from "./modules/deathMessages";
 import type { ProjectileTracker } from "./modules/projectileTracker";
-import { playerRoomTracker, rooms } from "./roomManager";
+import { getEntityRoom, playerRoomTracker } from "./roomManager";
 
 interface RoomStructure {
 	id: string;
@@ -31,11 +31,18 @@ export interface RoomConfig {
 	deathMessages?: DeathMessageManager;
 }
 
+export type RoomCreationFunc = (
+	roomIndex: number,
+	dimensionId: string,
+	displayName: string,
+) => Room;
+
 export class Room {
 	public readonly dimensionId: string;
 	public roomIndex: number;
 	public displayName: string;
 	private _dimension: Dimension | undefined;
+	private _playerCount: number;
 	private _spawn: Vector3;
 	private _onJoin: ((entity: Entity) => void) | undefined;
 	private _onLeave: ((entity: Entity) => void) | undefined;
@@ -48,6 +55,7 @@ export class Room {
 		this.dimensionId = config.dimensionId;
 		this.roomIndex = config.roomIndex;
 		this.displayName = config.displayName;
+		this._playerCount = 0;
 		this._spawn = config.spawn;
 		this._onJoin = config.onJoin;
 		this._onLeave = config.onLeave;
@@ -79,6 +87,10 @@ export class Room {
 		return this._dimension;
 	}
 
+	public get playerCount(): number {
+		return this._playerCount;
+	}
+
 	public registerDimension(dimensionRegistry: DimensionRegistry): void {
 		if (!this.dimensionId.startsWith("minecraft:")) {
 			dimensionRegistry.registerCustomDimension(this.dimensionId);
@@ -92,12 +104,9 @@ export class Room {
 		if (!entity.isValid || this._dimension === undefined) {
 			return;
 		}
-		const previousRoomIndex: number | undefined = playerRoomTracker.get(entity.id);
-		if (previousRoomIndex !== undefined) {
-			const previousRoom: Room | undefined = rooms[previousRoomIndex];
-			if (previousRoom) {
-				previousRoom.leave(entity);
-			}
+		const previousRoom: Room | null = getEntityRoom(entity);
+		if (previousRoom !== null) {
+			previousRoom.leave(entity);
 		}
 		entity.teleport(this._spawn, { dimension: this._dimension });
 		if (this._onJoin) {
@@ -105,6 +114,7 @@ export class Room {
 		}
 		if (entity instanceof Player) {
 			playerRoomTracker.set(entity.id, this.roomIndex);
+			this._playerCount++;
 		}
 	}
 
@@ -118,7 +128,10 @@ export class Room {
 		if (!(entity instanceof Player)) {
 			return;
 		}
-		playerRoomTracker.delete(entity.id);
+		if (entity instanceof Player) {
+			playerRoomTracker.delete(entity.id);
+			this._playerCount--;
+		}
 		if (this._projectileTracker !== null) {
 			this._projectileTracker.removePlayerProjectiles(entity);
 		}
@@ -138,6 +151,7 @@ export class Room {
 Dimension ID: §e${this.dimensionId}§r
 Room Index: §e${this.roomIndex}§r
 Display Name: §e${this.displayName}§r
+Player Count: §e${this._playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this._structures.length}§r
 Projectile Tracker: §e${this._projectileTracker !== null}§r

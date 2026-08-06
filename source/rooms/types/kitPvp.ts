@@ -3,10 +3,9 @@ import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-d
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
-import { KITPVP_DIMENSION_ID } from "../../rooms/dimensionIds";
-import { getDeathMessageManager } from "../../rooms/modules/deathMessages";
-import { getProjectileTracker } from "../../rooms/modules/projectileTracker";
-import { Room } from "../../rooms/room";
+import { getDeathMessageManager } from "../modules/deathMessages";
+import { getProjectileTracker } from "../modules/projectileTracker";
+import { Room } from "../room";
 
 export function getRoomKitPvp(
 	roomIndex: number,
@@ -28,10 +27,9 @@ export function getRoomKitPvp(
 				showParticles: false,
 			});
 		},
-		projectileTracker: getProjectileTracker(KITPVP_DIMENSION_ID, [
-			MinecraftEntityTypes.ThrownTrident,
-		]),
+		projectileTracker: getProjectileTracker(dimensionId, [MinecraftEntityTypes.ThrownTrident]),
 		roomIndex: roomIndex,
 		spawn: { x: 194.5, y: 9, z: 75.5 },
+		structures: [{ id: "kitPvpArena", pos: { x: 0, y: 0, z: 0 } }],
 	});
 }

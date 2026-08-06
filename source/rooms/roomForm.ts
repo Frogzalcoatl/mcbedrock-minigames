@@ -34,8 +34,8 @@ export async function showRoomNavForm(player: Player): Promise<void> {
 	}
 	const form = new ActionFormData();
 	form.title("§0Room Navigation");
-	for (const g of rooms) {
-		form.button(g.displayName);
+	for (const room of rooms) {
+		form.button(room.displayName);
 	}
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined || !player.isValid) {
