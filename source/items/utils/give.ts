@@ -1,6 +1,5 @@
 import type { Container, Dimension, ItemStack, Vector3 } from "@minecraft/server";
 
-// spawnOverflowItem = true: Spawn item as entity if container is full
 function addItem(
 	item: ItemStack,
 	container: Container,
@@ -19,6 +18,7 @@ function addItem(
 }
 
 // Properly stacks items to matching itemstack instances in container if applicable
+// spawnOverflowItem = true: Spawn item as entity if container is full
 export function giveItem(
 	item: ItemStack,
 	container: Container,

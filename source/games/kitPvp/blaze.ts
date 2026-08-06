@@ -1,16 +1,16 @@
 import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/container";
-import { itemBlazeFireball } from "../../../items/blazeFireballs";
-import { itemFireStick } from "../../../items/fireStick";
-import { setDurability } from "../../../items/utils/durability";
-import type { Kit } from "../kitManager";
+import { giveItemToEntity } from "../../entities/container";
+import { itemBlazeFireball } from "../../items/blazeFireballs";
+import { itemFireStick } from "../../items/fireStick";
+import { setDurability } from "../../items/utils/durability";
+import type { Kit } from "../../kits/kitManager";
 import {
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../utils";
+} from "../../kits/utils";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const fireballs: ItemStack = itemBlazeFireball();

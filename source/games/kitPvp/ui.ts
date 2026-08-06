@@ -1,9 +1,9 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { clearEntityInventory } from "../../entities/clearEntityInventory";
+import { giveKit, kits } from "../../kits/kitManager";
 import { KITPVP_DIMENSION_ID } from "../../rooms/dimensionIds";
 import { joinRoom } from "../../rooms/roomManager";
-import { giveKit, kits } from "./kitManager";
 
 export async function showKitsForm(player: Player): Promise<void> {
 	const form = new ActionFormData();

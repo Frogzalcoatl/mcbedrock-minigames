@@ -1,4 +1,4 @@
-import { ItemStack, world } from "@minecraft/server";
+import { ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemNameMatches } from "./utils/matches";
 
@@ -11,9 +11,11 @@ export function itemBlazeFireball(): ItemStack {
 	return item;
 }
 
-world.afterEvents.itemUse.subscribe((e) => {
-	if (!itemNameMatches(e.itemStack, typeId, nameTag)) {
-		return;
+export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {
+	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
+		event.source.dimension.spawnEntity(
+			MinecraftEntityTypes.SmallFireball,
+			event.source.location,
+		);
 	}
-	e.source.dimension.spawnEntity(MinecraftEntityTypes.SmallFireball, e.source.location);
-});
+}

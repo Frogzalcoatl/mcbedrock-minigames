@@ -1,4 +1,4 @@
-import { ItemLockMode, ItemStack, world } from "@minecraft/server";
+import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showKitsForm } from "../games/kitPvp/ui";
 import { itemNameMatches } from "./utils/matches";
@@ -13,8 +13,8 @@ export function itemKitSelect(): ItemStack {
 	return item;
 }
 
-world.afterEvents.itemUse.subscribe((e) => {
-	if (itemNameMatches(e.itemStack, typeId, nameTag)) {
-		showKitsForm(e.source);
+export function itemKitSelectRun(event: ItemUseAfterEvent): void {
+	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
+		showKitsForm(event.source);
 	}
-});
+}

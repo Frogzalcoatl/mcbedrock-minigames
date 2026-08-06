@@ -8,16 +8,16 @@ import {
 	type ItemStack,
 	world,
 } from "@minecraft/server";
-import { clearEntityInventory } from "../../entities/clearEntityInventory";
-import { getKitArcher } from "./kits/archer";
-import { getKitBlaze } from "./kits/blaze";
-import { getKitBreeze } from "./kits/breeze";
-import { getKitFisherman } from "./kits/fisherman";
-import { getKitLancer } from "./kits/lancer";
-import { getKitPoseidon } from "./kits/poseidon";
-import { getKitRabbit } from "./kits/rabbit";
-import { getKitSnowman } from "./kits/snowman";
+import { clearEntityInventory } from "../entities/clearEntityInventory";
 import "./entityDie";
+import { getKitArcher } from "../games/kitPvp/archer";
+import { getKitBlaze } from "../games/kitPvp/blaze";
+import { getKitBreeze } from "../games/kitPvp/breeze";
+import { getKitFisherman } from "../games/kitPvp/fisherman";
+import { getKitLancer } from "../games/kitPvp/lancer";
+import { getKitPoseidon } from "../games/kitPvp/poseidon";
+import { getKitRabbit } from "../games/kitPvp/rabbit";
+import { getKitSnowman } from "../games/kitPvp/snowman";
 
 type KitInventory = { item: ItemStack; slot: number }[];
 

@@ -1,13 +1,13 @@
 import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { setDurability } from "../../../items/utils/durability";
-import type { Kit } from "../kitManager";
+import { setDurability } from "../../items/utils/durability";
+import type { Kit } from "../../kits/kitManager";
 import {
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../utils";
+} from "../../kits/utils";
 
 export function getKitLancer(): Kit {
 	const kit: Kit = {

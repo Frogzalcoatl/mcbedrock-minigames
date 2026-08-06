@@ -1,14 +1,14 @@
 import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/container";
-import { setDurability } from "../../../items/utils/durability";
-import type { Kit } from "../kitManager";
+import { giveItemToEntity } from "../../entities/container";
+import { setDurability } from "../../items/utils/durability";
+import type { Kit } from "../../kits/kitManager";
 import {
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../utils";
+} from "../../kits/utils";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 4);

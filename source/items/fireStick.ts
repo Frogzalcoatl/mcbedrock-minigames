@@ -1,10 +1,4 @@
-import {
-	EntityComponentTypes,
-	type EntityEquippableComponent,
-	EquipmentSlot,
-	ItemStack,
-	world,
-} from "@minecraft/server";
+import { type Entity, ItemStack } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemNameMatches } from "./utils/matches";
 
@@ -17,19 +11,8 @@ export function itemFireStick(): ItemStack {
 	return item;
 }
 
-world.afterEvents.entityHitEntity.subscribe((e) => {
-	const equippable: EntityEquippableComponent | undefined = e.damagingEntity.getComponent(
-		EntityComponentTypes.Equippable,
-	);
-	if (equippable === undefined) {
-		return;
+export function itemFireStickRun(mainhandItem: ItemStack, hitEntity: Entity): void {
+	if (hitEntity.isValid && itemNameMatches(mainhandItem, typeId, nameTag)) {
+		hitEntity.setOnFire(5);
 	}
-	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
-	if (mainhandItem === undefined) {
-		return;
-	}
-	if (!itemNameMatches(mainhandItem, typeId, nameTag)) {
-		return;
-	}
-	e.hitEntity.setOnFire(5);
-});
+}
