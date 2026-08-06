@@ -1,9 +1,9 @@
 import { GameMode, type Player } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
-import { clearEntityInventory } from "../../entities/clearEntityInventory";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
+import { clearEntityInventory } from "../../entities/inventory";
 import { giveKit } from "../../kits/kitManager";
 import { getDeathMessageManager } from "../../rooms/modules/deathMessages";
 import { getProjectileTracker } from "../../rooms/modules/projectileTracker";

@@ -1,6 +1,6 @@
 import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/container";
+import { giveItemToEntity } from "../../../entities/inventory";
 import { itemBlazeFireball } from "../../../items/blazeFireballs";
 import { itemFireStick } from "../../../items/fireStick";
 import { setDurability } from "../../../items/utils/durability";

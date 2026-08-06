@@ -8,8 +8,8 @@ import {
 	type ItemStack,
 	world,
 } from "@minecraft/server";
-import { clearEntityInventory } from "../entities/clearEntityInventory";
 import "./entityDie";
+import { clearEntityInventory } from "../entities/inventory";
 import { getKitArcher } from "../games/kitPvp/kits/archer";
 import { getKitBlaze } from "../games/kitPvp/kits/blaze";
 import { getKitBreeze } from "../games/kitPvp/kits/breeze";
