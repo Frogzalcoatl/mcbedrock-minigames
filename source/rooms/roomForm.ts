@@ -8,7 +8,7 @@ export async function showRoomNavForm(player: Player): Promise<void> {
 		return;
 	}
 	const form: ActionFormData = new ActionFormData();
-	form.title("Room Navigation");
+	form.title("§0Room Navigation");
 	for (const g of rooms) {
 		form.button(g.displayName);
 	}

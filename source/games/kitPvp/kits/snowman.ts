@@ -1,5 +1,6 @@
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
 import {
@@ -10,6 +11,12 @@ import {
 } from "../utils";
 
 const ICE_BOMB_ID: string = "minecraft:ice_bomb";
+
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 2);
+	snowballs.lockMode = ItemLockMode.inventory;
+	giveItemToEntity(snowballs, kitUser, false);
+}
 
 export function getKitSnowman(): Kit {
 	const kit: Kit = {
@@ -26,13 +33,13 @@ export function getKitSnowman(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const ironSword = new ItemStack(MinecraftItemTypes.IronSword);
 	setDurability(ironSword, "unbreakable");
-	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 16);
 	const iceBomb = new ItemStack(ICE_BOMB_ID, 2);
 	kit.inventory = [
 		{ item: ironSword, slot: 0 },
-		{ item: snowballs, slot: 1 },
+		{ item: new ItemStack(MinecraftItemTypes.Snowball, 16), slot: 1 },
 		{ item: iceBomb, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }

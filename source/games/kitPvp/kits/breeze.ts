@@ -1,5 +1,6 @@
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
 import {
@@ -8,6 +9,12 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../utils";
+
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 2);
+	windCharges.lockMode = ItemLockMode.inventory;
+	giveItemToEntity(windCharges, kitUser, false);
+}
 
 export function getKitBreeze(): Kit {
 	const kit: Kit = {
@@ -24,15 +31,14 @@ export function getKitBreeze(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const mace = new ItemStack(MinecraftItemTypes.Mace);
 	setDurability(mace, "unbreakable");
-	const windCharge = new ItemStack(MinecraftItemTypes.WindCharge, 8);
-	windCharge.nameTag = "§rWind Charge (+1 on Kill)";
 	const breezeLeap = new ItemStack(MinecraftItemTypes.BreezeRod);
 	breezeLeap.nameTag = "§rBreeze Leap";
 	kit.inventory = [
 		{ item: mace, slot: 0 },
-		{ item: windCharge, slot: 1 },
+		{ item: new ItemStack(MinecraftItemTypes.WindCharge, 8), slot: 1 },
 		{ item: breezeLeap, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }

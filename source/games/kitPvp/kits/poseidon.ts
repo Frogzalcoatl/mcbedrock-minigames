@@ -1,5 +1,6 @@
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../kitManager";
@@ -9,6 +10,13 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../utils";
+
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
+	effectBuff.lockMode = ItemLockMode.inventory;
+	effectBuff.nameTag = "§rEffect Buff";
+	giveItemToEntity(effectBuff, kitUser, false);
+}
 
 export function getKitPoseidon(): Kit {
 	const kit: Kit = {
@@ -27,7 +35,7 @@ export function getKitPoseidon(): Kit {
 	applyEnchant(trident, MinecraftEnchantmentTypes.Loyalty, 3);
 	setDurability(trident, "unbreakable");
 	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
-	effectBuff.nameTag = "§rEffect Buff (+1 on Kill)";
+	effectBuff.nameTag = "§rEffect Buff";
 	const lightning = new ItemStack(MinecraftItemTypes.EndRod);
 	lightning.nameTag = "§rLightning";
 	kit.inventory = [
@@ -36,5 +44,6 @@ export function getKitPoseidon(): Kit {
 		{ item: lightning, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }

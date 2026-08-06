@@ -1,5 +1,6 @@
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
 import {
@@ -8,6 +9,13 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../utils";
+
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const speedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
+	speedBuff.lockMode = ItemLockMode.inventory;
+	speedBuff.nameTag = "§rSpeed Buff";
+	giveItemToEntity(speedBuff, kitUser, false);
+}
 
 export function getKitRabbit(): Kit {
 	const kit: Kit = {
@@ -26,13 +34,14 @@ export function getKitRabbit(): Kit {
 	setDurability(diamondAxe, "unbreakable");
 	const leap = new ItemStack(MinecraftItemTypes.RabbitFoot);
 	leap.nameTag = "§rLeap";
-	const sppedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
-	sppedBuff.nameTag = "§rSpeed Buff";
+	const speedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
+	speedBuff.nameTag = "§rSpeed Buff";
 	kit.inventory = [
 		{ item: diamondAxe, slot: 0 },
 		{ item: leap, slot: 1 },
-		{ item: sppedBuff, slot: 2 },
+		{ item: speedBuff, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }

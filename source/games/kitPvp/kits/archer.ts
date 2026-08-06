@@ -1,16 +1,8 @@
-import {
-	type DimensionLocation,
-	EntityComponentTypes,
-	type EntityInventoryComponent,
-	ItemLockMode,
-	ItemStack,
-	type Vector3,
-	world,
-} from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
 import { setDurability } from "../../../items/utils/durability";
-import { giveItem } from "../../../items/utils/give";
-import { getEntityKit, type Kit } from "../kitManager";
+import type { Kit } from "../kitManager";
 import {
 	kitArmorDurability,
 	kitArmorEnchant,
@@ -18,8 +10,11 @@ import {
 	kitInventoryLockMode,
 } from "../utils";
 
-const kitName: string = "Archer";
-const arrowsOnKill: number = 4;
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 4);
+	arrows.lockMode = ItemLockMode.inventory;
+	giveItemToEntity(arrows, kitUser, false);
+}
 
 export function getKitArcher(): Kit {
 	const kit: Kit = {
@@ -29,7 +24,7 @@ export function getKitArcher(): Kit {
 		icon: "textures/items/bow_standby.png",
 		inventory: [],
 		leggings: new ItemStack(MinecraftItemTypes.ChainmailLeggings),
-		name: kitName,
+		name: "Archer",
 	};
 	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
 	kitArmorDurability(kit, "unbreakable");
@@ -45,30 +40,6 @@ export function getKitArcher(): Kit {
 		{ item: arrows, slot: 8 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }
-
-world.afterEvents.entityDie.subscribe((e) => {
-	if (e.damageSource.damagingEntity === undefined || !e.damageSource.damagingEntity.isValid) {
-		return;
-	}
-	const killerKit: Kit | null = getEntityKit(e.damageSource.damagingEntity);
-	if (killerKit === null || killerKit.name !== kitName) {
-		return;
-	}
-	const inventory: EntityInventoryComponent | undefined =
-		e.damageSource.damagingEntity.getComponent(EntityComponentTypes.Inventory);
-	if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
-		return;
-	}
-	const arrows = new ItemStack(MinecraftItemTypes.Arrow, arrowsOnKill);
-	arrows.lockMode = ItemLockMode.inventory;
-	const v: Vector3 = e.damageSource.damagingEntity.location;
-	const location: DimensionLocation = {
-		dimension: e.damageSource.damagingEntity.dimension,
-		x: v.x,
-		y: v.y,
-		z: v.z,
-	};
-	giveItem(arrows, inventory.container, location, false);
-});

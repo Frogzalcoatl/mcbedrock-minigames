@@ -17,6 +17,7 @@ import { getKitLancer } from "./kits/lancer";
 import { getKitPoseidon } from "./kits/poseidon";
 import { getKitRabbit } from "./kits/rabbit";
 import { getKitSnowman } from "./kits/snowman";
+import "./entityDie";
 
 type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -29,6 +30,8 @@ export interface Kit {
 	leggings?: ItemStack;
 	boots?: ItemStack;
 	offhand?: ItemStack;
+	onDeath?: (kitUser: Entity, killer?: Entity) => void;
+	onKill?: (kitUser: Entity, dead: Entity) => void;
 }
 
 export const kits: Kit[] = [];
@@ -100,7 +103,7 @@ export function clearKit(entity: Entity): void {
 }
 
 // -1 on undefined
-function getEntityKitIndex(entity: Entity): number {
+export function getEntityKitIndex(entity: Entity): number {
 	return entityKits.get(entity.id) ?? -1;
 }
 

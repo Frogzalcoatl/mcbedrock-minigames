@@ -1,15 +1,16 @@
-import type { Container, DimensionLocation, ItemStack } from "@minecraft/server";
+import type { Container, Dimension, ItemStack, Vector3 } from "@minecraft/server";
 
 // spawnOverflowItem = true: Spawn item as entity if container is full
 function addItem(
 	item: ItemStack,
 	container: Container,
-	containerLocation: DimensionLocation,
+	containerLocation: Vector3,
+	containerDimension: Dimension,
 	spawnOverflowItems: boolean,
 ): void {
 	const leftoverItem: ItemStack | undefined = container.addItem(item);
 	if (spawnOverflowItems && leftoverItem !== undefined) {
-		containerLocation.dimension.spawnItem(leftoverItem, {
+		containerDimension.spawnItem(leftoverItem, {
 			x: containerLocation.x,
 			y: containerLocation.y,
 			z: containerLocation.z,
@@ -21,7 +22,8 @@ function addItem(
 export function giveItem(
 	item: ItemStack,
 	container: Container,
-	containerLocation: DimensionLocation,
+	containerLocation: Vector3,
+	containerDimension: Dimension,
 	spawnOverflowItems: boolean = true,
 ): void {
 	if (!container.isValid) {
@@ -29,12 +31,12 @@ export function giveItem(
 	}
 	const existingIndex: number | undefined = container.find(item);
 	if (!existingIndex) {
-		addItem(item, container, containerLocation, spawnOverflowItems);
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
 		return;
 	}
 	const existingItem: ItemStack | undefined = container.getItem(existingIndex);
 	if (existingItem === undefined) {
-		addItem(item, container, containerLocation, spawnOverflowItems);
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
 		return;
 	}
 	const newItemAmount: number = existingItem.amount + item.amount;
@@ -45,6 +47,6 @@ export function giveItem(
 		existingItem.amount = existingItem.maxAmount;
 		container.setItem(existingIndex, existingItem);
 		existingItem.amount = newItemAmount - existingItem.maxAmount;
-		addItem(item, container, containerLocation, spawnOverflowItems);
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
 	}
 }

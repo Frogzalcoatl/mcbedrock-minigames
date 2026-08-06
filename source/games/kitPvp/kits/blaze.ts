@@ -1,5 +1,7 @@
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { giveItemToEntity } from "../../../entities/container";
+import { itemBlazeFireball } from "../../../items/blazeFireballs";
 import { itemFireStick } from "../../../items/fireStick";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../kitManager";
@@ -9,6 +11,13 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../utils";
+
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const fireballs: ItemStack = itemBlazeFireball();
+	fireballs.lockMode = ItemLockMode.inventory;
+	fireballs.amount = 2;
+	giveItemToEntity(fireballs, kitUser, false);
+}
 
 export function getKitBlaze(): Kit {
 	const kit: Kit = {
@@ -25,14 +34,15 @@ export function getKitBlaze(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const goldenSword = new ItemStack(MinecraftItemTypes.GoldenSword);
 	setDurability(goldenSword, "unbreakable");
-	const blazeFireballs = new ItemStack(MinecraftItemTypes.FireCharge);
-	blazeFireballs.nameTag = "§rFireball (+2 on Kill)";
+	const fireballs: ItemStack = itemBlazeFireball();
+	fireballs.amount = 4;
 	const fireStick = itemFireStick();
 	kit.inventory = [
 		{ item: goldenSword, slot: 0 },
-		{ item: blazeFireballs, slot: 1 },
+		{ item: fireballs, slot: 1 },
 		{ item: fireStick, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
+	kit.onKill = onKill;
 	return kit;
 }
