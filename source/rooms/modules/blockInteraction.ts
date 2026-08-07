@@ -1,32 +1,49 @@
-import { GameMode, type PlayerInteractWithBlockBeforeEvent } from "@minecraft/server";
+import {
+	type PlayerInteractWithBlockAfterEvent,
+	type PlayerInteractWithBlockBeforeEvent,
+	world,
+} from "@minecraft/server";
 
 export interface BlockInteractionManager {
 	dimensionId: string;
-	interactableTypeIds: string[] | null;
-	excludeGameModes: GameMode[];
-	playerInteractWithBlock: (event: PlayerInteractWithBlockBeforeEvent) => void;
+	beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | undefined; // dimensionId is checked before running (see below)
+	afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined; // dimensionId is checked before running (see below)
+	init: () => void;
 }
 
 export function getBlockInteractionManager(
 	dimensionId: string,
-	interactableTypeIds: string[] | null,
-	excludeGameModes: GameMode[] = [GameMode.Creative],
+	beforeEvent?: (event: PlayerInteractWithBlockBeforeEvent) => void,
+	afterEvent?: (event: PlayerInteractWithBlockAfterEvent) => void,
 ): BlockInteractionManager {
 	const manager: BlockInteractionManager = {
+		afterEvent: undefined,
+		beforeEvent: undefined,
 		dimensionId: dimensionId,
-		excludeGameModes: excludeGameModes,
-		interactableTypeIds: interactableTypeIds ?? [],
-		playerInteractWithBlock: (event: PlayerInteractWithBlockBeforeEvent): void => {
-			if (
-				!event.player.isValid ||
-				event.player.dimension.id !== manager.dimensionId ||
-				interactableTypeIds?.includes(event.block.typeId) ||
-				manager.excludeGameModes.includes(event.player.getGameMode())
-			) {
-				return;
+		init: (): void => {
+			if (manager.beforeEvent !== undefined) {
+				world.beforeEvents.playerInteractWithBlock.subscribe(manager.beforeEvent);
 			}
-			event.cancel = true;
+			if (manager.afterEvent !== undefined) {
+				world.afterEvents.playerInteractWithBlock.subscribe(manager.afterEvent);
+			}
 		},
 	};
+	if (beforeEvent !== undefined) {
+		manager.beforeEvent = (event: PlayerInteractWithBlockBeforeEvent): void => {
+			if (event.player.dimension.id !== manager.dimensionId) {
+				return;
+			}
+			beforeEvent(event);
+		};
+	}
+	if (afterEvent !== undefined) {
+		manager.afterEvent = (event: PlayerInteractWithBlockAfterEvent): void => {
+			if (event.player.dimension.id !== manager.dimensionId) {
+				return;
+			}
+			afterEvent(event);
+		};
+	}
 	return manager;
 }

@@ -15,6 +15,7 @@ export interface ProjectileTracker {
 	entitySpawnCallback: (event: EntitySpawnAfterEvent) => void;
 	entityRemoveCallback: (event: EntityRemoveAfterEvent) => void;
 	removePlayerProjectiles: (player: Player) => void;
+	init: () => void;
 }
 
 export function getProjectileTracker(
@@ -48,6 +49,10 @@ export function getProjectileTracker(
 			if (projectile?.owner && projectile.owner instanceof Player) {
 				tracker.projectileMap.set(event.entity.id, projectile.owner.id);
 			}
+		},
+		init: (): void => {
+			world.afterEvents.entityRemove.subscribe(tracker.entityRemoveCallback);
+			world.afterEvents.entitySpawn.subscribe(tracker.entitySpawnCallback);
 		},
 		projectileMap: new Map<string, string>(),
 		projectileTypeIds: projectileTypeIds,

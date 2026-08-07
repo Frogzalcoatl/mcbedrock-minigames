@@ -1,5 +1,5 @@
 import { system, world } from "@minecraft/server";
-import type { Room, RoomCreationFunc } from "../room";
+import type { Room, RoomCreationFunc } from "./room";
 
 export interface RoomType {
 	displayName: string;
@@ -41,7 +41,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 				config.roomTypeIndex,
 				0,
 				config.defaultDimensionId,
-				`${config.displayName}`,
+				`${config.displayName} 1`,
 				config.icon ?? "",
 			),
 		);
@@ -52,7 +52,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 					config.roomTypeIndex,
 					i,
 					`${config.defaultDimensionId}-${i + 1}`,
-					`${type.displayName}${i > 0 ? ` ${i + 1}` : ""}`,
+					`${type.displayName} ${i + 1}`,
 					config.icon ?? "",
 				),
 			);

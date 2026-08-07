@@ -24,7 +24,20 @@ Make sure to import json files in **source/structures/data.ts**. Add a matching 
 Offsets are stored as type: `[string, number, number, number][]` (`[structureId, relX, relY, relZ][]`)
 
 ## Rooms
-Each room has its own custom dimension. Custom dimensions can only be registered on startup, and cannot be cleared on world reload. The room class also contains optional modules that can be enabled in the constructor such as custom death messages.
+Each room has its own custom dimension. Custom dimensions can only be registered on startup, and cannot be cleared on world reload. The room class also contains optional modules that can be enabled in the constructor such as custom death messages. I'll list modules below:
+
+Implemented:
+- Block Interaction Manager
+	- Just stores a callback for the PlayerInteractWithBlockBeforeEvent and PlayerInteractWithBlockAfterEvent.
+
+- Death Message Manager
+	- Sends string formatted by callback to players in room.
+
+- Projectile Tracker
+	- Specifically being used to kill loyalty tridents in kit pvp when a player leaves, but probably has other use cases too
+
+Planned:
+- Something to manage teams for a game like bedwars
 
 ## Room Types
 Create any number of room instances with the same properties (excluding the dimension id and displayName, which will have a number appended).

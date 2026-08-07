@@ -77,22 +77,19 @@ export class Room {
 			this._projectileTracker = null;
 		} else {
 			this._projectileTracker = config.projectileTracker;
-			world.afterEvents.entityRemove.subscribe(this._projectileTracker.entityRemoveCallback);
-			world.afterEvents.entitySpawn.subscribe(this._projectileTracker.entitySpawnCallback);
+			this._projectileTracker.init();
 		}
 		if (config.blockInteraction === undefined) {
 			this._blockInteraction = null;
 		} else {
 			this._blockInteraction = config.blockInteraction;
-			world.beforeEvents.playerInteractWithBlock.subscribe(
-				this._blockInteraction.playerInteractWithBlock,
-			);
+			this._blockInteraction.init();
 		}
 		if (config.deathMessages === undefined) {
 			this._deathMessages = null;
 		} else {
 			this._deathMessages = config.deathMessages;
-			world.afterEvents.entityDie.subscribe(this._deathMessages.entityDie);
+			this._deathMessages.init();
 		}
 	}
 

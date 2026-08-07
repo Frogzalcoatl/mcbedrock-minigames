@@ -2,9 +2,11 @@ import { type Entity, type EntityDieAfterEvent, Player, world } from "@minecraft
 import { playerRoomTracker } from "../roomManager";
 
 export interface DeathMessageManager {
+	roomTypeIndex: number;
 	roomIndex: number;
 	formatDeath: (deadName: string, killerName: string | undefined) => string;
 	entityDie: (event: EntityDieAfterEvent) => void;
+	init: () => void;
 }
 
 function defaultFormatDeath(deadName: string, killerName: string | undefined): string {
@@ -16,6 +18,7 @@ function defaultFormatDeath(deadName: string, killerName: string | undefined): s
 }
 
 export function getDeathMessageManager(
+	roomTypeIndex: number,
 	roomIndex: number,
 	formatDeath: (deadName: string, killerName: string | undefined) => string = defaultFormatDeath,
 ): DeathMessageManager {
@@ -29,8 +32,11 @@ export function getDeathMessageManager(
 				event.damageSource.damagingEntity?.nameTag ??
 					event.damageSource.damagingEntity?.typeId,
 			);
-			for (const [playerId, playerRoomIndex] of playerRoomTracker) {
-				if (playerRoomIndex !== roomIndex) {
+			for (const [playerId, [playerRoomTypeIndex, playerRoomIndex]] of playerRoomTracker) {
+				if (
+					playerRoomTypeIndex !== manager.roomTypeIndex ||
+					playerRoomIndex !== manager.roomIndex
+				) {
 					continue;
 				}
 				const player: Entity | undefined = world.getEntity(playerId);
@@ -41,7 +47,11 @@ export function getDeathMessageManager(
 			}
 		},
 		formatDeath: formatDeath,
+		init: (): void => {
+			world.afterEvents.entityDie.subscribe(manager.entityDie);
+		},
 		roomIndex: roomIndex,
+		roomTypeIndex: roomTypeIndex,
 	};
 	return manager;
 }

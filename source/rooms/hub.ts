@@ -3,6 +3,8 @@ import {
 	type EntityInventoryComponent,
 	GameMode,
 	type Player,
+	type PlayerInteractWithBlockBeforeEvent,
+	PlayerPermissionLevel,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../constants";
@@ -21,7 +23,18 @@ export function getRoomHub(
 	icon: string,
 ): Room {
 	return new Room({
-		blockInteraction: getBlockInteractionManager(dimensionId, null),
+		blockInteraction: getBlockInteractionManager(
+			dimensionId,
+			(event: PlayerInteractWithBlockBeforeEvent): void => {
+				if (
+					event.player.playerPermissionLevel === PlayerPermissionLevel.Operator &&
+					event.player.getGameMode() === GameMode.Creative
+				) {
+					return;
+				}
+				event.cancel = true;
+			},
+		),
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,

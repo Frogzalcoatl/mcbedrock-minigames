@@ -34,7 +34,7 @@ export function getRoomKitPvp(
 			giveKit(player, kitIndex);
 			return Promise.resolve(true);
 		},
-		deathMessages: getDeathMessageManager(roomIndex),
+		deathMessages: getDeathMessageManager(roomTypeIndex, roomIndex),
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,
