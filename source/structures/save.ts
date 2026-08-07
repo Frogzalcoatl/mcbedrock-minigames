@@ -22,8 +22,8 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 		structureBlockId = `${STRUCTURE_NAMESPACE}:structureBlock`;
 		structureBlockY = from.y - 1;
 	}
-	for (let x: number = from.x - 1; x < to.x - 1; x += 64) {
-		for (let z: number = from.z - 1; z < to.z - 1; z += 64) {
+	for (let x: number = from.x - 1; x <= to.x - 1; x += 64) {
+		for (let z: number = from.z - 1; z <= to.z - 1; z += 64) {
 			const location: Vector3 = {
 				x: x,
 				y: structureBlockY,

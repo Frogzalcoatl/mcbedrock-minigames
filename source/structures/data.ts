@@ -1,6 +1,7 @@
 import type { Vector3 } from "@minecraft/server";
 import { STRUCTURE_NAMESPACE } from "../constants";
 import rawGhostlyMangrove from "./json/ghostlyMangrove.json" with { type: "json" };
+import rawGhostlyMangroveNoChests from "./json/ghostlyMangroveNoChests.json";
 import rawGhostlySpawn from "./json/ghostlySpawn.json" with { type: "json" };
 import rawKitPvpArena from "./json/kitPvpArena.json" with { type: "json" };
 
@@ -9,6 +10,7 @@ type StructureSchema = JsonStructureEntry[];
 
 const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
 const ghostlyMangrove = rawGhostlyMangrove as unknown as StructureSchema;
+const ghostlyMangroveNoChests = rawGhostlyMangroveNoChests as unknown as StructureSchema;
 const kitPvpArena = rawKitPvpArena as unknown as StructureSchema;
 
 export type StructureInfo = {
@@ -19,6 +21,7 @@ export type StructureInfo = {
 export const structureIds: string[] = [
 	"ghostlyCrates",
 	"ghostlyMangrove",
+	"ghostlyMangroveNoChests",
 	"ghostlySpawn",
 	"kitPvpArena",
 	"ghostlyTree",
@@ -42,6 +45,8 @@ export function getStructureInfoArr(name: string): StructureInfo[] {
 			return schemaToStructureInfoArr(ghostlySpawn);
 		case "ghostlyMangrove":
 			return schemaToStructureInfoArr(ghostlyMangrove);
+		case "ghostlyMangroveNoChests":
+			return schemaToStructureInfoArr(ghostlyMangroveNoChests);
 		case "kitPvpArena":
 			return schemaToStructureInfoArr(kitPvpArena);
 		default:
