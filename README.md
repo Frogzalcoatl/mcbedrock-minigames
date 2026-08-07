@@ -44,7 +44,7 @@ Each room has its own custom dimension. Custom dimensions can only be registered
 - Something to manage teams for a game like bedwars
 
 ## Room Types
-Create any number of room instances with the same properties (excluding the dimension id and displayName, which will have a number appended).
+Create any number of room instances with the same properties and modules (The dimension id and displayName will have a number appended).
 
 ## Games
 We plan to mainly include games inspired by popular servers such as Kit Pvp, Skywars, and The Bridge. Perhaps we can come up with some new ideas later on as well. I'll start a list of games im interested in adding below. Just because they are here does not guarantee we'll actually add them.

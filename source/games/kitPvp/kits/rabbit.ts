@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
@@ -10,7 +10,7 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Entity, _dead: Entity): void {
+function onKill(kitUser: Player, _dead: Entity): void {
 	const speedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
 	speedBuff.lockMode = ItemLockMode.inventory;
 	speedBuff.nameTag = "§rSpeed Buff";

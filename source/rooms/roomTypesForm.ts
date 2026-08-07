@@ -4,7 +4,7 @@ import type { Room } from "./room";
 import { roomTypes } from "./roomManager";
 import type { RoomType } from "./roomType";
 
-export async function showRoomTypeRoomSelectForm(
+export async function showRoomTypesRoomSelectForm(
 	player: Player,
 	selectedType: RoomType,
 	formOnCancel: boolean,
@@ -29,7 +29,7 @@ export async function showRoomTypeRoomSelectForm(
 	const resp: ActionFormResponse = await form.show(player);
 	if (resp.selection === undefined) {
 		if (formOnCancel) {
-			showRoomTypeForm(player);
+			showRoomTypesForm(player);
 		}
 		return;
 	}
@@ -41,7 +41,7 @@ export async function showRoomTypeRoomSelectForm(
 	selectedRoom.join(player);
 }
 
-export async function showRoomTypeForm(player: Player): Promise<void> {
+export async function showRoomTypesForm(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Teleporter");
 	for (const type of roomTypes) {
@@ -55,5 +55,5 @@ export async function showRoomTypeForm(player: Player): Promise<void> {
 	if (selectedType === undefined) {
 		return;
 	}
-	showRoomTypeRoomSelectForm(player, selectedType, true);
+	showRoomTypesRoomSelectForm(player, selectedType, true);
 }

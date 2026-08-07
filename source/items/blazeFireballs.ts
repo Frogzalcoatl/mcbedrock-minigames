@@ -1,4 +1,4 @@
-import { ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
+import { ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemNameMatches } from "./utils/matches";
 
@@ -11,11 +11,10 @@ export function itemBlazeFireball(): ItemStack {
 	return item;
 }
 
-export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {
-	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
-		event.source.dimension.spawnEntity(
-			MinecraftEntityTypes.SmallFireball,
-			event.source.location,
-		);
-	}
+export function isItemBlazeFireball(item: ItemStack): boolean {
+	return itemNameMatches(item, typeId, nameTag);
+}
+
+export function itemBlazeFireballRun(source: Player): void {
+	source.dimension.spawnEntity(MinecraftEntityTypes.SmallFireball, source.location);
 }

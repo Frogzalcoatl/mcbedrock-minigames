@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
@@ -10,12 +10,22 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../kits/utils";
+import type { Room } from "../../../rooms/room";
+import { getPlayerRoom } from "../../../rooms/roomManager";
 
-function onKill(kitUser: Entity, _dead: Entity): void {
+function onKill(kitUser: Player, _dead: Entity): void {
 	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
 	effectBuff.lockMode = ItemLockMode.inventory;
 	effectBuff.nameTag = "§rEffect Buff";
 	giveItemToEntity(effectBuff, kitUser, false);
+}
+
+function onDeath(kitUser: Player, _killer?: Entity): void {
+	const room: Room | null = getPlayerRoom(kitUser);
+	if (room === null) {
+		return;
+	}
+	room.removePlayerProjectiles(kitUser);
 }
 
 export function getKitPoseidon(): Kit {
@@ -45,5 +55,6 @@ export function getKitPoseidon(): Kit {
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
 	kit.onKill = onKill;
+	kit.onDeath = onDeath;
 	return kit;
 }

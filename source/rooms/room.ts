@@ -2,14 +2,16 @@ import {
 	type Dimension,
 	type DimensionRegistry,
 	type Player,
+	type PlayerInteractWithBlockAfterEvent,
+	type PlayerInteractWithBlockBeforeEvent,
 	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
 import { loadStructure } from "../structures/load";
-import type { BlockInteractionManager } from "./modules/blockInteraction";
-import type { DeathMessageManager } from "./modules/deathMessages";
-import type { ProjectileTracker } from "./modules/projectileTracker";
+import { initBlockInteractionManager } from "./modules/blockInteraction";
+import { type DeathMessageFunc, initDeathMessages } from "./modules/deathMessages";
+import { getProjectileTracker, type ProjectileTracker } from "./modules/projectileTracker";
 import { getPlayerRoom, playerRoomTracker } from "./roomManager";
 
 interface RoomStructure {
@@ -29,9 +31,12 @@ export interface RoomConfig {
 	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	onLeave?: (player: Player) => void;
 	structures?: RoomStructure[];
-	projectileTracker?: ProjectileTracker;
-	blockInteraction?: BlockInteractionManager;
-	deathMessages?: DeathMessageManager;
+	projectileTrackerTypeIds?: string[];
+	blockInteraction?: {
+		beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | "default" | undefined; // dimensionId is already checked before running
+		afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined; // dimensionId is already checked before running
+	};
+	deathMessages?: DeathMessageFunc;
 }
 
 export type RoomCreationFunc = (
@@ -56,9 +61,10 @@ export class Room {
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | undefined;
 	private _onLeave: ((player: Player) => void) | undefined;
 	private _structures: RoomStructure[];
+	// Modules:
 	private _projectileTracker: ProjectileTracker | null;
-	private _blockInteraction: BlockInteractionManager | null;
-	private _deathMessages: DeathMessageManager | null;
+	public readonly blockInteraction: boolean;
+	public readonly deathMessagesEnabled: boolean;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -73,23 +79,29 @@ export class Room {
 		this._beforeLeave = config.beforeLeave;
 		this._onLeave = config.onLeave;
 		this._structures = config.structures ?? [];
-		if (config.projectileTracker === undefined) {
+		if (config.projectileTrackerTypeIds === undefined) {
 			this._projectileTracker = null;
 		} else {
-			this._projectileTracker = config.projectileTracker;
-			this._projectileTracker.init();
+			this._projectileTracker = getProjectileTracker(
+				this.dimensionId,
+				config.projectileTrackerTypeIds,
+			);
 		}
 		if (config.blockInteraction === undefined) {
-			this._blockInteraction = null;
+			this.blockInteraction = false;
 		} else {
-			this._blockInteraction = config.blockInteraction;
-			this._blockInteraction.init();
+			initBlockInteractionManager(
+				this.dimensionId,
+				config.blockInteraction.beforeEvent,
+				config.blockInteraction.afterEvent,
+			);
+			this.blockInteraction = true;
 		}
 		if (config.deathMessages === undefined) {
-			this._deathMessages = null;
+			this.deathMessagesEnabled = false;
 		} else {
-			this._deathMessages = config.deathMessages;
-			this._deathMessages.init();
+			initDeathMessages(this.roomTypeIndex, this.roomIndex, config.deathMessages);
+			this.deathMessagesEnabled = true;
 		}
 	}
 
@@ -180,8 +192,16 @@ Player Count: §e${this._playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this._structures.length}§r
 Projectile Tracker: §e${this._projectileTracker !== null}§r
-Block Interaction Manager: §e${this._blockInteraction !== null}§r
-Death Message Manager: §e${this._deathMessages !== null}§r
+Block Interaction Manager: §e${this.blockInteraction}§r
+Death Messages: §e${this.deathMessagesEnabled}§r
 `.trim();
+	}
+
+	// Modules:
+	public removePlayerProjectiles(player: Player): void {
+		if (this._projectileTracker === null) {
+			return;
+		}
+		this._projectileTracker.removePlayerProjectiles(player);
 	}
 }

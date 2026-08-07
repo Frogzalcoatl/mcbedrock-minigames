@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
@@ -12,7 +12,7 @@ import {
 
 const ICE_BOMB_ID: string = "minecraft:ice_bomb";
 
-function onKill(kitUser: Entity, _dead: Entity): void {
+function onKill(kitUser: Player, _dead: Entity): void {
 	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 2);
 	snowballs.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(snowballs, kitUser, false);

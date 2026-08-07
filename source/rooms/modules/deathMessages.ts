@@ -1,57 +1,47 @@
 import { type Entity, type EntityDieAfterEvent, Player, world } from "@minecraft/server";
 import { playerRoomTracker } from "../roomManager";
 
-export interface DeathMessageManager {
-	roomTypeIndex: number;
-	roomIndex: number;
-	formatDeath: (deadName: string, killerName: string | undefined) => string;
-	entityDie: (event: EntityDieAfterEvent) => void;
-	init: () => void;
-}
+export type DeathMessageFunc = ((event: EntityDieAfterEvent) => string | null) | "default";
 
-function defaultFormatDeath(deadName: string, killerName: string | undefined): string {
-	if (killerName === undefined) {
-		return `${deadName} died`;
+function defaultFormatDeathMessage(event: EntityDieAfterEvent): string | null {
+	if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
+		return null;
+	}
+	const deadPlayer: Player = event.deadEntity;
+	if (
+		event.damageSource.damagingEntity === undefined ||
+		!event.damageSource.damagingEntity.isValid
+	) {
+		return `${deadPlayer.name} died`;
 	} else {
-		return `${killerName} killed ${deadName}`;
+		const killer: Entity = event.damageSource.damagingEntity;
+		const killerName: string = killer instanceof Player ? killer.name : killer.typeId;
+		return `${killerName} killed ${deadPlayer.name}`;
 	}
 }
 
-export function getDeathMessageManager(
+export function initDeathMessages(
 	roomTypeIndex: number,
 	roomIndex: number,
-	formatDeath: (deadName: string, killerName: string | undefined) => string = defaultFormatDeath,
-): DeathMessageManager {
-	const manager: DeathMessageManager = {
-		entityDie: (event: EntityDieAfterEvent) => {
-			if (event.deadEntity instanceof Player === false) {
-				return;
+	deathMessageFunc: DeathMessageFunc,
+): void {
+	const formatDeathMessage =
+		deathMessageFunc === "default" ? defaultFormatDeathMessage : deathMessageFunc;
+	function entityDie(event: EntityDieAfterEvent): void {
+		const message: string | null = formatDeathMessage(event);
+		if (message === null) {
+			return;
+		}
+		for (const [playerId, [playerRoomTypeIndex, playerRoomIndex]] of playerRoomTracker) {
+			if (playerRoomTypeIndex !== roomTypeIndex || playerRoomIndex !== roomIndex) {
+				continue;
 			}
-			const message = manager.formatDeath(
-				event.deadEntity.nameTag,
-				event.damageSource.damagingEntity?.nameTag ??
-					event.damageSource.damagingEntity?.typeId,
-			);
-			for (const [playerId, [playerRoomTypeIndex, playerRoomIndex]] of playerRoomTracker) {
-				if (
-					playerRoomTypeIndex !== manager.roomTypeIndex ||
-					playerRoomIndex !== manager.roomIndex
-				) {
-					continue;
-				}
-				const player: Entity | undefined = world.getEntity(playerId);
-				if (player === undefined || player instanceof Player === false) {
-					continue;
-				}
-				player.sendMessage(message);
+			const player: Entity | undefined = world.getEntity(playerId);
+			if (player === undefined || player instanceof Player === false) {
+				continue;
 			}
-		},
-		formatDeath: formatDeath,
-		init: (): void => {
-			world.afterEvents.entityDie.subscribe(manager.entityDie);
-		},
-		roomIndex: roomIndex,
-		roomTypeIndex: roomTypeIndex,
-	};
-	return manager;
+			player.sendMessage(message);
+		}
+	}
+	world.afterEvents.entityDie.subscribe(entityDie);
 }

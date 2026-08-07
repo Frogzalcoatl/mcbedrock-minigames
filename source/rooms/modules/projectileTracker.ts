@@ -9,61 +9,51 @@ import {
 } from "@minecraft/server";
 
 export interface ProjectileTracker {
-	dimensionId: string;
-	projectileTypeIds: string[];
-	projectileMap: Map<string, string>; // [projectileId, playerId]
-	entitySpawnCallback: (event: EntitySpawnAfterEvent) => void;
-	entityRemoveCallback: (event: EntityRemoveAfterEvent) => void;
 	removePlayerProjectiles: (player: Player) => void;
-	init: () => void;
 }
 
 export function getProjectileTracker(
 	dimensionId: string,
 	projectileTypeIds: string[],
 ): ProjectileTracker {
+	const projectileMap = new Map<string, string>();
+	function entityRemove(event: EntityRemoveAfterEvent): void {
+		if (!projectileTypeIds.includes(event.typeId)) {
+			return;
+		}
+		for (const [projectileId] of projectileMap) {
+			if (event.removedEntityId === projectileId) {
+				projectileMap.delete(projectileId);
+				break;
+			}
+		}
+	}
+	function entitySpawn(event: EntitySpawnAfterEvent): void {
+		if (
+			!event.entity.isValid ||
+			event.entity.dimension.id !== dimensionId ||
+			!projectileTypeIds.includes(event.entity.typeId)
+		) {
+			return;
+		}
+		const projectile: EntityProjectileComponent | undefined = event.entity.getComponent(
+			EntityComponentTypes.Projectile,
+		);
+		if (projectile?.owner && projectile.owner instanceof Player) {
+			projectileMap.set(event.entity.id, projectile.owner.id);
+		}
+	}
+	world.afterEvents.entityRemove.subscribe(entityRemove);
+	world.afterEvents.entitySpawn.subscribe(entitySpawn);
 	const tracker: ProjectileTracker = {
-		dimensionId: dimensionId,
-		entityRemoveCallback: (event: EntityRemoveAfterEvent): void => {
-			if (!tracker.projectileTypeIds.includes(event.typeId)) {
-				return;
-			}
-			for (const [projectileId] of tracker.projectileMap) {
-				if (event.removedEntityId === projectileId) {
-					tracker.projectileMap.delete(projectileId);
-					break;
-				}
-			}
-		},
-		entitySpawnCallback: (event: EntitySpawnAfterEvent): void => {
-			if (
-				!event.entity.isValid ||
-				event.entity.dimension.id !== tracker.dimensionId ||
-				!tracker.projectileTypeIds.includes(event.entity.typeId)
-			) {
-				return;
-			}
-			const projectile: EntityProjectileComponent | undefined = event.entity.getComponent(
-				EntityComponentTypes.Projectile,
-			);
-			if (projectile?.owner && projectile.owner instanceof Player) {
-				tracker.projectileMap.set(event.entity.id, projectile.owner.id);
-			}
-		},
-		init: (): void => {
-			world.afterEvents.entityRemove.subscribe(tracker.entityRemoveCallback);
-			world.afterEvents.entitySpawn.subscribe(tracker.entitySpawnCallback);
-		},
-		projectileMap: new Map<string, string>(),
-		projectileTypeIds: projectileTypeIds,
 		removePlayerProjectiles: (player: Player): void => {
-			for (const [projectileId, playerId] of tracker.projectileMap) {
+			for (const [projectileId, playerId] of projectileMap) {
 				if (playerId === player.id) {
 					const projectileEntity: Entity | undefined = world.getEntity(projectileId);
 					if (projectileEntity?.isValid) {
 						projectileEntity.remove();
 					}
-					tracker.projectileMap.delete(projectileId);
+					projectileMap.delete(projectileId);
 				}
 			}
 		},

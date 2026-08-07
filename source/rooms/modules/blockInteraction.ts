@@ -1,49 +1,50 @@
 import {
+	GameMode,
+	type ItemStack,
 	type PlayerInteractWithBlockAfterEvent,
 	type PlayerInteractWithBlockBeforeEvent,
+	PlayerPermissionLevel,
+	system,
 	world,
 } from "@minecraft/server";
+import { handleItemUse } from "../../items/events/itemUse";
 
-export interface BlockInteractionManager {
-	dimensionId: string;
-	beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | undefined; // dimensionId is checked before running (see below)
-	afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined; // dimensionId is checked before running (see below)
-	init: () => void;
+function defaultBeforeEvent(event: PlayerInteractWithBlockBeforeEvent): void {
+	if (
+		event.player.playerPermissionLevel === PlayerPermissionLevel.Operator &&
+		event.player.getGameMode() === GameMode.Creative
+	) {
+		return;
+	}
+	event.cancel = true;
+	if (event.isFirstEvent && event.itemStack !== undefined) {
+		const item: ItemStack = event.itemStack;
+		system.run(() => handleItemUse({ itemStack: item, source: event.player }));
+	}
 }
 
-export function getBlockInteractionManager(
+export function initBlockInteractionManager(
 	dimensionId: string,
-	beforeEvent?: (event: PlayerInteractWithBlockBeforeEvent) => void,
-	afterEvent?: (event: PlayerInteractWithBlockAfterEvent) => void,
-): BlockInteractionManager {
-	const manager: BlockInteractionManager = {
-		afterEvent: undefined,
-		beforeEvent: undefined,
-		dimensionId: dimensionId,
-		init: (): void => {
-			if (manager.beforeEvent !== undefined) {
-				world.beforeEvents.playerInteractWithBlock.subscribe(manager.beforeEvent);
-			}
-			if (manager.afterEvent !== undefined) {
-				world.afterEvents.playerInteractWithBlock.subscribe(manager.afterEvent);
-			}
-		},
-	};
+	beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | "default" | undefined,
+	afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined,
+): void {
+	if (beforeEvent === "default") {
+		beforeEvent = defaultBeforeEvent;
+	}
 	if (beforeEvent !== undefined) {
-		manager.beforeEvent = (event: PlayerInteractWithBlockBeforeEvent): void => {
-			if (event.player.dimension.id !== manager.dimensionId) {
+		world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
+			if (event.player.dimension.id !== dimensionId) {
 				return;
 			}
 			beforeEvent(event);
-		};
+		});
 	}
 	if (afterEvent !== undefined) {
-		manager.afterEvent = (event: PlayerInteractWithBlockAfterEvent): void => {
-			if (event.player.dimension.id !== manager.dimensionId) {
+		world.afterEvents.playerInteractWithBlock.subscribe((event) => {
+			if (event.player.dimension.id !== dimensionId) {
 				return;
 			}
 			afterEvent(event);
-		};
+		});
 	}
-	return manager;
 }

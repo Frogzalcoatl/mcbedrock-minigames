@@ -1,15 +1,17 @@
-import { GameMode, type Player } from "@minecraft/server";
+import {
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	GameMode,
+	type Player,
+} from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import { giveKit } from "../../kits/kitManager";
-import { getDeathMessageManager } from "../../rooms/modules/deathMessages";
-import { getProjectileTracker } from "../../rooms/modules/projectileTracker";
+import { itemKitPvpSelect } from "../../items/kitPvpSelect";
+import { itemTeleporter } from "../../items/teleporter";
 import { Room } from "../../rooms/room";
-import roomTypeIds from "../../roomTypeIds";
-import { showKitsForm } from "./ui";
 
 export function getRoomKitPvp(
 	roomTypeIndex: number,
@@ -19,30 +21,39 @@ export function getRoomKitPvp(
 	icon: string,
 ): Room {
 	return new Room({
-		beforeJoin: async (player: Player): Promise<boolean> => {
-			const kitIndex: number | undefined = await showKitsForm(player, roomTypeIds.kitPvp);
-			if (kitIndex === undefined) {
-				return Promise.resolve(false);
-			}
+		blockInteraction: {
+			afterEvent: undefined,
+			beforeEvent: "default",
+		},
+		deathMessages: "default",
+		dimensionId: dimensionId,
+		displayName: displayName,
+		icon: icon,
+		onJoin: (player: Player): void => {
 			player.setGameMode(GameMode.Adventure);
-			clearEntityEffects(player);
-			clearEntityInventory(player);
 			setEntityHealth(player, "max");
+			clearEntityInventory(player);
+			clearEntityEffects(player);
 			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
 				amplifier: 255,
 				showParticles: false,
 			});
-			giveKit(player, roomTypeIds.kitPvp, kitIndex);
-			return Promise.resolve(true);
+			const inventory: EntityInventoryComponent | undefined = player.getComponent(
+				EntityComponentTypes.Inventory,
+			);
+			if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
+				return;
+			}
+			inventory.container.setItem(4, itemKitPvpSelect());
+			inventory.container.setItem(6, itemTeleporter());
 		},
-		deathMessages: getDeathMessageManager(roomTypeIndex, roomIndex),
-		dimensionId: dimensionId,
-		displayName: displayName,
-		icon: icon,
-		projectileTracker: getProjectileTracker(dimensionId, [MinecraftEntityTypes.ThrownTrident]),
+		projectileTrackerTypeIds: [MinecraftEntityTypes.ThrownTrident],
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
-		spawn: { x: 194.5, y: 9, z: 75.5 },
-		structures: [{ id: "kitPvpArena", pos: { x: 0, y: 0, z: 0 } }],
+		spawn: { x: 0.5, y: 0, z: 0.5 },
+		structures: [
+			{ id: "ghostlyMangroveNoChests", pos: { x: -33, y: -3, z: -41 } },
+			{ id: "kitPvpArena", pos: { x: 128, y: 0, z: 128 } },
+		],
 	});
 }

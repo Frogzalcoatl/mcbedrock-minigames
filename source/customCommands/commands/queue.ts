@@ -11,7 +11,7 @@ import {
 import { PACK_NAMESPACE } from "../../constants";
 import { roomTypes } from "../../rooms/roomManager";
 import type { RoomType } from "../../rooms/roomType";
-import { showRoomTypeForm, showRoomTypeRoomSelectForm } from "../../rooms/roomTypeForm";
+import { showRoomTypesForm, showRoomTypesRoomSelectForm } from "../../rooms/roomTypesForm";
 import { commandEnums } from "../enums";
 import { getPlayerFromOrigin } from "../utils";
 
@@ -38,14 +38,14 @@ export function customCommandQueue(): [
 			}
 			system.run(() => {
 				if (roomTypeId === undefined) {
-					showRoomTypeForm(player);
+					showRoomTypesForm(player);
 					return;
 				}
 				const roomType: RoomType | undefined = roomTypes.find(
 					(t) => t.typeId === roomTypeId,
 				);
 				if (roomType !== undefined) {
-					showRoomTypeRoomSelectForm(player, roomType, false);
+					showRoomTypesRoomSelectForm(player, roomType, false);
 				}
 			});
 			return {
