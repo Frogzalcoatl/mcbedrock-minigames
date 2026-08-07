@@ -6,15 +6,19 @@ Each minigame instance is split into its own custom dimension.
 ## Custom Commands
 **Operators Only:**
 
-`/mg:load` - Load structures stored in the behavior pack
+`/load` - Load structures stored in the behavior pack
 
-`/:room` - Room management
+`/save` - Automatically place spaced out structure blocks to cover a range of blocks for export
+
+`/room` - Room management
 
 **All Players:**
 
+`/hub` - Teleport to hub
+
 `/queue` - Queue for different gametypes
 
-`/hub` - Teleport to hub
+`/profile` - View profiles of online players
 
 ## Structure Loading
 Structures built by contributors can be exported to mcstructure files and reloaded in any world.
@@ -26,7 +30,7 @@ Offsets are stored as type: `[string, number, number, number][]` (`[structureId,
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup, and cannot be cleared on world reload. The room class also contains optional modules that can be enabled in the constructor such as custom death messages. I'll list modules below:
 
-Implemented:
+**Implemented:**
 - Block Interaction Manager
 	- Just stores a callback for the PlayerInteractWithBlockBeforeEvent and PlayerInteractWithBlockAfterEvent.
 
@@ -36,7 +40,7 @@ Implemented:
 - Projectile Tracker
 	- Specifically being used to kill loyalty tridents in kit pvp when a player leaves, but probably has other use cases too
 
-Planned:
+**Planned:**
 - Something to manage teams for a game like bedwars
 
 ## Room Types
