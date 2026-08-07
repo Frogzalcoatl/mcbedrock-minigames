@@ -6,6 +6,7 @@ import {
 	type EntityInventoryComponent,
 	EquipmentSlot,
 	type ItemStack,
+	type Player,
 } from "@minecraft/server";
 import "./entityDie";
 
@@ -20,8 +21,8 @@ export interface Kit {
 	boots?: ItemStack;
 	offhand?: ItemStack;
 	icon?: string; // server-ui icon
-	onDeath?: (kitUser: Entity, killer?: Entity) => void;
-	onKill?: (kitUser: Entity, dead: Entity) => void;
+	onDeath?: (kitUser: Player, killer?: Entity) => void;
+	onKill?: (kitUser: Player, dead: Entity) => void;
 }
 
 export const kits = new Map<string, Kit[]>(); // [roomTypeId, kits]
@@ -52,14 +53,14 @@ function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void
 
 const entityKits = new Map<string, [string, number]>(); // [entityId, [roomTypeId, kitIndex]]
 
-export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): void {
+export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): Kit | undefined {
 	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
 	if (roomTypeKits === undefined) {
-		return;
+		return undefined;
 	}
 	const kit: Kit | undefined = roomTypeKits[kitIndex];
 	if (kit === undefined) {
-		return;
+		return undefined;
 	}
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
@@ -74,6 +75,7 @@ export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): v
 		giveKitEquipment(kit, equippable);
 	}
 	entityKits.set(entity.id, [roomTypeId, kitIndex]);
+	return kit;
 }
 
 export function getEntityKit(entity: Entity): Kit | null {
