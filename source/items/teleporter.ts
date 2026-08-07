@@ -1,4 +1,4 @@
-import { ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showRoomTypesForm } from "../rooms/roomTypesForm";
 import { itemNameMatches } from "./utils/matches";
@@ -13,10 +13,8 @@ export function itemTeleporter(): ItemStack {
 	return item;
 }
 
-export function isItemTeleporter(item: ItemStack): boolean {
-	return itemNameMatches(item, typeId, nameTag);
-}
-
-export function itemTeleporterRun(source: Player): void {
-	showRoomTypesForm(source);
+export function itemTeleporterRun(event: ItemUseAfterEvent): void {
+	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
+		showRoomTypesForm(event.source);
+	}
 }

@@ -1,6 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
+import { itemBreezeLeap } from "../../../items/breezeLeap";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../../../kits/kitManager";
 import {
@@ -31,8 +32,7 @@ export function getKitBreeze(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const mace = new ItemStack(MinecraftItemTypes.Mace);
 	setDurability(mace, "unbreakable");
-	const breezeLeap = new ItemStack(MinecraftItemTypes.BreezeRod);
-	breezeLeap.nameTag = "§rBreeze Leap";
+	const breezeLeap = itemBreezeLeap();
 	kit.inventory = [
 		{ item: mace, slot: 0 },
 		{ item: new ItemStack(MinecraftItemTypes.WindCharge, 8), slot: 1 },

@@ -1,4 +1,4 @@
-import { ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { joinKitPvpArena } from "../games/kitPvp/joinArena";
 import { showKitsForm } from "../games/kitPvp/kitsForm";
@@ -15,14 +15,16 @@ export function itemKitPvpSelect(): ItemStack {
 	return item;
 }
 
-export function isItemKitPvpSelect(item: ItemStack): boolean {
-	return itemNameMatches(item, typeId, nameTag);
-}
-
-export async function itemKitPvpSelectRun(source: Player): Promise<void> {
-	const selectedKitIndex: number | undefined = await showKitsForm(source, roomTypeIds.kitPvp);
+export async function itemKitPvpSelectRun(event: ItemUseAfterEvent): Promise<void> {
+	if (!itemNameMatches(event.itemStack, typeId, nameTag)) {
+		return;
+	}
+	const selectedKitIndex: number | undefined = await showKitsForm(
+		event.source,
+		roomTypeIds.kitPvp,
+	);
 	if (selectedKitIndex === undefined) {
 		return;
 	}
-	joinKitPvpArena(source, selectedKitIndex);
+	joinKitPvpArena(event.source, selectedKitIndex);
 }
