@@ -1,4 +1,4 @@
-import "./commands/commands";
+import "./customCommands/index";
 import "./items/index";
 
 import { world } from "@minecraft/server";

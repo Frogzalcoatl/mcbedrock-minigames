@@ -3,9 +3,9 @@ import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
 import { getRoomKitPvp } from "../games/kitPvp/room";
 import roomTypeIds from "../roomTypeIds";
+import { getRoomHub } from "./hub";
 import type { Room } from "./room";
-import { getRoomHub } from "./types/hub";
-import { initRoomType, type RoomType } from "./types/roomType";
+import { initRoomType, type RoomType } from "./roomType";
 
 export const roomTypes: RoomType[] = [];
 export const rooms: Room[] = [];

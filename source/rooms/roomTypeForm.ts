@@ -1,7 +1,7 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { Room } from "../room";
-import { roomTypes } from "../roomManager";
+import type { Room } from "./room";
+import { roomTypes } from "./roomManager";
 import type { RoomType } from "./roomType";
 
 export async function showRoomTypeRoomSelectForm(

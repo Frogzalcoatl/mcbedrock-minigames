@@ -1,6 +1,6 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showRoomTypeForm } from "../rooms/types/roomTypeForm";
+import { showRoomTypeForm } from "../rooms/roomTypeForm";
 import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.Compass;
