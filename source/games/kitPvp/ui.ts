@@ -1,12 +1,19 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { kits } from "../../kits/kitManager";
+import { type Kit, kits } from "../../kits/kitManager";
 
 // returns selected kit index
-export async function showKitsForm(player: Player): Promise<number | undefined> {
+export async function showKitsForm(
+	player: Player,
+	roomTypeId: string,
+): Promise<number | undefined> {
 	const form = new ActionFormData();
 	form.title("§0Kit Selection");
-	for (const kit of kits) {
+	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
+	if (roomTypeKits === undefined) {
+		return;
+	}
+	for (const kit of roomTypeKits) {
 		form.button(kit.name, kit.icon);
 	}
 	const resp: ActionFormResponse = await form.show(player);

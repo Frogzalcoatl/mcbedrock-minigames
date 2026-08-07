@@ -8,6 +8,7 @@ import { giveKit } from "../../kits/kitManager";
 import { getDeathMessageManager } from "../../rooms/modules/deathMessages";
 import { getProjectileTracker } from "../../rooms/modules/projectileTracker";
 import { Room } from "../../rooms/room";
+import roomTypeIds from "../../roomTypeIds";
 import { showKitsForm } from "./ui";
 
 export function getRoomKitPvp(
@@ -19,7 +20,7 @@ export function getRoomKitPvp(
 ): Room {
 	return new Room({
 		beforeJoin: async (player: Player): Promise<boolean> => {
-			const kitIndex: number | undefined = await showKitsForm(player);
+			const kitIndex: number | undefined = await showKitsForm(player, roomTypeIds.kitPvp);
 			if (kitIndex === undefined) {
 				return Promise.resolve(false);
 			}
@@ -31,7 +32,7 @@ export function getRoomKitPvp(
 				amplifier: 255,
 				showParticles: false,
 			});
-			giveKit(player, kitIndex);
+			giveKit(player, roomTypeIds.kitPvp, kitIndex);
 			return Promise.resolve(true);
 		},
 		deathMessages: getDeathMessageManager(roomTypeIndex, roomIndex),

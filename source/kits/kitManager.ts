@@ -6,18 +6,8 @@ import {
 	type EntityInventoryComponent,
 	EquipmentSlot,
 	type ItemStack,
-	world,
 } from "@minecraft/server";
 import "./entityDie";
-import { clearEntityInventory } from "../entities/inventory";
-import { getKitArcher } from "../games/kitPvp/kits/archer";
-import { getKitBlaze } from "../games/kitPvp/kits/blaze";
-import { getKitBreeze } from "../games/kitPvp/kits/breeze";
-import { getKitFisherman } from "../games/kitPvp/kits/fisherman";
-import { getKitLancer } from "../games/kitPvp/kits/lancer";
-import { getKitPoseidon } from "../games/kitPvp/kits/poseidon";
-import { getKitRabbit } from "../games/kitPvp/kits/rabbit";
-import { getKitSnowman } from "../games/kitPvp/kits/snowman";
 
 type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -34,18 +24,7 @@ export interface Kit {
 	onKill?: (kitUser: Entity, dead: Entity) => void;
 }
 
-export const kits: Kit[] = [];
-
-world.afterEvents.worldLoad.subscribe(() => {
-	kits.push(getKitBlaze());
-	kits.push(getKitBreeze());
-	kits.push(getKitSnowman());
-	kits.push(getKitFisherman());
-	kits.push(getKitPoseidon());
-	kits.push(getKitRabbit());
-	kits.push(getKitArcher());
-	kits.push(getKitLancer());
-});
+export const kits = new Map<string, Kit[]>(); // [roomTypeId, kits]
 
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
 	if (!container.isValid) {
@@ -71,13 +50,14 @@ function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void
 	equippable.setEquipment(EquipmentSlot.Offhand, kit.offhand);
 }
 
-const entityKits = new Map<string, number>(); // [entityId, kitIndex]
+const entityKits = new Map<string, [string, number]>(); // [entityId, [roomTypeId, kitIndex]]
 
-export function giveKit(entity: Entity, kitIndex: number): void {
-	if (kitIndex < 0 || kitIndex >= kits.length) {
+export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): void {
+	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
+	if (roomTypeKits === undefined) {
 		return;
 	}
-	const kit: Kit | undefined = kits[kitIndex];
+	const kit: Kit | undefined = roomTypeKits[kitIndex];
 	if (kit === undefined) {
 		return;
 	}
@@ -93,24 +73,17 @@ export function giveKit(entity: Entity, kitIndex: number): void {
 	if (equippable !== undefined) {
 		giveKitEquipment(kit, equippable);
 	}
-	entityKits.set(entity.id, kitIndex);
-}
-
-export function clearKit(entity: Entity): void {
-	if (entityKits.delete(entity.id)) {
-		clearEntityInventory(entity);
-	}
-}
-
-// -1 on undefined
-export function getEntityKitIndex(entity: Entity): number {
-	return entityKits.get(entity.id) ?? -1;
+	entityKits.set(entity.id, [roomTypeId, kitIndex]);
 }
 
 export function getEntityKit(entity: Entity): Kit | null {
-	const kitIndex: number = getEntityKitIndex(entity);
-	if (kitIndex === -1) {
+	const kitInfo: [string, number] | undefined = entityKits.get(entity.id);
+	if (kitInfo === undefined) {
 		return null;
 	}
-	return kits[kitIndex] ?? null;
+	const roomTypeKits: Kit[] | undefined = kits.get(kitInfo[0]);
+	if (roomTypeKits === undefined) {
+		return null;
+	}
+	return roomTypeKits[kitInfo[1]] ?? null;
 }

@@ -1,5 +1,6 @@
 import "./customCommands/index";
 import "./items/index";
+import "./games/index";
 
 import { world } from "@minecraft/server";
 import { joinRoomType } from "./rooms/roomManager";
