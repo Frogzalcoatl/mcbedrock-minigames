@@ -32,7 +32,7 @@ export function customCommandQueue(): [
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player === null) {
 				return {
-					message: "No valid player to queue",
+					message: "No valid player to queue.",
 					status: CustomCommandStatus.Failure,
 				};
 			}

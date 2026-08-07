@@ -36,7 +36,7 @@ export function customCommandSaveNew(): [
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
 			if (dimension === null) {
 				return {
-					message: "§cUnable to get dimension from command origin",
+					message: "Unable to get dimension from command origin.",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -47,7 +47,7 @@ export function customCommandSaveNew(): [
 				to.y > dimension.heightRange.max
 			) {
 				return {
-					message: "§cInvalid y value",
+					message: "Invalid y value.",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -55,7 +55,7 @@ export function customCommandSaveNew(): [
 			if (from.y === dimension.heightRange.min || to.y === dimension.heightRange.min) {
 				if (player) {
 					player.sendMessage(
-						"§6You might want to increase your min y value so that structure blocks are not included in your save...",
+						"§6You should increase your min y value so that structure blocks are not included in your save.",
 					);
 				}
 			}

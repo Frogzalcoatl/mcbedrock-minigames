@@ -44,8 +44,8 @@ export function getRoomKitPvp(
 			if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
 				return;
 			}
-			inventory.container.setItem(4, itemKitPvpSelect());
-			inventory.container.setItem(6, itemTeleporter());
+			inventory.container.setItem(3, itemKitPvpSelect());
+			inventory.container.setItem(5, itemTeleporter());
 		},
 		projectileTrackerTypeIds: [MinecraftEntityTypes.ThrownTrident],
 		roomIndex: roomIndex,

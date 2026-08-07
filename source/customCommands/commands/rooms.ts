@@ -25,7 +25,7 @@ export function customCommandRooms(): [
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player === null || !player.isValid) {
 				return {
-					message: "No valid player for ui",
+					message: "No valid player for ui.",
 					status: CustomCommandStatus.Failure,
 				};
 			}

@@ -8,7 +8,9 @@ Each minigame instance is split into its own custom dimension.
 
 `/load` - Load structures stored in the behavior pack
 
-`/save` - Automatically place spaced out structure blocks to cover a range of blocks for export
+`/savenew` - Automatically place spaced out structure blocks to cover a range of blocks for export
+
+`/saveold` - Place structure blocks in positions needed for an existing structure
 
 `/room` - Room management
 
@@ -38,7 +40,7 @@ Each room has its own custom dimension. Custom dimensions can only be registered
 	- Sends string formatted by callback to players in room.
 
 - Projectile Tracker
-	- Specifically being used to kill loyalty tridents in kit pvp when a player leaves, but probably has other use cases too
+	- Currently being used to kill loyalty tridents in kit pvp when a player leaves, but can be applied for any projectile types.
 
 **Planned:**
 - Something to manage teams for a game like bedwars

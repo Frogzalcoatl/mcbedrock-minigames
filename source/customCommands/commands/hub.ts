@@ -21,7 +21,7 @@ export function customCommandHub(): [
 ] {
 	return [
 		{
-			description: "Go back to hub.",
+			description: "Transfer to hub.",
 			name: `${PACK_NAMESPACE}:hub`,
 			optionalParameters: [{ name: "id", type: CustomCommandParamType.Integer }],
 			permissionLevel: CommandPermissionLevel.Any,
@@ -49,14 +49,14 @@ export function customCommandHub(): [
 			const actualIndex: number = displayIndex - 1;
 			if (actualIndex >= roomType.rooms.length || actualIndex < 0) {
 				return {
-					message: `Invalid hub id "${displayIndex}". Must be within range 1-${roomType.rooms.length}`,
+					message: `Invalid hub id "${displayIndex}". Must be within range 1-${roomType.rooms.length}.`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			const room: Room | undefined = roomType.rooms[actualIndex];
 			if (room === undefined) {
 				return {
-					message: `Unable to find hub-${displayIndex}`,
+					message: `Unable to find ${roomTypeIds.hub}-${displayIndex}.`,
 					status: CustomCommandStatus.Failure,
 				};
 			}

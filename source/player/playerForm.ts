@@ -1,4 +1,4 @@
-import { type Player, world } from "@minecraft/server";
+import { type Player, system, world } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import type { Room } from "../rooms/room";
 import { getPlayerRoom } from "../rooms/roomManager";
@@ -6,7 +6,7 @@ import { getPlayerRoom } from "../rooms/roomManager";
 export async function showPlayerProfileForm(
 	viewer: Player,
 	player: Player,
-	formOnCancel: boolean,
+	showPlayersFormOnCancel: boolean,
 ): Promise<void> {
 	if (!(viewer.isValid && player.isValid)) {
 		return;
@@ -26,8 +26,8 @@ export async function showPlayerProfileForm(
 		return;
 	}
 	if (resp.selection === undefined) {
-		if (formOnCancel) {
-			showPlayersForm(viewer);
+		if (showPlayersFormOnCancel) {
+			system.run(() => showPlayersForm(viewer));
 		}
 		return;
 	}
@@ -62,6 +62,6 @@ export async function showPlayersForm(player: Player): Promise<void> {
 		player.sendMessage("§cPlayer not found.");
 		return;
 	} else {
-		showPlayerProfileForm(player, selectedPlayer, true);
+		system.run(() => showPlayerProfileForm(player, selectedPlayer, true));
 	}
 }

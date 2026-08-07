@@ -1,7 +1,7 @@
 import { ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { joinKitPvpArena } from "../games/kitPvp/joinArena";
-import { showKitsForm } from "../games/kitPvp/ui";
+import { showKitsForm } from "../games/kitPvp/kitsForm";
 import roomTypeIds from "../roomTypeIds";
 import { itemNameMatches } from "./utils/matches";
 

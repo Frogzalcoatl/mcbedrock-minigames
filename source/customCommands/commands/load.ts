@@ -51,7 +51,7 @@ export function customCommandLoad(): [
 			const location: Vector3 | null = getLocationFromOrigin(origin);
 			if (dimension === null || location === null) {
 				return {
-					message: "Unable to get valid location from command origin",
+					message: "Unable to get valid location from command origin.",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -62,7 +62,7 @@ export function customCommandLoad(): [
 			}
 			if (!structureIds.includes(id)) {
 				return {
-					message: `Invalid structure id "${id}"`,
+					message: `Invalid structure id "${id}."`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -71,13 +71,13 @@ export function customCommandLoad(): [
 				!Object.values(StructureAnimationMode).includes(animationMode)
 			) {
 				return {
-					message: `Invalid animation mode "${animationMode}"`,
+					message: `Invalid animation mode "${animationMode}."`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			if (animationSeconds !== undefined && animationSeconds < 0) {
 				return {
-					message: `Animation seconds must be a non negative integer`,
+					message: `Animation seconds must be a non negative integer.`,
 					status: CustomCommandStatus.Failure,
 				};
 			}

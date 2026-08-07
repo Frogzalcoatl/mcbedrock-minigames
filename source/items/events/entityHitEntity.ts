@@ -8,7 +8,7 @@ import {
 } from "@minecraft/server";
 import { itemFireStickRun } from "../fireStick";
 
-function handleDamagingEquippable(
+function handleDamagingEntityEquippable(
 	event: EntityHitEntityAfterEvent,
 	equippable: EntityEquippableComponent,
 ): void {
@@ -22,6 +22,6 @@ world.afterEvents.entityHitEntity.subscribe((event) => {
 	const equippableDamaging: EntityEquippableComponent | undefined =
 		event.damagingEntity.getComponent(EntityComponentTypes.Equippable);
 	if (equippableDamaging !== undefined) {
-		handleDamagingEquippable(event, equippableDamaging);
+		handleDamagingEntityEquippable(event, equippableDamaging);
 	}
 });
