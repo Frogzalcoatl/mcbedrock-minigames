@@ -14,7 +14,7 @@ import { PACK_NAMESPACE } from "../../constants";
 import { placeStructureBlocks } from "../../structures/save";
 import { getDimensionFromOrigin, getPlayerFromOrigin } from "../utils";
 
-export function customCommandSave(): [
+export function customCommandSaveNew(): [
 	CustomCommand,
 	(origin: CustomCommandOrigin, from: Vector3, to: Vector3) => CustomCommandResult | undefined,
 ] {
@@ -25,7 +25,7 @@ export function customCommandSave(): [
 				{ name: "from", type: CustomCommandParamType.Location },
 				{ name: "to", type: CustomCommandParamType.Location },
 			],
-			name: `${PACK_NAMESPACE}:save`,
+			name: `${PACK_NAMESPACE}:savenew`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(

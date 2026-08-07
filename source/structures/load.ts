@@ -1,5 +1,5 @@
 import { type Dimension, StructureAnimationMode, type Vector3, world } from "@minecraft/server";
-import { getStructureInfoArr, type StructureInfo } from "./data";
+import { getStructureInfo, type StructureInfo } from "./data";
 
 export function loadStructure(
 	structure: string,
@@ -8,7 +8,7 @@ export function loadStructure(
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
 	animationSeconds: number = 0,
 ): void {
-	const structures: StructureInfo[] = getStructureInfoArr(structure);
+	const structures: StructureInfo[] = getStructureInfo(structure);
 	for (const s of structures) {
 		const absLocation: Vector3 = {
 			x: location.x + s.relLocation.x,

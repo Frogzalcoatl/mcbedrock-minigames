@@ -28,7 +28,7 @@ export const structureIds: string[] = [
 	"ghostlyMountain",
 ];
 
-function schemaToStructureInfoArr(schema: StructureSchema): StructureInfo[] {
+function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
 	const arr: StructureInfo[] = [];
 	for (const entry of schema) {
 		arr.push({
@@ -39,16 +39,16 @@ function schemaToStructureInfoArr(schema: StructureSchema): StructureInfo[] {
 	return arr;
 }
 
-export function getStructureInfoArr(name: string): StructureInfo[] {
+export function getStructureInfo(name: string): StructureInfo[] {
 	switch (name) {
 		case "ghostlySpawn":
-			return schemaToStructureInfoArr(ghostlySpawn);
+			return schemaToStructureInfo(ghostlySpawn);
 		case "ghostlyMangrove":
-			return schemaToStructureInfoArr(ghostlyMangrove);
+			return schemaToStructureInfo(ghostlyMangrove);
 		case "ghostlyMangroveNoChests":
-			return schemaToStructureInfoArr(ghostlyMangroveNoChests);
+			return schemaToStructureInfo(ghostlyMangroveNoChests);
 		case "kitPvpArena":
-			return schemaToStructureInfoArr(kitPvpArena);
+			return schemaToStructureInfo(kitPvpArena);
 		default:
 			return [{ id: `${STRUCTURE_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
 	}

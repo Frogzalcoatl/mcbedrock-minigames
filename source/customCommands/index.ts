@@ -4,7 +4,8 @@ import { customCommandLoad } from "./commands/load";
 import { customCommandProfile } from "./commands/profile";
 import { customCommandQueue } from "./commands/queue";
 import { customCommandRooms } from "./commands/rooms";
-import { customCommandSave } from "./commands/save";
+import { customCommandSaveNew } from "./commands/savenew";
+import { customCommandSaveOld } from "./commands/saveold";
 import { registerCommandEnums } from "./enums";
 
 system.beforeEvents.startup.subscribe((e) => {
@@ -14,5 +15,6 @@ system.beforeEvents.startup.subscribe((e) => {
 	e.customCommandRegistry.registerCommand(...customCommandHub());
 	e.customCommandRegistry.registerCommand(...customCommandProfile());
 	e.customCommandRegistry.registerCommand(...customCommandQueue());
-	e.customCommandRegistry.registerCommand(...customCommandSave());
+	e.customCommandRegistry.registerCommand(...customCommandSaveNew());
+	e.customCommandRegistry.registerCommand(...customCommandSaveOld());
 });
