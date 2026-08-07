@@ -1,4 +1,4 @@
-import type { Player } from "@minecraft/server";
+import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import type { Room } from "./room";
 import { rooms } from "./roomManager";
@@ -25,6 +25,7 @@ async function showRoomInfo(player: Player, room: Room): Promise<void> {
 		room.join(player);
 	} else if (resp.selection === structuresButtonIndex) {
 		room.loadStructures();
+		system.run(() => showRoomInfo(player, room));
 	}
 }
 

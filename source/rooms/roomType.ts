@@ -1,4 +1,4 @@
-import { system, world } from "@minecraft/server";
+import { PACK_NAMESPACE } from "../constants";
 import type { Room, RoomCreationFunc } from "./room";
 
 export interface RoomType {
@@ -25,27 +25,10 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 		rooms: [],
 		typeId: config.typeId,
 	};
-	if (config.defaultDimensionId.startsWith("minecraft:")) {
-		if (config.roomCount > 1) {
-			system.run(() => {
-				world.sendMessage(
-					"§6Cannot initialize multiple room instances when default dimension id is set to a vanilla dimension.",
-				);
-				world.sendMessage(
-					`§7Only initializing one instance of "${config.typeId}" with dimension id "${config.defaultDimensionId}".`,
-				);
-			});
-		}
-		type.rooms.push(
-			config.roomCreationFunc(
-				config.roomTypeIndex,
-				0,
-				config.defaultDimensionId,
-				`${config.displayName} 1`,
-				config.icon ?? "",
-			),
-		);
-	} else {
+	if (config.roomCount < 1) {
+		return type;
+	}
+	if (config.defaultDimensionId.startsWith("minecraft:") === false) {
 		for (let i: number = 0; i < config.roomCount; i++) {
 			type.rooms.push(
 				config.roomCreationFunc(
@@ -57,6 +40,37 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 				),
 			);
 		}
+		return type;
+	}
+	type.rooms.push(
+		config.roomCreationFunc(
+			config.roomTypeIndex,
+			0,
+			config.defaultDimensionId,
+			`${config.displayName} 1`,
+			config.icon ?? "",
+		),
+	);
+	if (config.roomCount === 1) {
+		return type;
+	}
+	let customDimensionId: string = "";
+	const namespaceColonIndex: number = config.defaultDimensionId.indexOf(":");
+	if (namespaceColonIndex !== -1) {
+		customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(namespaceColonIndex + 1)}`;
+	} else {
+		customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId}`;
+	}
+	for (let i: number = 1; i < config.roomCount; i++) {
+		type.rooms.push(
+			config.roomCreationFunc(
+				config.roomTypeIndex,
+				i,
+				`${customDimensionId}-${i + 1}`,
+				`${type.displayName} ${i + 1}`,
+				config.icon ?? "",
+			),
+		);
 	}
 	return type;
 }
