@@ -1,7 +1,7 @@
 import { system } from "@minecraft/server";
 import { customCommandHub } from "./commands/hub";
 import { customCommandLoad } from "./commands/load";
-import { customCommandProfile } from "./commands/player";
+import { customCommandProfile } from "./commands/profile";
 import { customCommandQueue } from "./commands/queue";
 import { customCommandRooms } from "./commands/rooms";
 import { customCommandSave } from "./commands/save";
