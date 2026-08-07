@@ -6,7 +6,7 @@ import roomTypeIds from "../roomTypeIds";
 import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.TotemOfUndying;
-const nameTag: string = "§r§eKit Select";
+const nameTag: string = "§r§eKit Select §7(Use)";
 
 export function itemKitPvpSelect(): ItemStack {
 	const item = new ItemStack(typeId);

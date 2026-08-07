@@ -12,7 +12,7 @@ import {
 } from "../../../kits/utils";
 
 function onKill(kitUser: Player, _dead: Entity): void {
-	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 2);
+	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 1);
 	windCharges.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(windCharges, kitUser, false);
 }
@@ -35,7 +35,7 @@ export function getKitBreeze(): Kit {
 	const breezeLeap = itemBreezeLeap();
 	kit.inventory = [
 		{ item: mace, slot: 0 },
-		{ item: new ItemStack(MinecraftItemTypes.WindCharge, 8), slot: 1 },
+		{ item: new ItemStack(MinecraftItemTypes.WindCharge, 2), slot: 1 },
 		{ item: breezeLeap, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);

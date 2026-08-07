@@ -1,13 +1,10 @@
 import {
 	GameMode,
-	type ItemStack,
 	type PlayerInteractWithBlockAfterEvent,
 	type PlayerInteractWithBlockBeforeEvent,
 	PlayerPermissionLevel,
-	system,
 	world,
 } from "@minecraft/server";
-import { handleItemUse } from "../../items/events/itemUse";
 
 function defaultBeforeEvent(event: PlayerInteractWithBlockBeforeEvent): void {
 	if (
@@ -17,10 +14,6 @@ function defaultBeforeEvent(event: PlayerInteractWithBlockBeforeEvent): void {
 		return;
 	}
 	event.cancel = true;
-	if (event.isFirstEvent && event.itemStack !== undefined) {
-		const item: ItemStack = event.itemStack;
-		system.run(() => handleItemUse({ itemStack: item, source: event.player }));
-	}
 }
 
 export function initBlockInteractionManager(

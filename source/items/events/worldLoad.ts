@@ -1,8 +1,8 @@
 import { type ItemStack, world } from "@minecraft/server";
-import { setItemCooldown } from "../../rooms/modules/itemCooldownManager";
 import { itemBreezeLeap } from "../breezeLeap";
+import { setItemCooldown } from "../utils/cooldown";
 
 world.afterEvents.worldLoad.subscribe(() => {
 	const breezeLeap: ItemStack = itemBreezeLeap();
-	setItemCooldown(breezeLeap, 40);
+	setItemCooldown(breezeLeap, 100, false);
 });

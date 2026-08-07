@@ -38,6 +38,10 @@ export function getRoomKitPvp(
 				amplifier: 255,
 				showParticles: false,
 			});
+			player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+				amplifier: 255,
+				showParticles: false,
+			});
 			const inventory: EntityInventoryComponent | undefined = player.getComponent(
 				EntityComponentTypes.Inventory,
 			);
