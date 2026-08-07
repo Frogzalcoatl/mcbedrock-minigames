@@ -53,6 +53,7 @@ export class Room {
 	public readonly roomIndex: number;
 	public displayName: string;
 	public icon: string;
+	public readonly structures: RoomStructure[];
 	private _dimension: Dimension | undefined;
 	private _playerCount: number;
 	private _spawn: Vector3;
@@ -60,7 +61,6 @@ export class Room {
 	private _onJoin: ((player: Player) => void) | undefined;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | undefined;
 	private _onLeave: ((player: Player) => void) | undefined;
-	private _structures: RoomStructure[];
 	// Modules:
 	private _projectileTracker: ProjectileTracker | null;
 	public readonly blockInteraction: boolean;
@@ -72,13 +72,13 @@ export class Room {
 		this.roomIndex = config.roomIndex;
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
+		this.structures = config.structures ?? [];
 		this._playerCount = 0;
 		this._spawn = config.spawn;
 		this._beforeJoin = config.beforeJoin;
 		this._onJoin = config.onJoin;
 		this._beforeLeave = config.beforeLeave;
 		this._onLeave = config.onLeave;
-		this._structures = config.structures ?? [];
 		if (config.projectileTrackerTypeIds === undefined) {
 			this._projectileTracker = null;
 		} else {
@@ -173,12 +173,19 @@ export class Room {
 		this._playerCount++;
 	}
 
-	public loadStructures(): void {
+	public loadStructure(index: number | "all"): void {
 		if (this._dimension === undefined) {
 			return;
 		}
-		for (const s of this._structures) {
-			loadStructure(s.id, s.pos, this._dimension);
+		if (index === "all") {
+			for (const s of this.structures) {
+				loadStructure(s.id, s.pos, this._dimension);
+			}
+		} else {
+			const structure: RoomStructure | undefined = this.structures[index];
+			if (structure !== undefined) {
+				loadStructure(structure.id, structure.pos, this._dimension);
+			}
 		}
 	}
 
@@ -190,7 +197,7 @@ Display Name: §e${this.displayName}§r
 Icon: §e${this.icon}§r
 Player Count: §e${this._playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
-Saved Structures: §e${this._structures.length}§r
+Saved Structures: §e${this.structures.length}§r
 Projectile Tracker: §e${this._projectileTracker !== null}§r
 Block Interaction Manager: §e${this.blockInteraction}§r
 Death Messages: §e${this.deathMessagesEnabled}§r
