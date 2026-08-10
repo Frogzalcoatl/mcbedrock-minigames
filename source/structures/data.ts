@@ -5,7 +5,7 @@ import rawGhostlyMangroveNoChests from "./json/ghostlyMangroveNoChests.json";
 import rawGhostlySpawn from "./json/ghostlySpawn.json" with { type: "json" };
 import rawKitPvpArena from "./json/kitPvpArena.json" with { type: "json" };
 
-type JsonStructureEntry = [string, number, number, number]; // [structureId, relX, relY, relZ]
+type JsonStructureEntry = [string, number, number, number]; // [structureId, relativeX, relativeY, relativeZ]
 type StructureSchema = JsonStructureEntry[];
 
 const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
