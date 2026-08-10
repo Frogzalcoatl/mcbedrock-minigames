@@ -1,6 +1,8 @@
 import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { itemLancerLeap } from "../../../items/lancerLeap";
 import { setDurability } from "../../../items/utils/durability";
+import { itemZombieHorse } from "../../../items/zombieHorse";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -24,14 +26,12 @@ export function getKitLancer(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const ironSpear = new ItemStack(MinecraftItemTypes.IronSpear);
 	setDurability(ironSpear, "unbreakable");
-	const leap = new ItemStack(MinecraftItemTypes.Feather);
-	leap.nameTag = "§rLeap";
-	const tempHorse = new ItemStack(MinecraftItemTypes.ZombieHorseSpawnEgg);
-	tempHorse.nameTag = "§rTemp Horse";
+	const leap: ItemStack = itemLancerLeap();
+	const zombieHorse: ItemStack = itemZombieHorse();
 	kit.inventory = [
 		{ item: ironSpear, slot: 0 },
 		{ item: leap, slot: 1 },
-		{ item: tempHorse, slot: 2 },
+		{ item: zombieHorse, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
 	return kit;

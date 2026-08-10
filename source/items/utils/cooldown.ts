@@ -24,7 +24,7 @@ export function removeItemCooldown(nameTag: string): void {
 
 function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {
 	system.runTimeout(() => {
-		player.sendMessage(`§7Cooldown finished for ${itemNameTag}`);
+		player.sendMessage(`Cooldown finished for ${itemNameTag}`);
 	}, delayTicks);
 }
 
@@ -67,7 +67,7 @@ export function isItemCooldownFinished(player: Player, item: ItemStack): boolean
 		return true;
 	} else {
 		player.sendMessage(
-			`§cPlease wait ${Math.round((cooldownTicks * 50 - differenceMs) / 100) / 10}s`,
+			`§cPlease wait ${Math.ceil((cooldownTicks * 50 - differenceMs) / 100) / 10}s`,
 		);
 		return false;
 	}

@@ -1,20 +1,24 @@
 import {
 	type Dimension,
 	type DimensionRegistry,
+	EntityComponentTypes,
+	type EntityRideableComponent,
+	type EntityRidingComponent,
 	type Player,
-	type PlayerInteractWithBlockAfterEvent,
-	type PlayerInteractWithBlockBeforeEvent,
 	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
 import { loadStructure } from "../structures/load";
-import { initBlockInteractionManager } from "./modules/blockInteraction";
-import { type DeathMessageFunc, initDeathMessages } from "./modules/deathMessages";
+import {
+	type BlockInteractionConfig,
+	initBlockInteractionManager,
+} from "./modules/blockInteraction";
+import { getKillTracker, type KillTracker, type KillTrackerConfig } from "./modules/killTracker";
 import { getProjectileTracker, type ProjectileTracker } from "./modules/projectileTracker";
-import { getPlayerRoom, playerRoomTracker } from "./roomManager";
+import { getPlayerRoom } from "./roomManager";
 
-interface RoomStructure {
+export interface RoomStructure {
 	id: string;
 	pos: Vector3;
 }
@@ -32,11 +36,8 @@ export interface RoomConfig {
 	onLeave?: (player: Player) => void;
 	structures?: RoomStructure[];
 	projectileTrackerTypeIds?: string[];
-	blockInteraction?: {
-		beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | "default" | undefined; // dimensionId is already checked before running
-		afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined; // dimensionId is already checked before running
-	};
-	deathMessages?: DeathMessageFunc;
+	blockInteraction?: BlockInteractionConfig;
+	killTracker?: KillTrackerConfig;
 }
 
 export type RoomCreationFunc = (
@@ -55,7 +56,6 @@ export class Room {
 	public icon: string;
 	public readonly structures: RoomStructure[];
 	private _dimension: Dimension | undefined;
-	private _playerCount: number;
 	private _spawn: Vector3;
 	private _beforeJoin: ((player: Player) => Promise<boolean>) | undefined;
 	private _onJoin: ((player: Player) => void) | undefined;
@@ -64,7 +64,7 @@ export class Room {
 	// Modules:
 	private _projectileTracker: ProjectileTracker | null;
 	public readonly blockInteraction: boolean;
-	public readonly deathMessagesEnabled: boolean;
+	private _killTracker: KillTracker | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -73,7 +73,6 @@ export class Room {
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
-		this._playerCount = 0;
 		this._spawn = config.spawn;
 		this._beforeJoin = config.beforeJoin;
 		this._onJoin = config.onJoin;
@@ -97,11 +96,15 @@ export class Room {
 			);
 			this.blockInteraction = true;
 		}
-		if (config.deathMessages === undefined) {
-			this.deathMessagesEnabled = false;
+		if (config.killTracker === undefined) {
+			this._killTracker = null;
 		} else {
-			initDeathMessages(this.roomTypeIndex, this.roomIndex, config.deathMessages);
-			this.deathMessagesEnabled = true;
+			this._killTracker = getKillTracker(
+				this.dimensionId,
+				config.killTracker.onKill ?? null,
+				config.killTracker.cooldownTicks,
+				config.killTracker.includeMobKills,
+			);
 		}
 	}
 
@@ -109,8 +112,8 @@ export class Room {
 		return this._dimension;
 	}
 
-	public get playerCount(): number {
-		return this._playerCount;
+	public get playerCount(): number | null {
+		return this._dimension?.getPlayers().length ?? null;
 	}
 
 	public registerDimension(dimensionRegistry: DimensionRegistry): void {
@@ -143,8 +146,6 @@ export class Room {
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
-		playerRoomTracker.set(player.id, [this.roomTypeIndex, this.roomIndex]);
-		this._playerCount++;
 	}
 
 	public async leave(player: Player): Promise<void> {
@@ -160,17 +161,28 @@ export class Room {
 		if (this._onLeave) {
 			this._onLeave(player);
 		}
-		playerRoomTracker.delete(player.id);
-		this._playerCount--;
+		this.removePlayer(player);
+	}
+
+	// doesnt run any leave callbacks or teleportation
+	public removePlayer(player: Player): void {
+		const riding: EntityRidingComponent | undefined = player.getComponent(
+			EntityComponentTypes.Riding,
+		);
+		if (riding !== undefined) {
+			// If i dont do this, player is teleported to the mount location in the new dimension for some reason
+			const rideable: EntityRideableComponent | undefined =
+				riding.entityRidingOn.getComponent(EntityComponentTypes.Rideable);
+			if (rideable !== undefined) {
+				rideable.ejectRider(player);
+			}
+		}
 		if (this._projectileTracker !== null) {
 			this._projectileTracker.removePlayerProjectiles(player);
 		}
-	}
-
-	// joins without running any join/leave callbacks or teleportation
-	public addPlayer(player: Player): void {
-		playerRoomTracker.set(player.id, [this.roomTypeIndex, this.roomIndex]);
-		this._playerCount++;
+		if (this._killTracker !== null) {
+			this._killTracker.map.delete(player.id);
+		}
 	}
 
 	public loadStructure(index: number | "all"): void {
@@ -189,18 +201,26 @@ export class Room {
 		}
 	}
 
+	public sendMessage(message: string): void {
+		if (this._dimension !== undefined) {
+			for (const player of this._dimension.getPlayers()) {
+				player.sendMessage(message);
+			}
+		}
+	}
+
 	public info(): string {
 		return `
 Dimension ID: §e${this.dimensionId}§r
 Room Index: §e${this.roomIndex}§r
 Display Name: §e${this.displayName}§r
 Icon: §e${this.icon}§r
-Player Count: §e${this._playerCount}§r
+Player Count: §e${this.playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this.structures.length}§r
 Projectile Tracker: §e${this._projectileTracker !== null}§r
 Block Interaction Manager: §e${this.blockInteraction}§r
-Death Messages: §e${this.deathMessagesEnabled}§r
+Kill Tracker: §e${this._killTracker !== null}§r
 `.trim();
 	}
 

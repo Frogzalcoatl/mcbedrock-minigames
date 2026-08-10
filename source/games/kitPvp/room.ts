@@ -1,11 +1,13 @@
 import {
 	EntityComponentTypes,
+	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
 	GameMode,
 	type Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
+import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
@@ -20,15 +22,24 @@ export function getRoomKitPvp(
 	displayName: string,
 	icon: string,
 ): Room {
-	return new Room({
+	const room = new Room({
 		blockInteraction: {
 			afterEvent: undefined,
 			beforeEvent: "default",
 		},
-		deathMessages: "default",
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,
+		killTracker: {
+			cooldownTicks: 7 * 20,
+			includeMobKills: false,
+			onKill: (event: EntityDieAfterEvent): void => {
+				const message: string | null = deathMessageFromEvent(event);
+				if (message !== null) {
+					room.sendMessage(message);
+				}
+			},
+		},
 		onJoin: (player: Player): void => {
 			player.setGameMode(GameMode.Adventure);
 			setEntityHealth(player, "max");
@@ -60,4 +71,5 @@ export function getRoomKitPvp(
 			{ id: "kitPvpArena", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
+	return room;
 }

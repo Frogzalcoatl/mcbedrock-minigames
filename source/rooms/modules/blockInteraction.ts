@@ -6,6 +6,11 @@ import {
 	world,
 } from "@minecraft/server";
 
+export interface BlockInteractionConfig {
+	beforeEvent: ((event: PlayerInteractWithBlockBeforeEvent) => void) | "default" | undefined; // dimensionId is already checked before running
+	afterEvent: ((event: PlayerInteractWithBlockAfterEvent) => void) | undefined; // dimensionId is already checked before running
+}
+
 function defaultBeforeEvent(event: PlayerInteractWithBlockBeforeEvent): void {
 	if (
 		event.player.playerPermissionLevel === PlayerPermissionLevel.Operator &&

@@ -1,17 +1,17 @@
-import { ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
+import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { isItemCooldownFinished } from "./utils/cooldown";
+import { defaultItemStackFunc } from "./utils/default";
 import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.BreezeRod;
-const nameTag = "§r§bBreeze Leap §7(Use)";
+const nameTag: string = "§r§bBreeze Leap §7(Use)";
+export const itemBreezeLeapCooldownTicks: number = 20 * 5;
 const horizontalLeapStrength: number = 3;
 const verticalLeapStrength: number = 0.5;
 
 export function itemBreezeLeap(): ItemStack {
-	const item = new ItemStack(typeId);
-	item.nameTag = nameTag;
-	return item;
+	return defaultItemStackFunc(typeId, nameTag);
 }
 
 export function itemBreezeLeapRun(event: ItemUseAfterEvent): void {

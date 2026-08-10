@@ -8,9 +8,7 @@ import type { Room } from "./room";
 import { initRoomType, type RoomType } from "./roomType";
 
 export const roomTypes: RoomType[] = [];
-export const rooms: Room[] = [];
-
-export const playerRoomTracker = new Map<string, [number, number]>(); // [playerId, [roomTypeIndex, roomIndex]]
+export const rooms = new Map<string, Room>(); // [DimensionId, Room]
 
 system.beforeEvents.startup.subscribe((e) => {
 	roomTypes.push(
@@ -38,7 +36,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	for (const type of roomTypes) {
 		for (const room of type.rooms) {
 			room.registerDimension(e.dimensionRegistry);
-			rooms.push(room);
+			rooms.set(room.dimensionId, room);
 		}
 	}
 });
@@ -56,30 +54,18 @@ export function joinRoomType(player: Player, typeId: string, roomIndex: number =
 }
 
 export function getPlayerRoom(player: Player): Room | null {
-	const entry: [number, number] | undefined = playerRoomTracker.get(player.id);
-	if (entry === undefined) {
-		return null;
-	}
-	return roomTypes[entry[0]]?.rooms[entry[1]] ?? null;
+	return rooms.get(player.dimension.id) ?? null;
 }
 
 world.afterEvents.worldLoad.subscribe(() => {
 	for (const p of world.getAllPlayers()) {
-		if (!p.isValid) {
-			continue;
-		}
 		if (
 			p.playerPermissionLevel === PlayerPermissionLevel.Operator &&
 			p.getGameMode() === GameMode.Creative
 		) {
 			// Dont teleport contributors to hub on reload
-			const room: Room | undefined = rooms.find((r) => r.dimensionId === p.dimension.id);
-			if (room === undefined) {
-				continue;
-			}
-			room.addPlayer(p);
-		} else {
-			joinRoomType(p, roomTypeIds.hub);
+			continue;
 		}
+		joinRoomType(p, roomTypeIds.hub);
 	}
 });

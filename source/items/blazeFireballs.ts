@@ -1,11 +1,12 @@
 import {
 	EntityComponentTypes,
 	GameMode,
-	ItemStack,
+	type ItemStack,
 	type ItemUseAfterEvent,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { throwFireballFromEntity } from "../entities/fireball";
+import { defaultItemStackFunc } from "./utils/default";
 import { itemNameMatches } from "./utils/matches";
 import { removeItem } from "./utils/remove";
 
@@ -13,9 +14,7 @@ const typeId: string = MinecraftItemTypes.FireCharge;
 const nameTag: string = "§rBlaze Fireball";
 
 export function itemBlazeFireball(): ItemStack {
-	const item = new ItemStack(typeId);
-	item.nameTag = nameTag;
-	return item;
+	return defaultItemStackFunc(typeId, nameTag);
 }
 
 export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {

@@ -1,14 +1,13 @@
-import { type Entity, ItemStack } from "@minecraft/server";
+import type { Entity, ItemStack } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { defaultItemStackFunc } from "./utils/default";
 import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;
 const nameTag: string = "§r§eFire Sitck";
 
 export function itemFireStick(): ItemStack {
-	const item = new ItemStack(typeId);
-	item.nameTag = nameTag;
-	return item;
+	return defaultItemStackFunc(typeId, nameTag);
 }
 
 export function itemFireStickRun(mainhandItem: ItemStack, hitEntity: Entity): void {
