@@ -39,11 +39,11 @@ Since we're not relying on a single world file, this project can be contributed 
 
 **Exporting New Structures:**
 
-* Simply export your structure and save it to: ``structures/mg/``.
+* Export your structure and save it to: ``structures/mg/``.
 * Then add a matching identifier to structureIds in: ``source/structures/data.ts``.
 * If a structure cannot fit in one file, export multiple and store offsets in a json file: ``source/structures/json/``.
 	* See type StructureSchema in data.ts for formatting.
-	* Make sure to import your json file to data.ts and add a case to the switch statement in getStructureInfo().
+	* Make sure to import your json file to data.ts, add an identifier to structureIds, then add a matching case to the switch statement in getStructureInfo().
 
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup, and cannot be cleared on world reload. The room class also contains optional modules that can be enabled in the Room constructor. I'll list modules below:
@@ -54,9 +54,9 @@ Each room has its own custom dimension. Custom dimensions can only be registered
 
 - Kill Tracker
 	- Uses the EntityHurtAfterEvent to recognize undirect kills, such as knocking a player into the void.
-	- cooldownTicks represents the max amount of time that a kill will still be counted after last hit.
+	- CooldownTicks represents the max amount of time that a kill will still be counted after last hit.
 	- An optional onKill callback can be included, which is useful for death messages.
-	- if includeMobs is set to true, killing mobs will trigger the onKill callback.
+	- If includeMobs is set to true, killing mobs will trigger the onKill callback.
 
 - Projectile Tracker
 	- Can be used to kill projectiles shot by a player on leave.
