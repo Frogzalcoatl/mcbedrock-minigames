@@ -32,12 +32,7 @@ export function getRoomKitPvp(
 		displayName: displayName,
 		hub: {
 			onJoin: (player: Player): void => {
-				if (room.killTracker !== null) {
-					if (room.killTracker.inCombat(player)) {
-						room.killTracker.simulatedDeath(player);
-					}
-					room.killTracker.removePlayer(player);
-				}
+				room.killTracker?.removePlayer(player);
 				player.setGameMode(GameMode.Adventure);
 				setEntityHealth(player, "max");
 				clearEntityInventory(player);

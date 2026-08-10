@@ -24,7 +24,11 @@ export class KillTracker {
 	private _hitMap: Map<string, [string, number]>; // [playerId, [hitterId, timestamp (Date.now())]]
 	private entityHurt: ((event: EntityHurtAfterEvent) => void) | null;
 	private entityDie: ((event: EntityDieAfterEvent) => void) | null;
-	public onKill: ((event: EntityDieAfterEvent) => void) | null; // dimensionId is validated before running
+
+	// dimensionId is validated before running
+	// May be run in restricted execution
+	public onKill: ((event: EntityDieAfterEvent) => void) | null;
+
 	public showCombatTimeCallback: ((player: Player) => void) | null;
 	private _showTimeMap: Map<string, number>; // [playerId, system.runInterval runId]
 
@@ -149,10 +153,23 @@ export class KillTracker {
 	}
 
 	public removePlayer(player: Player): void {
-		this._hitMap.delete(player.id);
-		const runId: number | undefined = this._showTimeMap.get(player.id);
-		if (runId !== undefined) {
-			system.clearRun(runId);
+		if (this.inCombat(player)) {
+			const event: EntityDieAfterEvent | null = this.createDeathEvent(player);
+			if (event !== null) {
+				this._hitMap.delete(event.deadEntity.id);
+				if (event.damageSource.damagingEntity instanceof Player) {
+					this._hitMap.delete(event.damageSource.damagingEntity.id);
+				}
+				if (this.onKill !== null) {
+					this.onKill(event);
+				}
+			}
+			this._hitMap.delete(player.id);
+			const runId: number | undefined = this._showTimeMap.get(player.id);
+			if (runId !== undefined) {
+				system.clearRun(runId);
+				this._showTimeMap.delete(player.id);
+			}
 		}
 	}
 
@@ -185,17 +202,6 @@ export class KillTracker {
 		};
 	}
 
-	// When a player leaves while in combat
-	public simulatedDeath(player: Player): void {
-		if (this.onKill === null) {
-			return;
-		}
-		const event: EntityDieAfterEvent | null = this.createDeathEvent(player);
-		if (event !== null) {
-			this.onKill(event);
-		}
-	}
-
 	public getCombatTimeTicks(player: Player): number {
 		const entry = this._hitMap.get(player.id);
 		if (entry === undefined) {
@@ -221,8 +227,9 @@ export class KillTracker {
 			}
 		});
 		const runId: number = system.runInterval(() => {
-			if (!this.inCombat(player)) {
+			if (!(player.isValid && this.inCombat(player))) {
 				system.clearRun(runId);
+				this._showTimeMap.delete(player.id);
 				return;
 			}
 			if (this.showCombatTimeCallback !== null) {
