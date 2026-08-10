@@ -3,7 +3,7 @@ import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
 import { getRoomKitPvp } from "../games/kitPvp/room";
 import roomTypeIds from "../roomTypeIds";
-import { getRoomHub } from "./hub";
+import { getRoomHub } from "./mainHub";
 import type { Room } from "./room";
 import { initRoomType, type RoomType } from "./roomType";
 

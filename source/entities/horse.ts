@@ -11,11 +11,11 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { spawnParticlesWithinBounds } from "../particles/utils";
+import { spreadParticles } from "../particles/utils";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);
-	spawnParticlesWithinBounds("minecraft:dust_plume", dimension, pos, 20, 1, 1);
+	spreadParticles("minecraft:dust_plume", dimension, pos, 20, 1, 1);
 }
 
 // Returns horse entity

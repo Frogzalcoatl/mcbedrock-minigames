@@ -12,6 +12,7 @@ import { removeItem } from "./utils/remove";
 
 const typeId: string = MinecraftItemTypes.FireCharge;
 const nameTag: string = "§rBlaze Fireball";
+const blazeFireballSpeed: number = 4;
 
 export function itemBlazeFireball(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
@@ -26,7 +27,7 @@ export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {
 		if (event.source.getGameMode() !== GameMode.Creative) {
 			removeItem(inventory.container, event.itemStack, 1);
 		}
-		throwFireballFromEntity("small", 4, event.source);
+		throwFireballFromEntity("small", blazeFireballSpeed, event.source);
 		event.source.dimension.playSound("mob.blaze.shoot", event.source.location);
 	}
 }

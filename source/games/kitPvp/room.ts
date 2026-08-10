@@ -1,4 +1,5 @@
 import {
+	type Entity,
 	EntityComponentTypes,
 	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
@@ -7,7 +8,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
-import { deathMessageFromEvent } from "../../entities/deathMessages";
+import { deathMessageFromEvent, getEntityName } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
@@ -29,6 +30,36 @@ export function getRoomKitPvp(
 		},
 		dimensionId: dimensionId,
 		displayName: displayName,
+		hub: {
+			onJoin: (player: Player): void => {
+				if (room.killTracker !== null) {
+					if (room.killTracker.inCombat(player)) {
+						room.killTracker.simulatedDeath(player);
+					}
+					room.killTracker.removePlayer(player);
+				}
+				player.setGameMode(GameMode.Adventure);
+				setEntityHealth(player, "max");
+				clearEntityInventory(player);
+				clearEntityEffects(player);
+				player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
+					amplifier: 255,
+					showParticles: false,
+				});
+				player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+					amplifier: 255,
+					showParticles: false,
+				});
+				const inventory: EntityInventoryComponent | undefined = player.getComponent(
+					EntityComponentTypes.Inventory,
+				);
+				if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
+					return;
+				}
+				inventory.container.setItem(3, itemKitPvpSelect());
+				inventory.container.setItem(5, itemTeleporter());
+			},
+		},
 		icon: icon,
 		killTracker: {
 			cooldownTicks: 7 * 20,
@@ -39,28 +70,21 @@ export function getRoomKitPvp(
 					room.sendMessage(message);
 				}
 			},
-		},
-		onJoin: (player: Player): void => {
-			player.setGameMode(GameMode.Adventure);
-			setEntityHealth(player, "max");
-			clearEntityInventory(player);
-			clearEntityEffects(player);
-			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
-				amplifier: 255,
-				showParticles: false,
-			});
-			player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
-				amplifier: 255,
-				showParticles: false,
-			});
-			const inventory: EntityInventoryComponent | undefined = player.getComponent(
-				EntityComponentTypes.Inventory,
-			);
-			if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
-				return;
-			}
-			inventory.container.setItem(3, itemKitPvpSelect());
-			inventory.container.setItem(5, itemTeleporter());
+			showCombatTimeCallback: (player: Player): void => {
+				if (room.killTracker === null) {
+					return;
+				}
+				const lastHitter: Entity | null = room.killTracker.getLastHitter(player);
+				if (lastHitter === null) {
+					return;
+				}
+				const inCombatWith: string = getEntityName(lastHitter);
+				const combatTimeSeconds: number = Math.ceil(
+					room.killTracker.getCombatTimeTicks(player) / 20,
+				);
+				const display: string = `In Combat: §e${inCombatWith} §7(${combatTimeSeconds})`;
+				player.onScreenDisplay.setActionBar(display);
+			},
 		},
 		projectileTrackerTypeIds: [MinecraftEntityTypes.ThrownTrident],
 		roomIndex: roomIndex,

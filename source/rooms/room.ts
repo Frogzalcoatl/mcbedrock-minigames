@@ -14,7 +14,8 @@ import {
 	type BlockInteractionConfig,
 	initBlockInteractionManager,
 } from "./modules/blockInteraction";
-import { getKillTracker, type KillTracker, type KillTrackerConfig } from "./modules/killTracker";
+import { RoomHub, type RoomHubConfig } from "./modules/hub";
+import { KillTracker, type KillTrackerConfig } from "./modules/killTracker";
 import { getProjectileTracker, type ProjectileTracker } from "./modules/projectileTracker";
 import { getPlayerRoom } from "./roomManager";
 
@@ -38,6 +39,7 @@ export interface RoomConfig {
 	projectileTrackerTypeIds?: string[];
 	blockInteraction?: BlockInteractionConfig;
 	killTracker?: KillTrackerConfig;
+	hub?: RoomHubConfig;
 }
 
 export type RoomCreationFunc = (
@@ -57,14 +59,15 @@ export class Room {
 	public readonly structures: RoomStructure[];
 	private _dimension: Dimension | undefined;
 	private _spawn: Vector3;
-	private _beforeJoin: ((player: Player) => Promise<boolean>) | undefined;
-	private _onJoin: ((player: Player) => void) | undefined;
-	private _beforeLeave: ((player: Player) => Promise<boolean>) | undefined;
-	private _onLeave: ((player: Player) => void) | undefined;
+	private _beforeJoin: ((player: Player) => Promise<boolean>) | null;
+	private _onJoin: ((player: Player) => void) | null;
+	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
+	private _onLeave: ((player: Player) => void) | null;
 	// Modules:
-	private _projectileTracker: ProjectileTracker | null;
+	public hub: RoomHub | null;
+	public projectileTracker: ProjectileTracker | null;
 	public readonly blockInteraction: boolean;
-	private _killTracker: KillTracker | null;
+	public killTracker: KillTracker | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -74,14 +77,14 @@ export class Room {
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
 		this._spawn = config.spawn;
-		this._beforeJoin = config.beforeJoin;
-		this._onJoin = config.onJoin;
-		this._beforeLeave = config.beforeLeave;
-		this._onLeave = config.onLeave;
+		this._beforeJoin = config.beforeJoin ?? null;
+		this._onJoin = config.onJoin ?? null;
+		this._beforeLeave = config.beforeLeave ?? null;
+		this._onLeave = config.onLeave ?? null;
 		if (config.projectileTrackerTypeIds === undefined) {
-			this._projectileTracker = null;
+			this.projectileTracker = null;
 		} else {
-			this._projectileTracker = getProjectileTracker(
+			this.projectileTracker = getProjectileTracker(
 				this.dimensionId,
 				config.projectileTrackerTypeIds,
 			);
@@ -97,13 +100,25 @@ export class Room {
 			this.blockInteraction = true;
 		}
 		if (config.killTracker === undefined) {
-			this._killTracker = null;
+			this.killTracker = null;
 		} else {
-			this._killTracker = getKillTracker(
+			this.killTracker = new KillTracker(
 				this.dimensionId,
-				config.killTracker.onKill ?? null,
 				config.killTracker.cooldownTicks,
 				config.killTracker.includeMobKills,
+				config.killTracker.onKill ?? null,
+				config.killTracker.showCombatTimeCallback ?? null,
+			);
+			this.killTracker.subscribe();
+		}
+		if (config.hub === undefined) {
+			this.hub = null;
+		} else {
+			this.hub = new RoomHub(
+				this.dimensionId,
+				config.hub.spawn ?? this._spawn,
+				config.hub.onJoin ?? null,
+				config.hub.onLeave ?? null,
 			);
 		}
 	}
@@ -129,7 +144,7 @@ export class Room {
 		if (!player.isValid || this._dimension === undefined) {
 			return;
 		}
-		if (this._beforeJoin !== undefined) {
+		if (this._beforeJoin !== null) {
 			const result: boolean = await this._beforeJoin(player);
 			if (!result) {
 				return;
@@ -139,8 +154,12 @@ export class Room {
 		if (previousRoom !== null) {
 			previousRoom.leave(player);
 		}
-		player.teleport(this._spawn, { dimension: this._dimension });
-		if (this._onJoin) {
+		if (this.hub?.isActive) {
+			this.hub.join(player);
+		} else {
+			player.teleport(this._spawn, { dimension: this._dimension });
+		}
+		if (this._onJoin !== null) {
 			this._onJoin(player);
 		}
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
@@ -152,14 +171,17 @@ export class Room {
 		if (!player.isValid) {
 			return;
 		}
-		if (this._beforeLeave !== undefined) {
+		if (this._beforeLeave !== null) {
 			const result: boolean = await this._beforeLeave(player);
 			if (!result) {
 				return;
 			}
 		}
-		if (this._onLeave) {
+		if (this._onLeave !== null) {
 			this._onLeave(player);
+		}
+		if (this.hub?.isActive) {
+			this.hub.leave(player);
 		}
 		this.removePlayer(player);
 	}
@@ -177,11 +199,14 @@ export class Room {
 				rideable.ejectRider(player);
 			}
 		}
-		if (this._projectileTracker !== null) {
-			this._projectileTracker.removePlayerProjectiles(player);
+		if (this.hub !== null) {
+			this.hub.removePlayer(player);
 		}
-		if (this._killTracker !== null) {
-			this._killTracker.map.delete(player.id);
+		if (this.projectileTracker !== null) {
+			this.projectileTracker.removePlayerProjectiles(player);
+		}
+		if (this.killTracker !== null) {
+			this.killTracker.removePlayer(player);
 		}
 	}
 
@@ -218,17 +243,9 @@ Icon: §e${this.icon}§r
 Player Count: §e${this.playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this.structures.length}§r
-Projectile Tracker: §e${this._projectileTracker !== null}§r
+Projectile Tracker: §e${this.projectileTracker !== null}§r
 Block Interaction Manager: §e${this.blockInteraction}§r
-Kill Tracker: §e${this._killTracker !== null}§r
+Kill Tracker: §e${this.killTracker !== null}§r
 `.trim();
-	}
-
-	// Modules:
-	public removePlayerProjectiles(player: Player): void {
-		if (this._projectileTracker === null) {
-			return;
-		}
-		this._projectileTracker.removePlayerProjectiles(player);
 	}
 }

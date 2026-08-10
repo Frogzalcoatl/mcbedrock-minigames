@@ -9,8 +9,9 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
+import type { RoomHub } from "../../rooms/modules/hub";
 import type { Room } from "../../rooms/room";
-import { roomTypes } from "../../rooms/roomManager";
+import { getPlayerRoom, roomTypes } from "../../rooms/roomManager";
 import type { RoomType } from "../../rooms/roomType";
 import roomTypeIds from "../../roomTypeIds";
 import { getPlayerFromOrigin } from "../utils";
@@ -37,26 +38,34 @@ export function customCommandHub(): [
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			const roomType: RoomType | undefined = roomTypes.find(
+			const playerRoom: Room | null = getPlayerRoom(player);
+			if (playerRoom !== null && playerRoom.hub !== null && !playerRoom.hub.has(player)) {
+				const hub: RoomHub = playerRoom.hub;
+				system.run(() => {
+					hub.join(player);
+				});
+				return;
+			}
+			const mainHubRoomType: RoomType | undefined = roomTypes.find(
 				(r) => r.typeId === roomTypeIds.hub,
 			);
-			if (roomType === undefined || roomType.rooms.length === 0) {
+			if (mainHubRoomType === undefined || mainHubRoomType.rooms.length === 0) {
 				return {
 					message: "No valid hubs found.",
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			const actualIndex: number = displayIndex - 1;
-			if (actualIndex >= roomType.rooms.length || actualIndex < 0) {
+			if (actualIndex >= mainHubRoomType.rooms.length || actualIndex < 0) {
 				return {
-					message: `Invalid hub id "${displayIndex}". Must be within range 1-${roomType.rooms.length}.`,
+					message: `Invalid hub id "${displayIndex}". Must be within range 1-${mainHubRoomType.rooms.length}.`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			const room: Room | undefined = roomType.rooms[actualIndex];
+			const room: Room | undefined = mainHubRoomType.rooms[actualIndex];
 			if (room === undefined) {
 				return {
-					message: `Unable to find ${roomTypeIds.hub}-${displayIndex}.`,
+					message: `Unable to join ${roomTypeIds.hub}-${displayIndex}.`,
 					status: CustomCommandStatus.Failure,
 				};
 			}

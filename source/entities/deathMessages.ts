@@ -5,7 +5,7 @@ import {
 	Player,
 } from "@minecraft/server";
 
-function getEntityName(entity: Entity): string {
+export function getEntityName(entity: Entity): string {
 	return entity.nameTag ? entity.nameTag : entity instanceof Player ? entity.name : entity.typeId;
 }
 

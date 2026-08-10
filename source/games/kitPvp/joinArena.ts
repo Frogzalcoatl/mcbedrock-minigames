@@ -5,6 +5,8 @@ import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import { giveKit, type Kit } from "../../kits/kitManager";
+import type { Room } from "../../rooms/room";
+import { getPlayerRoom } from "../../rooms/roomManager";
 import roomTypeIds from "../../roomTypeIds";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
@@ -24,4 +26,6 @@ export function joinKitPvpArena(player: Player, selectedKitIndex: number): void 
 		player.sendMessage(`§7Selected Kit: ${givenKit.name}`);
 	}
 	player.teleport({ x: 323, y: 9, z: 204 });
+	const room: Room | null = getPlayerRoom(player);
+	room?.hub?.leave(player);
 }
