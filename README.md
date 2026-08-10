@@ -18,19 +18,23 @@ We plan to include established games from popular servers such as Kit Pvp, Skywa
 
 `/load` - Load structure from minigame behavior pack.
 
+`/room` - Manage active rooms.
+
 `/savenew` - Place structure blocks for save based on bounds.
 
 `/saveold` - Place structure blocks for save based on existing structure.
 
-`/room` - Manage active rooms.
+`/sim` - Spawn simulated players.
+
+`/clearsim` - Clear simulated players.
 
 **All Players:**
 
 `/hub` - Transfer to hub.
 
-`/queue` - Join a game queue.
-
 `/profile` - View a player profile.
+
+`/queue` - Join a game queue.
 
 ## Structure Loading
 This project relies on structure files to improve ease of collaboration.
