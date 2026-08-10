@@ -1,7 +1,6 @@
-import { type Dimension, type Player, type Vector3, world } from "@minecraft/server";
+import type { Player } from "@minecraft/server";
 
 export interface RoomHubConfig {
-	spawn?: Vector3; // If undefined, will use spawn of Room that hub is within.
 	onJoin?: (player: Player) => void;
 	onLeave?: (player: Player) => void;
 }
@@ -9,20 +8,17 @@ export interface RoomHubConfig {
 export class RoomHub {
 	public readonly dimensionId: string;
 	private _isActive: boolean;
-	private _spawn: Vector3;
 	private _playerIds: Set<string>;
 	private _onJoin: ((player: Player) => void) | null;
 	private _onLeave: ((player: Player) => void) | null;
 
 	constructor(
 		dimensionId: string,
-		spawn: Vector3,
 		onJoin: ((player: Player) => void) | null,
 		onLeave: ((player: Player) => void) | null,
 	) {
 		this.dimensionId = dimensionId;
 		this._isActive = true;
-		this._spawn = spawn;
 		this._playerIds = new Set<string>();
 		this._onJoin = onJoin;
 		this._onLeave = onLeave;
@@ -48,8 +44,6 @@ export class RoomHub {
 			return;
 		}
 		this._playerIds.add(player.id);
-		const dimension: Dimension = world.getDimension(this.dimensionId);
-		player.teleport(this._spawn, { dimension: dimension });
 		if (this._onJoin !== null) {
 			this._onJoin(player);
 		}
