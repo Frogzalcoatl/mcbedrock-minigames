@@ -1,0 +1,61 @@
+import {
+	CommandPermissionLevel,
+	type CustomCommand,
+	type CustomCommandOrigin,
+	CustomCommandParamType,
+	type CustomCommandResult,
+	CustomCommandStatus,
+	type Dimension,
+	GameMode,
+	system,
+	world,
+} from "@minecraft/server";
+import { spawnSimulatedPlayer } from "@minecraft/server-gametest";
+import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
+import { PACK_NAMESPACE } from "../../constants";
+import { getDimensionFromOrigin } from "../utils";
+
+export function customCommandSim(): [
+	CustomCommand,
+	(origin: CustomCommandOrigin, amount: number, name: string) => CustomCommandResult | undefined,
+] {
+	return [
+		{
+			description: "Spawn simulated players.",
+			name: `${PACK_NAMESPACE}:sim`,
+			optionalParameters: [
+				{ name: "amount", type: CustomCommandParamType.Integer },
+				{ name: "name", type: CustomCommandParamType.String },
+			],
+			permissionLevel: CommandPermissionLevel.Admin,
+		},
+		(
+			origin: CustomCommandOrigin,
+			amount: number = 1,
+			name: string = "Simulated Player",
+		): CustomCommandResult | undefined => {
+			if (amount < 0) {
+				return {
+					message: "Amount must be a positive integer",
+					status: CustomCommandStatus.Failure,
+				};
+			}
+			let dimension: Dimension | null = getDimensionFromOrigin(origin);
+			if (dimension === null) {
+				dimension = world.getDimension(MinecraftDimensionTypes.Overworld);
+			}
+			system.run(() => {
+				for (let i: number = 0; i < amount; i++) {
+					spawnSimulatedPlayer(
+						{ dimension: dimension, x: 0, y: 10_000, z: 0 },
+						name,
+						GameMode.Adventure,
+					);
+				}
+			});
+			return {
+				status: CustomCommandStatus.Success,
+			};
+		},
+	];
+}

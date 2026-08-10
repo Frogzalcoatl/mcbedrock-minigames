@@ -1,4 +1,5 @@
 import { system } from "@minecraft/server";
+import { customCommandClearSim } from "./commands/clearSim";
 import { customCommandHub } from "./commands/hub";
 import { customCommandLoad } from "./commands/load";
 import { customCommandProfile } from "./commands/profile";
@@ -6,6 +7,7 @@ import { customCommandQueue } from "./commands/queue";
 import { customCommandRooms } from "./commands/rooms";
 import { customCommandSaveNew } from "./commands/savenew";
 import { customCommandSaveOld } from "./commands/saveold";
+import { customCommandSim } from "./commands/sim";
 import { registerCommandEnums } from "./enums";
 
 system.beforeEvents.startup.subscribe((e) => {
@@ -17,4 +19,6 @@ system.beforeEvents.startup.subscribe((e) => {
 	e.customCommandRegistry.registerCommand(...customCommandQueue());
 	e.customCommandRegistry.registerCommand(...customCommandSaveNew());
 	e.customCommandRegistry.registerCommand(...customCommandSaveOld());
+	e.customCommandRegistry.registerCommand(...customCommandSim());
+	e.customCommandRegistry.registerCommand(...customCommandClearSim());
 });

@@ -208,12 +208,12 @@ export class Room {
 		if (this.hub?.isActive) {
 			this.hub.leave(player);
 		}
-		this.clearSoundRunInterval(player);
 		this.removePlayer(player);
 	}
 
 	// doesnt run any leave callbacks or teleportation
 	public removePlayer(player: Player): void {
+		this.clearSoundRunInterval(player);
 		const riding: EntityRidingComponent | undefined = player.getComponent(
 			EntityComponentTypes.Riding,
 		);
