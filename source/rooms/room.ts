@@ -9,6 +9,7 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import {
 	type BlockInteractionConfig,
@@ -63,7 +64,6 @@ export class Room {
 	private _onJoin: ((player: Player) => void) | null;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
 	private _onLeave: ((player: Player) => void) | null;
-	private _stopSoundMap: Map<string, number>; // [playerId, runId]
 	// Modules:
 	public hub: RoomHub | null;
 	public projectileTracker: ProjectileTracker | null;
@@ -82,7 +82,6 @@ export class Room {
 		this._onJoin = config.onJoin ?? null;
 		this._beforeLeave = config.beforeLeave ?? null;
 		this._onLeave = config.onLeave ?? null;
-		this._stopSoundMap = new Map<string, number>();
 		if (config.projectileTrackerTypeIds === undefined) {
 			this.projectileTracker = null;
 		} else {
@@ -118,6 +117,7 @@ export class Room {
 		} else {
 			this.hub = new RoomHub(
 				this.dimensionId,
+				config.hub.spawn ?? this._spawn,
 				config.hub.onJoin ?? null,
 				config.hub.onLeave ?? null,
 			);
@@ -141,30 +141,6 @@ export class Room {
 		});
 	}
 
-	private clearSoundRunInterval(player: Player): void {
-		const oldRunId: number | undefined = this._stopSoundMap.get(player.id);
-		if (oldRunId !== undefined) {
-			system.clearRun(oldRunId);
-			this._stopSoundMap.delete(player.id);
-		}
-	}
-
-	private stopPortalSoundOnTeleport(player: Player): void {
-		this.clearSoundRunInterval(player);
-		player.clearVelocity();
-		const intervalId: number = system.runInterval(() => {
-			player.stopSound("portal.travel");
-			if (
-				Math.abs(player.getVelocity().x) >= 0.2 ||
-				Math.abs(player.getVelocity().z) >= 0.2
-			) {
-				system.clearRun(intervalId);
-				this._stopSoundMap.delete(player.id);
-			}
-		});
-		this._stopSoundMap.set(player.id, intervalId);
-	}
-
 	public async join(player: Player): Promise<void> {
 		if (!player.isValid || this._dimension === undefined) {
 			return;
@@ -181,14 +157,15 @@ export class Room {
 		}
 		if (this.hub?.isActive) {
 			this.hub.join(player);
-		}
-		player.teleport(this._spawn, { dimension: this._dimension });
-		this.stopPortalSoundOnTeleport(player);
-		if (this._onJoin !== null) {
-			this._onJoin(player);
+		} else {
+			player.teleport(this._spawn, { dimension: this._dimension });
+			portalSoundRunInterval(player);
 		}
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
+		}
+		if (this._onJoin !== null) {
+			this._onJoin(player);
 		}
 	}
 
@@ -213,7 +190,7 @@ export class Room {
 
 	// doesnt run any leave callbacks or teleportation
 	public removePlayer(player: Player): void {
-		this.clearSoundRunInterval(player);
+		portalSoundRunIntervalClear(player);
 		const riding: EntityRidingComponent | undefined = player.getComponent(
 			EntityComponentTypes.Riding,
 		);
