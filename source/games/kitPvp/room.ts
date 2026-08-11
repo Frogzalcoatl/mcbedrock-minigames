@@ -4,17 +4,19 @@ import {
 	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
 	GameMode,
-	type Player,
+	Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { deathMessageFromEvent, getEntityName } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
-import { setEntityHealth } from "../../entities/health";
+import { changeEntityHealth, setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import { itemKitPvpSelect } from "../../items/kitPvpSelect";
 import { itemTeleporter } from "../../items/teleporter";
 import { Room } from "../../rooms/room";
+
+const healthAddedOnKill: number = 10;
 
 export function getRoomKitPvp(
 	roomTypeIndex: number,
@@ -58,11 +60,14 @@ export function getRoomKitPvp(
 		icon: icon,
 		killTracker: {
 			cooldownTicks: 7 * 20,
-			includeMobKills: false,
+			includeMobKills: true,
 			onKill: (event: EntityDieAfterEvent): void => {
 				const message: string | null = deathMessageFromEvent(event);
 				if (message !== null) {
 					room.sendMessage(message);
+				}
+				if (event.damageSource.damagingEntity instanceof Player) {
+					changeEntityHealth(event.damageSource.damagingEntity, healthAddedOnKill);
 				}
 			},
 			showCombatTimeCallback: (player: Player): void => {

@@ -246,6 +246,7 @@ Icon: §e${this.icon}§r
 Player Count: §e${this.playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this.structures.length}§r
+Includes Hub: §e${this.hub !== null}§r
 Projectile Tracker: §e${this.projectileTracker !== null}§r
 Block Interaction Manager: §e${this.blockInteraction}§r
 Kill Tracker: §e${this.killTracker !== null}§r
