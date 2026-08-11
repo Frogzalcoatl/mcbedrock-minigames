@@ -5,12 +5,12 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../constants";
-import { clearEntityEffects } from "../entities/effects";
-import { setEntityHealth } from "../entities/health";
-import { clearEntityInventory } from "../entities/inventory";
-import { itemTeleporter } from "../items/teleporter";
-import { Room } from "./room";
+import { MAX_EFFECT_DURATION } from "../../constants";
+import { clearEntityEffects } from "../../entities/effects";
+import { setEntityHealth } from "../../entities/health";
+import { clearEntityInventory } from "../../entities/inventory";
+import { itemTeleporter } from "../../items/teleporter";
+import { Room } from "../../rooms/room";
 
 export function getRoomHub(
 	roomTypeIndex: number,
@@ -20,10 +20,6 @@ export function getRoomHub(
 	icon: string,
 ): Room {
 	return new Room({
-		blockInteraction: {
-			afterEvent: undefined,
-			beforeEvent: "default",
-		},
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,

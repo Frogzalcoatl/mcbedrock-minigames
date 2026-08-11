@@ -1,5 +1,5 @@
 import { type Dimension, type Player, type Vector3, world } from "@minecraft/server";
-import { portalSoundRunInterval } from "../../player/portalSound";
+import { portalSoundRunInterval } from "../player/portalSound";
 
 export interface RoomHubConfig {
 	spawn?: Vector3; // Uses room spawn when undefined

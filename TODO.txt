@@ -1,0 +1,9 @@
+* Update readme to match new module style
+
+* Review everything
+
+* Finish kits
+
+* Review everything
+
+# Ask xsku for code review

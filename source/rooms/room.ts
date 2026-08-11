@@ -9,15 +9,20 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import {
+	type KillTrackerConfig,
+	killTrackerDimensionConfigs,
+	killTrackerRemovePlayer,
+} from "../entities/killTracker";
+import {
+	type ProjectileTrackerConfig,
+	projectileTrackerDimensionIds,
+	projectileTrackerInit,
+	projectileTrackerRemoveProjectiles,
+} from "../entities/projectileTracker";
 import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
-import {
-	type BlockInteractionConfig,
-	initBlockInteractionManager,
-} from "./modules/blockInteraction";
-import { RoomHub, type RoomHubConfig } from "./modules/hub";
-import { KillTracker, type KillTrackerConfig } from "./modules/killTracker";
-import { getProjectileTracker, type ProjectileTracker } from "./modules/projectileTracker";
+import { RoomHub, type RoomHubConfig } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
 
 export interface RoomStructure {
@@ -37,8 +42,7 @@ export interface RoomConfig {
 	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	onLeave?: (player: Player) => void;
 	structures?: RoomStructure[];
-	projectileTrackerTypeIds?: string[];
-	blockInteraction?: BlockInteractionConfig;
+	projectileTracker?: ProjectileTrackerConfig;
 	killTracker?: KillTrackerConfig;
 	hub?: RoomHubConfig;
 }
@@ -64,11 +68,7 @@ export class Room {
 	private _onJoin: ((player: Player) => void) | null;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
 	private _onLeave: ((player: Player) => void) | null;
-	// Modules:
 	public hub: RoomHub | null;
-	public projectileTracker: ProjectileTracker | null;
-	public readonly blockInteraction: boolean;
-	public killTracker: KillTracker | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -82,35 +82,11 @@ export class Room {
 		this._onJoin = config.onJoin ?? null;
 		this._beforeLeave = config.beforeLeave ?? null;
 		this._onLeave = config.onLeave ?? null;
-		if (config.projectileTrackerTypeIds === undefined) {
-			this.projectileTracker = null;
-		} else {
-			this.projectileTracker = getProjectileTracker(
-				this.dimensionId,
-				config.projectileTrackerTypeIds,
-			);
+		if (config.projectileTracker !== undefined) {
+			projectileTrackerInit(this.dimensionId, config.projectileTracker.typeIds);
 		}
-		if (config.blockInteraction === undefined) {
-			this.blockInteraction = false;
-		} else {
-			initBlockInteractionManager(
-				this.dimensionId,
-				config.blockInteraction.beforeEvent,
-				config.blockInteraction.afterEvent,
-			);
-			this.blockInteraction = true;
-		}
-		if (config.killTracker === undefined) {
-			this.killTracker = null;
-		} else {
-			this.killTracker = new KillTracker(
-				this.dimensionId,
-				config.killTracker.cooldownTicks,
-				config.killTracker.includeMobKills,
-				config.killTracker.onKill ?? null,
-				config.killTracker.showCombatTimeCallback ?? null,
-			);
-			this.killTracker.subscribe();
+		if (config.killTracker) {
+			killTrackerDimensionConfigs.set(this.dimensionId, config.killTracker);
 		}
 		if (config.hub === undefined) {
 			this.hub = null;
@@ -205,12 +181,8 @@ export class Room {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
-		if (this.projectileTracker !== null) {
-			this.projectileTracker.removePlayerProjectiles(player);
-		}
-		if (this.killTracker !== null) {
-			this.killTracker.removePlayer(player);
-		}
+		projectileTrackerRemoveProjectiles(player);
+		killTrackerRemovePlayer(player);
 	}
 
 	public loadStructure(index: number | "all"): void {
@@ -247,9 +219,8 @@ Player Count: §e${this.playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this.structures.length}§r
 Includes Hub: §e${this.hub !== null}§r
-Projectile Tracker: §e${this.projectileTracker !== null}§r
-Block Interaction Manager: §e${this.blockInteraction}§r
-Kill Tracker: §e${this.killTracker !== null}§r
+Projectile Tracker: §e${projectileTrackerDimensionIds.has(this.dimensionId)}§r
+Kill Tracker: §e${killTrackerDimensionConfigs.has(this.dimensionId)}§r
 `.trim();
 	}
 }
