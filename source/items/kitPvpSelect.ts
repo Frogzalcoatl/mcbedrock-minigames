@@ -1,7 +1,7 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { joinKitPvpArena } from "../games/kitPvp/joinArena";
-import { showKitsForm } from "../games/kitPvp/kitsForm";
+import { showFormKits } from "../kits/formKits";
 import roomTypeIds from "../roomTypeIds";
 import { itemNameMatches } from "./utils/matches";
 
@@ -19,7 +19,7 @@ export async function itemKitPvpSelectRun(event: ItemUseAfterEvent): Promise<voi
 	if (!itemNameMatches(event.itemStack, typeId, nameTag)) {
 		return;
 	}
-	const selectedKitIndex: number | undefined = await showKitsForm(
+	const selectedKitIndex: number | undefined = await showFormKits(
 		event.source,
 		roomTypeIds.kitPvp,
 	);

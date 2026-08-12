@@ -28,9 +28,6 @@ export interface Kit {
 export const kits = new Map<string, Kit[]>(); // [roomTypeId, kits]
 
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
-	if (!container.isValid) {
-		return;
-	}
 	for (const entry of kitInventory) {
 		if (container.size <= entry.slot || entry.slot < 0) {
 			continue;
@@ -40,10 +37,7 @@ function giveKitInventory(kitInventory: KitInventory, container: Container): voi
 }
 
 function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void {
-	if (!equippable.isValid) {
-		return;
-	}
-	// if a equipment slot isnt defined it is cleared
+	// if a kit equipment slot is undefined, the slot is simply cleared.
 	equippable.setEquipment(EquipmentSlot.Head, kit.helmet);
 	equippable.setEquipment(EquipmentSlot.Chest, kit.chestplate);
 	equippable.setEquipment(EquipmentSlot.Legs, kit.leggings);
@@ -65,7 +59,7 @@ export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): K
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
 	);
-	if (inventory?.isValid) {
+	if (inventory !== undefined) {
 		giveKitInventory(kit.inventory, inventory.container);
 	}
 	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
@@ -79,13 +73,14 @@ export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): K
 }
 
 export function getEntityKit(entity: Entity): Kit | null {
-	const kitInfo: [string, number] | undefined = entityKits.get(entity.id);
-	if (kitInfo === undefined) {
+	const entry: [string, number] | undefined = entityKits.get(entity.id);
+	if (entry === undefined) {
 		return null;
 	}
-	const roomTypeKits: Kit[] | undefined = kits.get(kitInfo[0]);
+	const [roomTypeId, kitIndex] = entry;
+	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
 	if (roomTypeKits === undefined) {
 		return null;
 	}
-	return roomTypeKits[kitInfo[1]] ?? null;
+	return roomTypeKits[kitIndex] ?? null;
 }

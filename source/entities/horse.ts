@@ -15,7 +15,7 @@ import { spreadParticles } from "../particles/utils";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);
-	spreadParticles("minecraft:dust_plume", dimension, pos, 20, 1, 1);
+	spreadParticles("minecraft:dust_plume", dimension, pos, 1, 1, 20);
 }
 
 // Returns horse entity
@@ -66,18 +66,18 @@ export function spawnHorseRide(
 		}
 	}, 1);
 	let tickCount: number = 0;
-	const runId: number = system.runInterval(() => {
+	const intervalId: number = system.runInterval(() => {
 		tickCount++;
 		if (!rideable.isValid || rideable.getRiders().length === 0) {
 			if (horse.isValid) {
 				despawnEffects(horse.location, horse.dimension);
 				horse.remove();
 			}
-			system.clearRun(runId);
+			system.clearRun(intervalId);
 			return;
 		}
 		if (tickCount >= durationTicks) {
-			system.clearRun(runId);
+			system.clearRun(intervalId);
 			return;
 		}
 	});

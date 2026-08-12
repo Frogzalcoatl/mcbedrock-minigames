@@ -45,7 +45,7 @@ export class RoomHub {
 	}
 
 	public join(player: Player): void {
-		if (!(player.isValid && this.isActive)) {
+		if (!this.isActive) {
 			return;
 		}
 		this._playerIds.add(player.id);

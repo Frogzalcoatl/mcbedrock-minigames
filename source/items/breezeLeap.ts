@@ -6,7 +6,7 @@ import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.BreezeRod;
 const nameTag: string = "§r§bBreeze Leap §7(Use)";
-export const itemBreezeLeapCooldownTicks: number = 20 * 5;
+export const itemBreezeLeapCooldownTicks: number = 20 * 3;
 const horizontalLeapStrength: number = 3;
 const verticalLeapStrength: number = 0.5;
 

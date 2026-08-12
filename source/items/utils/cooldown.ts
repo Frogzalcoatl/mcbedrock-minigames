@@ -1,9 +1,9 @@
 import { type ItemStack, type Player, system, world } from "@minecraft/server";
 
 export interface ItemCooldownInfo {
-	typeId: string;
-	nameTag: string;
 	cooldownTicks: number;
+	nameTag: string;
+	typeId: string;
 }
 
 const items = new Map<string, [string, number, boolean]>(); // [nameTag, [typeId, cooldownTicks, sendCompletionMessage]]
@@ -15,7 +15,10 @@ export function setItemCooldown(
 	cooldownTicks: number,
 	sendMessage: boolean = false,
 ): void {
-	items.set(item.nameTag ?? "", [item.typeId, cooldownTicks, sendMessage]);
+	if (item.nameTag === undefined) {
+		return;
+	}
+	items.set(item.nameTag, [item.typeId, cooldownTicks, sendMessage]);
 }
 
 export function removeItemCooldown(nameTag: string): void {
@@ -29,14 +32,14 @@ function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: nu
 }
 
 export function isItemCooldownFinished(player: Player, item: ItemStack): boolean {
-	if (!player.isValid || item.nameTag === undefined) {
+	if (item.nameTag === undefined) {
 		return true;
 	}
-	const cooldownEntry: [string, number, boolean] | undefined = items.get(item.nameTag);
-	if (cooldownEntry === undefined) {
+	const entry: [string, number, boolean] | undefined = items.get(item.nameTag);
+	if (entry === undefined) {
 		return true;
 	}
-	const [typeId, cooldownTicks, sendCompletionMessage] = cooldownEntry;
+	const [typeId, cooldownTicks, sendCompletionMessage] = entry;
 	if (typeId !== item.typeId) {
 		return true;
 	}

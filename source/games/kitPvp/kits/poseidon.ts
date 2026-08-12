@@ -1,6 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
+import { projectileTrackerRemoveProjectiles } from "../../../entities/projectileTracker";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
@@ -25,7 +26,7 @@ function onDeath(kitUser: Player, _killer?: Entity): void {
 	if (room === null) {
 		return;
 	}
-	room.removePlayerProjectiles(kitUser);
+	projectileTrackerRemoveProjectiles(kitUser);
 }
 
 export function getKitPoseidon(): Kit {

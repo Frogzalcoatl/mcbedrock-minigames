@@ -4,7 +4,7 @@ import {
 	type ItemStack,
 	type ItemUseAfterEvent,
 } from "@minecraft/server";
-import { MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { throwFireballFromEntity } from "../entities/fireball";
 import { defaultItemStackFunc } from "./utils/default";
 import { itemNameMatches } from "./utils/matches";
@@ -27,7 +27,11 @@ export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {
 		if (event.source.getGameMode() !== GameMode.Creative) {
 			removeItem(inventory.container, event.itemStack, 1);
 		}
-		throwFireballFromEntity("small", blazeFireballSpeed, event.source);
+		throwFireballFromEntity(
+			MinecraftEntityTypes.SmallFireball,
+			blazeFireballSpeed,
+			event.source,
+		);
 		event.source.dimension.playSound("mob.blaze.shoot", event.source.location);
 	}
 }

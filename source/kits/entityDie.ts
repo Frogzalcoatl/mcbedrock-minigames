@@ -22,9 +22,6 @@ function handleKill(event: EntityDieAfterEvent): void {
 		return;
 	}
 	const killerEntity: Entity = event.damageSource.damagingEntity;
-	if (!killerEntity.isValid) {
-		return;
-	}
 	const kit: Kit | null = getEntityKit(killerEntity);
 	if (
 		kit !== null &&

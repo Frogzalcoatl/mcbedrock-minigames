@@ -15,7 +15,7 @@ import {
 function onKill(kitUser: Player, _dead: Entity): void {
 	const fireballs: ItemStack = itemBlazeFireball();
 	fireballs.lockMode = ItemLockMode.inventory;
-	fireballs.amount = 2;
+	fireballs.amount = 4;
 	giveItemToEntity(fireballs, kitUser, false);
 }
 
@@ -35,7 +35,7 @@ export function getKitBlaze(): Kit {
 	const goldenSword = new ItemStack(MinecraftItemTypes.GoldenSword);
 	setDurability(goldenSword, "unbreakable");
 	const fireballs: ItemStack = itemBlazeFireball();
-	fireballs.amount = 4;
+	fireballs.amount = 16;
 	const fireStick = itemFireStick();
 	kit.inventory = [
 		{ item: goldenSword, slot: 0 },

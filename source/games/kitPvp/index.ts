@@ -5,6 +5,7 @@ import {
 	type EntityInventoryComponent,
 	GameMode,
 	Player,
+	system,
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
@@ -18,10 +19,11 @@ import {
 	killTrackerGetLastHitter,
 	killTrackerRemovePlayer,
 } from "../../entities/killTracker";
+import { projectileTrackerRemoveProjectiles } from "../../entities/projectileTracker";
 import { itemKitPvpSelect } from "../../items/kitPvpSelect";
 import { itemTeleporter } from "../../items/teleporter";
 import { kits } from "../../kits/kitManager";
-import { Room } from "../../rooms/room";
+import { Room, type RoomCreationFunc } from "../../rooms/room";
 import roomTypeIds from "../../roomTypeIds";
 import { getKitArcher } from "./kits/archer";
 import { getKitBlaze } from "./kits/blaze";
@@ -47,19 +49,20 @@ world.afterEvents.worldLoad.subscribe(() => {
 
 const healthAddedOnKill: number = 10;
 
-export function getRoomKitPvp(
+export const getRoomKitPvp: RoomCreationFunc = (
 	roomTypeIndex: number,
 	roomIndex: number,
 	dimensionId: string,
 	displayName: string,
 	icon: string,
-): Room {
+): Room => {
 	const room = new Room({
 		dimensionId: dimensionId,
 		displayName: displayName,
 		hub: {
 			onJoin: (player: Player): void => {
 				killTrackerRemovePlayer(player);
+				projectileTrackerRemoveProjectiles(player);
 				player.setGameMode(GameMode.Adventure);
 				setEntityHealth(player, "max");
 				clearEntityInventory(player);
@@ -75,11 +78,10 @@ export function getRoomKitPvp(
 				const inventory: EntityInventoryComponent | undefined = player.getComponent(
 					EntityComponentTypes.Inventory,
 				);
-				if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
-					return;
+				if (inventory !== undefined) {
+					inventory.container.setItem(3, itemKitPvpSelect());
+					inventory.container.setItem(5, itemTeleporter());
 				}
-				inventory.container.setItem(3, itemKitPvpSelect());
-				inventory.container.setItem(5, itemTeleporter());
 			},
 		},
 		icon: icon,
@@ -89,8 +91,12 @@ export function getRoomKitPvp(
 				if (message !== null) {
 					room.sendMessage(message);
 				}
-				if (event.damageSource.damagingEntity instanceof Player) {
-					changeEntityHealth(event.damageSource.damagingEntity, healthAddedOnKill);
+				if (
+					event.damageSource.damagingEntity instanceof Player &&
+					event.damageSource.damagingEntity.isValid
+				) {
+					const killer: Player = event.damageSource.damagingEntity;
+					system.run(() => changeEntityHealth(killer, healthAddedOnKill));
 				}
 			},
 			showCombatTime: (player: Player): void => {
@@ -106,7 +112,9 @@ export function getRoomKitPvp(
 				player.onScreenDisplay.setActionBar(display);
 			},
 		},
-		projectileTracker: { typeIds: [MinecraftEntityTypes.ThrownTrident] },
+		projectileTracker: {
+			typeIds: [MinecraftEntityTypes.ThrownTrident, MinecraftEntityTypes.SmallFireball],
+		},
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
@@ -116,4 +124,4 @@ export function getRoomKitPvp(
 		],
 	});
 	return room;
-}
+};

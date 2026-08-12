@@ -9,9 +9,9 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
+import { showFormTeleporter, showRoomTypesRoomSelect } from "../../rooms/formTeleporter";
 import { roomTypes } from "../../rooms/roomManager";
 import type { RoomType } from "../../rooms/roomType";
-import { showRoomTypesForm, showRoomTypesRoomSelectForm } from "../../rooms/roomTypesForm";
 import { commandEnums } from "../enums";
 import { getPlayerFromOrigin } from "../utils";
 
@@ -38,14 +38,14 @@ export function customCommandQueue(): [
 			}
 			system.run(() => {
 				if (roomTypeId === undefined) {
-					showRoomTypesForm(player);
+					showFormTeleporter(player);
 					return;
 				}
 				const roomType: RoomType | undefined = roomTypes.find(
 					(t) => t.typeId === roomTypeId,
 				);
 				if (roomType !== undefined) {
-					showRoomTypesRoomSelectForm(player, roomType, false);
+					showRoomTypesRoomSelect(player, roomType, false);
 				}
 			});
 			return {

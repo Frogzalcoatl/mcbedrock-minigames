@@ -1,9 +1,6 @@
 import type { Container, ItemStack } from "@minecraft/server";
 
 export function removeItem(container: Container, item: ItemStack, amount: number): void {
-	if (!container.isValid) {
-		return;
-	}
 	const itemIndex = container.find(item);
 	if (itemIndex === undefined) {
 		return;
@@ -12,7 +9,10 @@ export function removeItem(container: Container, item: ItemStack, amount: number
 	if (inventoryItem === undefined) {
 		return;
 	}
-	if (inventoryItem.amount <= amount) {
+	if (inventoryItem.amount < amount) {
+		container.setItem(itemIndex);
+		removeItem(container, item, amount - inventoryItem.amount);
+	} else if (inventoryItem.amount === amount) {
 		container.setItem(itemIndex);
 	} else {
 		inventoryItem.amount -= amount;

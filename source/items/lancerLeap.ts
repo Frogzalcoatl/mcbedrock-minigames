@@ -13,7 +13,7 @@ import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.Feather;
 const nameTag: string = "§rLancer Leap §7(Use)";
-export const itemLancerLeapCooldownTicks: number = 5 * 20;
+export const itemLancerLeapCooldownTicks: number = 20 * 3;
 const horizontalLeapStrength: number = 4;
 const verticalLeapStrength: number = 0.5;
 

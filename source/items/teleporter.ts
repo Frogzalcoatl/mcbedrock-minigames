@@ -1,6 +1,6 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showRoomTypesForm } from "../rooms/roomTypesForm";
+import { showFormTeleporter } from "../rooms/formTeleporter";
 import { itemNameMatches } from "./utils/matches";
 
 const typeId: string = MinecraftItemTypes.Compass;
@@ -15,6 +15,6 @@ export function itemTeleporter(): ItemStack {
 
 export function itemTeleporterRun(event: ItemUseAfterEvent): void {
 	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
-		showRoomTypesForm(event.source);
+		showFormTeleporter(event.source);
 	}
 }

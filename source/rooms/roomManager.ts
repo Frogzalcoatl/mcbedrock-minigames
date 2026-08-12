@@ -16,7 +16,7 @@ system.beforeEvents.startup.subscribe((e) => {
 			defaultDimensionId: MinecraftDimensionTypes.Overworld,
 			displayName: "Hub",
 			icon: "textures/items/ender_eye.png",
-			roomCount: 3,
+			roomCount: 1,
 			roomCreationFunc: getRoomHub,
 			roomTypeIndex: 0,
 			typeId: roomTypeIds.hub,
@@ -50,6 +50,7 @@ export function joinRoomType(player: Player, typeId: string, roomIndex: number =
 		if (room !== undefined) {
 			room.join(player);
 		}
+		break;
 	}
 }
 

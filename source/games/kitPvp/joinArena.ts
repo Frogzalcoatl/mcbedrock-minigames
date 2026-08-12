@@ -10,9 +10,6 @@ import { getPlayerRoom } from "../../rooms/roomManager";
 import roomTypeIds from "../../roomTypeIds";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
-	if (!player.isValid) {
-		return;
-	}
 	player.setGameMode(GameMode.Adventure);
 	setEntityHealth(player, "max");
 	clearEntityInventory(player);

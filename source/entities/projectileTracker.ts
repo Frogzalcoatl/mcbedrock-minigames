@@ -19,7 +19,7 @@ export interface ProjectileTracker {
 
 export const projectileTrackerDimensionIds = new Map<string, ProjectileTracker>();
 
-export function projectileTrackerInit(dimensionId: string, projectileTypeIds: string[]): void {
+export function projectileTrackerAdd(dimensionId: string, projectileTypeIds: string[]): void {
 	projectileTrackerDimensionIds.set(dimensionId, {
 		map: new Map<string, string>(),
 		projectileTypeIds: projectileTypeIds,
@@ -52,10 +52,14 @@ function entityRemove(event: EntityRemoveBeforeEvent): void {
 	if (tracker === undefined) {
 		return;
 	}
-	tracker.map.delete(event.removedEntity.id);
+	if (tracker.map.delete(event.removedEntity.id)) {
+	}
 }
 
 function entitySpawn(event: EntitySpawnAfterEvent): void {
+	if (!event.entity.isValid) {
+		return;
+	}
 	const tracker: ProjectileTracker | undefined = projectileTrackerDimensionIds.get(
 		event.entity.dimension.id,
 	);

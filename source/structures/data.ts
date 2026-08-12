@@ -1,5 +1,5 @@
 import type { Vector3 } from "@minecraft/server";
-import { STRUCTURE_NAMESPACE } from "../constants";
+import { PACK_NAMESPACE } from "../constants";
 import rawGhostlyMangrove from "./json/ghostlyMangrove.json" with { type: "json" };
 import rawGhostlyMangroveNoChests from "./json/ghostlyMangroveNoChests.json";
 import rawGhostlySpawn from "./json/ghostlySpawn.json" with { type: "json" };
@@ -32,7 +32,7 @@ function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
 	const arr: StructureInfo[] = [];
 	for (const entry of schema) {
 		arr.push({
-			id: `${STRUCTURE_NAMESPACE}:${entry[0]}`,
+			id: `${PACK_NAMESPACE}:${entry[0]}`,
 			relLocation: { x: entry[1], y: entry[2], z: entry[3] },
 		});
 	}
@@ -50,6 +50,6 @@ export function getStructureInfo(name: string): StructureInfo[] {
 		case "kitPvpArena":
 			return schemaToStructureInfo(kitPvpArena);
 		default:
-			return [{ id: `${STRUCTURE_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
+			return [{ id: `${PACK_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
 	}
 }

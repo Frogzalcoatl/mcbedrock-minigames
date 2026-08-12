@@ -1,8 +1,11 @@
 import { type AABB, type Entity, EntityComponentTypes, type Vector3 } from "@minecraft/server";
-import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import type { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 
 export function throwFireballFromEntity(
-	type: "small" | "large" | "dragon",
+	entityTypeId:
+		| MinecraftEntityTypes.SmallFireball
+		| MinecraftEntityTypes.DragonFireball
+		| MinecraftEntityTypes.Fireball,
 	speed: number,
 	entity: Entity,
 ): void {
@@ -14,13 +17,7 @@ export function throwFireballFromEntity(
 		y: headLocation.y + viewDirection.y * entityAabb.extent.y,
 		z: headLocation.z + viewDirection.z * entityAabb.extent.z,
 	};
-	const typeId: MinecraftEntityTypes =
-		type === "small"
-			? MinecraftEntityTypes.SmallFireball
-			: type === "dragon"
-				? MinecraftEntityTypes.DragonFireball
-				: MinecraftEntityTypes.Fireball;
-	const fireballEntity: Entity = entity.dimension.spawnEntity(typeId, spawnLocation);
+	const fireballEntity: Entity = entity.dimension.spawnEntity(entityTypeId, spawnLocation);
 	const fireballImpulse: Vector3 = {
 		x: viewDirection.x * speed,
 		y: viewDirection.y * speed,

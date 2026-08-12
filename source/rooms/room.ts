@@ -16,8 +16,8 @@ import {
 } from "../entities/killTracker";
 import {
 	type ProjectileTrackerConfig,
+	projectileTrackerAdd,
 	projectileTrackerDimensionIds,
-	projectileTrackerInit,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
 import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
@@ -42,9 +42,9 @@ export interface RoomConfig {
 	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	onLeave?: (player: Player) => void;
 	structures?: RoomStructure[];
+	hub?: RoomHubConfig;
 	projectileTracker?: ProjectileTrackerConfig;
 	killTracker?: KillTrackerConfig;
-	hub?: RoomHubConfig;
 }
 
 export type RoomCreationFunc = (
@@ -82,12 +82,6 @@ export class Room {
 		this._onJoin = config.onJoin ?? null;
 		this._beforeLeave = config.beforeLeave ?? null;
 		this._onLeave = config.onLeave ?? null;
-		if (config.projectileTracker !== undefined) {
-			projectileTrackerInit(this.dimensionId, config.projectileTracker.typeIds);
-		}
-		if (config.killTracker) {
-			killTrackerDimensionConfigs.set(this.dimensionId, config.killTracker);
-		}
 		if (config.hub === undefined) {
 			this.hub = null;
 		} else {
@@ -97,6 +91,12 @@ export class Room {
 				config.hub.onJoin ?? null,
 				config.hub.onLeave ?? null,
 			);
+		}
+		if (config.projectileTracker !== undefined) {
+			projectileTrackerAdd(this.dimensionId, config.projectileTracker.typeIds);
+		}
+		if (config.killTracker) {
+			killTrackerDimensionConfigs.set(this.dimensionId, config.killTracker);
 		}
 	}
 
@@ -118,7 +118,7 @@ export class Room {
 	}
 
 	public async join(player: Player): Promise<void> {
-		if (!player.isValid || this._dimension === undefined) {
+		if (this._dimension === undefined) {
 			return;
 		}
 		if (this._beforeJoin !== null) {
@@ -146,9 +146,6 @@ export class Room {
 	}
 
 	public async leave(player: Player): Promise<void> {
-		if (!player.isValid) {
-			return;
-		}
 		if (this._beforeLeave !== null) {
 			const result: boolean = await this._beforeLeave(player);
 			if (!result) {
@@ -166,7 +163,9 @@ export class Room {
 
 	// doesnt run any leave callbacks or teleportation
 	public removePlayer(player: Player): void {
-		portalSoundRunIntervalClear(player);
+		if (this.hub !== null) {
+			this.hub.removePlayer(player);
+		}
 		const riding: EntityRidingComponent | undefined = player.getComponent(
 			EntityComponentTypes.Riding,
 		);
@@ -178,9 +177,7 @@ export class Room {
 				rideable.ejectRider(player);
 			}
 		}
-		if (this.hub !== null) {
-			this.hub.removePlayer(player);
-		}
+		portalSoundRunIntervalClear(player);
 		projectileTrackerRemoveProjectiles(player);
 		killTrackerRemovePlayer(player);
 	}

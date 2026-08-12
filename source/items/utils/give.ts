@@ -18,7 +18,7 @@ function addItem(
 }
 
 // Properly stacks items to matching itemstack instances in container if applicable
-// spawnOverflowItem = true: Spawn item as entity if container is full
+// spawnOverflowItems: When true, spawns item as entity if container is full
 export function giveItem(
 	item: ItemStack,
 	container: Container,
@@ -26,9 +26,6 @@ export function giveItem(
 	containerDimension: Dimension,
 	spawnOverflowItems: boolean = true,
 ): void {
-	if (!container.isValid) {
-		return;
-	}
 	const existingIndex: number | undefined = container.find(item);
 	if (!existingIndex) {
 		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);

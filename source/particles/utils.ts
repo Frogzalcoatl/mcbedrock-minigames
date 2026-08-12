@@ -8,9 +8,9 @@ export function spreadParticles(
 	particle: string,
 	dimension: Dimension,
 	position: Vector3,
-	particleCount: number,
 	horizontalSpread: number,
 	verticalSpread: number,
+	particleCount: number,
 ): void {
 	for (let i: number = 0; i < particleCount; i++) {
 		const particlePos: Vector3 = {

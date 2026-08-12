@@ -28,7 +28,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 	if (config.roomCount < 1) {
 		return type;
 	}
-	if (config.defaultDimensionId.startsWith("minecraft:") === false) {
+	if (!config.defaultDimensionId.startsWith("minecraft:")) {
 		for (let i: number = 0; i < config.roomCount; i++) {
 			type.rooms.push(
 				config.roomCreationFunc(
@@ -54,13 +54,8 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 	if (config.roomCount === 1) {
 		return type;
 	}
-	let customDimensionId: string = "";
 	const namespaceColonIndex: number = config.defaultDimensionId.indexOf(":");
-	if (namespaceColonIndex !== -1) {
-		customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(namespaceColonIndex + 1)}`;
-	} else {
-		customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId}`;
-	}
+	const customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(namespaceColonIndex + 1)}`;
 	for (let i: number = 1; i < config.roomCount; i++) {
 		type.rooms.push(
 			config.roomCreationFunc(

@@ -48,17 +48,21 @@ export function customCommandLoad(): [
 			animationSeconds?: number,
 		): CustomCommandResult => {
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
-			const location: Vector3 | null = getLocationFromOrigin(origin);
-			if (dimension === null || location === null) {
+			if (dimension === null) {
 				return {
-					message: "Unable to get valid location from command origin.",
+					message: "Unable to get valid dimension from command origin.",
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			if (to !== undefined) {
-				location.x = to.x;
-				location.y = to.y;
-				location.z = to.z;
+			if (to === undefined) {
+				const originLocation: Vector3 | null = getLocationFromOrigin(origin);
+				if (originLocation === null) {
+					return {
+						message: "Unable to get location from command origin.",
+						status: CustomCommandStatus.Failure,
+					};
+				}
+				to = originLocation;
 			}
 			if (!structureIds.includes(id)) {
 				return {
@@ -81,9 +85,7 @@ export function customCommandLoad(): [
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() =>
-				loadStructure(id, location, dimension, animationMode, animationSeconds),
-			);
+			system.run(() => loadStructure(id, to, dimension, animationMode, animationSeconds));
 			return {
 				status: CustomCommandStatus.Success,
 			};

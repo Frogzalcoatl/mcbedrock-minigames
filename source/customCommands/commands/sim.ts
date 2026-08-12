@@ -32,7 +32,7 @@ export function customCommandSim(): [
 		(
 			origin: CustomCommandOrigin,
 			amount: number = 1,
-			name: string = "Simulated Player",
+			name: string = "SimulatedPlayer",
 		): CustomCommandResult | undefined => {
 			if (amount < 0) {
 				return {
@@ -47,7 +47,7 @@ export function customCommandSim(): [
 			system.run(() => {
 				for (let i: number = 0; i < amount; i++) {
 					spawnSimulatedPlayer(
-						{ dimension: dimension, x: 0, y: 10_000, z: 0 },
+						{ dimension: dimension, x: 0, y: 0, z: 0 },
 						name,
 						GameMode.Adventure,
 					);

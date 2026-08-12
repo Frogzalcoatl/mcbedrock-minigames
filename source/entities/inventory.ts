@@ -13,32 +13,26 @@ export function giveItemToEntity(
 	entity: Entity,
 	spawnOverflowItems: boolean,
 ): void {
-	if (!entity.isValid) {
-		return;
-	}
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
 	);
-	if (inventory === undefined || !inventory.isValid) {
+	if (inventory === undefined) {
 		return;
 	}
 	giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
 }
 
 export function clearEntityInventory(entity: Entity): void {
-	if (!entity.isValid) {
-		return;
-	}
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
 	);
-	if (inventory?.isValid && inventory.container.isValid) {
+	if (inventory !== undefined) {
 		inventory.container.clearAll();
 	}
 	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Equippable,
 	);
-	if (equippable?.isValid) {
+	if (equippable !== undefined) {
 		equippable.setEquipment(EquipmentSlot.Head);
 		equippable.setEquipment(EquipmentSlot.Chest);
 		equippable.setEquipment(EquipmentSlot.Legs);

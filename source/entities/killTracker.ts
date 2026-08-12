@@ -14,12 +14,12 @@ const hitCooldownTicks: number = 20 * 7;
 export interface KillTrackerConfig {
 	onKill: ((event: EntityDieAfterEvent) => void) | null;
 	showCombatTime: ((player: Player) => void) | null;
-	combatTimeTickInterval?: number;
+	showCombatTimeTickInterval?: number;
 }
 
 export const killTrackerDimensionConfigs = new Map<string, KillTrackerConfig>(); // [dimensionId, config]
 const hitMap = new Map<string, [string, number]>(); // [entityId, [hitterId, timestamp (Date.now())]]
-const showTimeMap = new Map<string, number>(); //// [playerId, system.runInterval runId]
+const showTimeMap = new Map<string, number>(); //// [playerId, runIntervalId]
 
 // true when in combat
 function inCombatCondition(timestamp: number): boolean {
@@ -39,6 +39,9 @@ export function killTrackerInCombat(player: Player): boolean {
 }
 
 export function killTrackerGetLastHitter(player: Player): Entity | null {
+	if (!killTrackerDimensionConfigs.has(player.dimension.id)) {
+		return null;
+	}
 	const entry = hitMap.get(player.id);
 	if (entry === undefined) {
 		return null;
@@ -58,7 +61,7 @@ export function killTrackerGetLastHitter(player: Player): Entity | null {
 function createDeathEvent(player: Player): EntityDieAfterEvent {
 	const lastHitter: Entity | null = killTrackerGetLastHitter(player);
 	let source: EntityDamageSource;
-	if (lastHitter?.isValid) {
+	if (lastHitter !== null) {
 		source = {
 			cause: EntityDamageCause.override,
 			damagingEntity: lastHitter,
@@ -75,22 +78,24 @@ function createDeathEvent(player: Player): EntityDieAfterEvent {
 }
 
 function clearCombatTimeRunInterval(player: Player): void {
-	const runId: number | undefined = showTimeMap.get(player.id);
-	if (runId !== undefined) {
-		system.clearRun(runId);
+	const intervalId: number | undefined = showTimeMap.get(player.id);
+	if (intervalId !== undefined) {
+		system.clearRun(intervalId);
 		showTimeMap.delete(player.id);
 	}
 }
 
 function showCombatTime(player: Player): void {
 	clearCombatTimeRunInterval(player);
-	const config: KillTrackerConfig | undefined = killTrackerDimensionConfigs.get(player.id);
+	const config: KillTrackerConfig | undefined = killTrackerDimensionConfigs.get(
+		player.dimension.id,
+	);
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
 	system.run(() => {
 		if (config.showCombatTime !== null) {
-			showCombatTime(player);
+			config.showCombatTime(player);
 		}
 	});
 	const intervalId: number = system.runInterval(() => {
@@ -101,7 +106,7 @@ function showCombatTime(player: Player): void {
 		if (config.showCombatTime !== null) {
 			config.showCombatTime(player);
 		}
-	}, config.combatTimeTickInterval ?? 0);
+	}, config.showCombatTimeTickInterval ?? 0);
 	showTimeMap.set(player.id, intervalId);
 }
 
@@ -148,7 +153,7 @@ function entityHurt(event: EntityHurtAfterEvent): void {
 	showCombatTime(event.hurtEntity);
 	if (event.damageSource.damagingEntity instanceof Player) {
 		hitMap.set(damagingEntity.id, [hurtPlayer.id, Date.now()]);
-		showCombatTime(event.hurtEntity);
+		showCombatTime(event.damageSource.damagingEntity);
 	}
 }
 

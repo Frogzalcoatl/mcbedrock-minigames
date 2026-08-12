@@ -1,5 +1,5 @@
 import { type Dimension, type Vector3, world } from "@minecraft/server";
-import { STRUCTURE_NAMESPACE } from "../constants";
+import { PACK_NAMESPACE } from "../constants";
 import { getStructureInfo, type StructureInfo } from "./data";
 
 export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
@@ -17,10 +17,10 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 	if (from.y < dimension.heightRange.min || to.y > dimension.heightRange.max) {
 		return;
 	} else if (from.y === dimension.heightRange.min) {
-		structureBlockId = `${STRUCTURE_NAMESPACE}:structureBlockFlat`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlockFlat`;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${STRUCTURE_NAMESPACE}:structureBlock`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock`;
 		structureBlockY = from.y - 1;
 	}
 	for (let x: number = from.x - 1; x < to.x; x += 64) {
@@ -46,10 +46,10 @@ export function placeStructureBlocksFor(
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
 		return;
 	} else if (at.y === dimension.heightRange.min) {
-		structureBlockId = `${STRUCTURE_NAMESPACE}:structureBlockFlat`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlockFlat`;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${STRUCTURE_NAMESPACE}:structureBlock`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock`;
 		structureBlockY = at.y - 1;
 	}
 	for (const i of info) {

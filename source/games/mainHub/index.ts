@@ -10,15 +10,15 @@ import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import { itemTeleporter } from "../../items/teleporter";
-import { Room } from "../../rooms/room";
+import { Room, type RoomCreationFunc } from "../../rooms/room";
 
-export function getRoomHub(
+export const getRoomHub: RoomCreationFunc = (
 	roomTypeIndex: number,
 	roomIndex: number,
 	dimensionId: string,
 	displayName: string,
 	icon: string,
-): Room {
+): Room => {
 	return new Room({
 		dimensionId: dimensionId,
 		displayName: displayName,
@@ -26,8 +26,8 @@ export function getRoomHub(
 		onJoin: (player: Player): void => {
 			player.setGameMode(GameMode.Adventure);
 			clearEntityInventory(player);
-			clearEntityEffects(player);
 			setEntityHealth(player, "max");
+			clearEntityEffects(player);
 			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
 				amplifier: 255,
 				showParticles: false,
@@ -39,14 +39,13 @@ export function getRoomHub(
 			const inventory: EntityInventoryComponent | undefined = player.getComponent(
 				EntityComponentTypes.Inventory,
 			);
-			if (inventory === undefined || !inventory.isValid || !inventory.container.isValid) {
-				return;
+			if (inventory !== undefined) {
+				inventory.container.setItem(4, itemTeleporter());
 			}
-			inventory.container.setItem(4, itemTeleporter());
 		},
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
 		structures: [{ id: "ghostlySpawn", pos: { x: -55, y: -11, z: -59 } }],
 	});
-}
+};

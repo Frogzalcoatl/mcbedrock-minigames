@@ -1,10 +1,10 @@
-import type { Player } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
+import { type Player, system } from "@minecraft/server";
+import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
 import type { Room } from "./room";
 import { roomTypes } from "./roomManager";
 import type { RoomType } from "./roomType";
 
-export async function showRoomTypesRoomSelectForm(
+export async function showRoomTypesRoomSelect(
 	player: Player,
 	selectedType: RoomType,
 	formOnCancel: boolean,
@@ -26,10 +26,19 @@ export async function showRoomTypesRoomSelectForm(
 	for (const room of selectedType.rooms) {
 		form.button(room.displayName, room.icon);
 	}
-	const resp: ActionFormResponse = await form.show(player);
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
 	if (resp.selection === undefined) {
 		if (formOnCancel) {
-			showRoomTypesForm(player);
+			system.run(() => showFormTeleporter(player));
 		}
 		return;
 	}
@@ -41,13 +50,22 @@ export async function showRoomTypesRoomSelectForm(
 	selectedRoom.join(player);
 }
 
-export async function showRoomTypesForm(player: Player): Promise<void> {
+export async function showFormTeleporter(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Teleporter");
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
-	const resp: ActionFormResponse = await form.show(player);
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
 	if (resp.selection === undefined) {
 		return;
 	}
@@ -55,5 +73,5 @@ export async function showRoomTypesForm(player: Player): Promise<void> {
 	if (selectedType === undefined) {
 		return;
 	}
-	showRoomTypesRoomSelectForm(player, selectedType, true);
+	showRoomTypesRoomSelect(player, selectedType, true);
 }

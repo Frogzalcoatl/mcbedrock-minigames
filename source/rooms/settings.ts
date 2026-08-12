@@ -1,5 +1,11 @@
 import { type Player, system, world } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
+import {
+	ActionFormData,
+	type ActionFormResponse,
+	FormRejectError,
+	MessageFormData,
+	type MessageFormResponse,
+} from "@minecraft/server-ui";
 import type { Room } from "./room";
 import { roomTypes } from "./roomManager";
 import type { RoomType } from "./roomType";
@@ -16,7 +22,16 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 	for (const s of room.structures) {
 		form.button(`${s.id}`);
 	}
-	const resp: ActionFormResponse = await form.show(player);
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		system.run(() => showRoomInfo(player, room, roomType));
 		return;
@@ -34,9 +49,6 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 }
 
 async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Promise<void> {
-	if (!player.isValid) {
-		return;
-	}
 	const form = new ActionFormData();
 	form.title(`§0${room.displayName}`);
 	form.body(room.info());
@@ -48,12 +60,21 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 	form.divider();
 	const joinButtonIndex: number = 1;
 	const structuresButtonIndex: number = 2;
-	const resp: ActionFormResponse = await form.show(player);
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		if (roomType.rooms.length === 1) {
-			showRoomsForm(player);
+			system.run(() => showFormSettings(player));
 		} else {
-			showRoomTypeRoomsForm(player, roomType);
+			system.run(() => showRoomType(player, roomType));
 		}
 		return;
 	}
@@ -64,33 +85,69 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 	}
 }
 
-async function showRoomsGeneral(player: Player): Promise<void> {
-	const form = new ActionFormData();
-	form.title("§0Room Management");
-	form.button("Back");
-	const backButtonIndex: number = 0;
-	form.button("Load All Structures");
-	const loadAllIndex: number = 1;
-	const resp: ActionFormResponse = await form.show(player);
-	if (resp.selection === undefined || resp.selection === backButtonIndex) {
-		system.run(() => showRoomsForm(player));
-		return;
+async function loadAllStructuresConfirmation(player: Player): Promise<void> {
+	const form = new MessageFormData();
+	form.title("§0Load all structures");
+	form.body(
+		"Are you sure you want to queue structure loading for EVERY dimension? This should only be run at the start of a new world. You can load structures for individual dimensions by going back and choosing a specific room.",
+	);
+	form.button1("I'm Sure");
+	form.button2("Cancel");
+	let resp: MessageFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
 	}
-	if (resp.selection === loadAllIndex) {
+	if (resp.selection === undefined) {
+		system.run(() => showGeneral(player));
+	}
+	if (resp.selection === 0) {
 		for (const type of roomTypes) {
 			for (const room of type.rooms) {
 				room.loadStructure("all");
 			}
 		}
 		world.sendMessage("Queued structure loading in every room");
+	} else {
 	}
 }
 
-async function showRoomTypeRoomsForm(player: Player, roomType: RoomType): Promise<void> {
+async function showGeneral(player: Player): Promise<void> {
+	const form = new ActionFormData();
+	form.title("§0Room Management");
+	form.button("Back");
+	const backButtonIndex: number = 0;
+	form.button("Load All Structures");
+	const loadAllIndex: number = 1;
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
+	if (resp.selection === undefined || resp.selection === backButtonIndex) {
+		system.run(() => showFormSettings(player));
+		return;
+	}
+	if (resp.selection === loadAllIndex) {
+		system.run(() => loadAllStructuresConfirmation(player));
+	}
+}
+
+async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 	if (roomType.rooms.length === 1) {
 		const room: Room | undefined = roomType.rooms[0];
 		if (room !== undefined) {
-			showRoomInfo(player, room, roomType);
+			system.run(() => showRoomInfo(player, room, roomType));
 		}
 		return;
 	}
@@ -102,24 +159,30 @@ async function showRoomTypeRoomsForm(player: Player, roomType: RoomType): Promis
 	for (const room of roomType.rooms) {
 		form.button(room.displayName, room.icon);
 	}
-	const resp: ActionFormResponse = await form.show(player);
-	if (resp.selection === undefined || !player.isValid) {
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
+	if (resp.selection === undefined) {
 		return;
 	}
 	if (resp.selection === backButtonIndex) {
-		showRoomsForm(player);
+		system.run(() => showFormSettings(player));
 		return;
 	}
 	const room: Room | undefined = roomType.rooms[resp.selection - roomsStartingIndex];
 	if (room !== undefined) {
-		showRoomInfo(player, room, roomType);
+		system.run(() => showRoomInfo(player, room, roomType));
 	}
 }
 
-export async function showRoomsForm(player: Player): Promise<void> {
-	if (!player.isValid) {
-		return;
-	}
+export async function showFormSettings(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Room Management");
 	form.button("General", "textures/ui/settings_glyph_color_2x.png");
@@ -128,16 +191,25 @@ export async function showRoomsForm(player: Player): Promise<void> {
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
-	const resp: ActionFormResponse = await form.show(player);
-	if (resp.selection === undefined || !player.isValid) {
+	let resp: ActionFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
+	if (resp.selection === undefined) {
 		return;
 	}
 	if (resp.selection === generalButtonIndex) {
-		system.run(() => showRoomsGeneral(player));
+		system.run(() => showGeneral(player));
 		return;
 	}
 	const roomType: RoomType | undefined = roomTypes[resp.selection - roomTypesStartingIndex];
 	if (roomType !== undefined) {
-		showRoomTypeRoomsForm(player, roomType);
+		system.run(() => showRoomType(player, roomType));
 	}
 }

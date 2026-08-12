@@ -14,7 +14,7 @@ import { PACK_NAMESPACE } from "../../constants";
 import { placeStructureBlocks } from "../../structures/save";
 import { getDimensionFromOrigin, getPlayerFromOrigin } from "../utils";
 
-export function customCommandSaveNew(): [
+export function customCommandNewSave(): [
 	CustomCommand,
 	(origin: CustomCommandOrigin, from: Vector3, to: Vector3) => CustomCommandResult | undefined,
 ] {
@@ -25,7 +25,7 @@ export function customCommandSaveNew(): [
 				{ name: "from", type: CustomCommandParamType.Location },
 				{ name: "to", type: CustomCommandParamType.Location },
 			],
-			name: `${PACK_NAMESPACE}:savenew`,
+			name: `${PACK_NAMESPACE}:newsave`,
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
 		(
@@ -53,6 +53,7 @@ export function customCommandSaveNew(): [
 			}
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (from.y === dimension.heightRange.min || to.y === dimension.heightRange.min) {
+				// Load structure blocks with y offset of 0 instead of the usual 1.
 				if (player) {
 					player.sendMessage(
 						"§6You should increase your min y value so that structure blocks are not included in your save.",

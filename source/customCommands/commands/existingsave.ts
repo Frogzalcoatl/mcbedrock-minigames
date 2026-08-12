@@ -16,7 +16,7 @@ import { placeStructureBlocksFor } from "../../structures/save";
 import { commandEnums } from "../enums";
 import { getDimensionFromOrigin, getLocationFromOrigin, getPlayerFromOrigin } from "../utils";
 
-export function customCommandSaveOld(): [
+export function customCommandExistingSave(): [
 	CustomCommand,
 	(
 		origin: CustomCommandOrigin,
@@ -30,7 +30,7 @@ export function customCommandSaveOld(): [
 			mandatoryParameters: [
 				{ name: commandEnums.structureIds, type: CustomCommandParamType.Enum },
 			],
-			name: `${PACK_NAMESPACE}:saveold`,
+			name: `${PACK_NAMESPACE}:existingsave`,
 			optionalParameters: [{ name: "at", type: CustomCommandParamType.Location }],
 			permissionLevel: CommandPermissionLevel.Admin,
 		},
