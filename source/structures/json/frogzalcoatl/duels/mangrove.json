@@ -1,0 +1,10 @@
+[
+	["frogzalcoatl/duels/mangrove/1", 0, 0, 0],
+	["frogzalcoatl/duels/mangrove/2", 64, 0, 0],
+	["frogzalcoatl/duels/mangrove/3", 128, 0, 0],
+	["frogzalcoatl/duels/mangrove/4", 0, 0, 64],
+	["frogzalcoatl/duels/mangrove/5", 64, 0, 64],
+	["frogzalcoatl/duels/mangrove/6", 128, 0, 64],
+	["frogzalcoatl/duels/mangrove/7", 0, 0, 128],
+	["frogzalcoatl/duels/mangrove/8", 64, 0, 128]
+]
