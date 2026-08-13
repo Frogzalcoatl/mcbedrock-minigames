@@ -7,16 +7,16 @@ import rawFrogzalcoatlLobbyHaroldsRealm from "./json/frogzalcoatl/lobby/haroldsR
 import rawFrogzalcoatlSkywarsExotic from "./json/frogzalcoatl/skywars/exotic.json";
 import rawFrogzalcoatlSurvivalGamesOverworld from "./json/frogzalcoatl/survivalGames/overworld.json";
 import rawGhostlyKitPvp from "./json/ghostly/kitPvp.json" with { type: "json" };
-import rawGhostlyMangrove from "./json/ghostly/mangrove.json" with { type: "json" };
-import rawGhostlyMangroveNoChests from "./json/ghostly/mangroveNoChests.json";
+import rawGhostlyShop from "./json/ghostly/shop.json" with { type: "json" };
+import rawGhostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import rawGhostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
 type JsonStructureEntry = [string, number, number, number]; // [structureId, relativeX, relativeY, relativeZ]
 type StructureSchema = JsonStructureEntry[];
 
 const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
-const ghostlyMangrove = rawGhostlyMangrove as unknown as StructureSchema;
-const ghostlyMangroveNoChests = rawGhostlyMangroveNoChests as unknown as StructureSchema;
+const ghostlyShop = rawGhostlyShop as unknown as StructureSchema;
+const ghostlyShopNoChests = rawGhostlyShopNoChests as unknown as StructureSchema;
 const ghostlyKitPvp = rawGhostlyKitPvp as unknown as StructureSchema;
 const frogzalcoatlDuelsMangrove = rawFrogzalcoatlDuelsMangrove as unknown as StructureSchema;
 const frogzalcoatlSkywarsExotic = rawFrogzalcoatlSkywarsExotic as unknown as StructureSchema;
@@ -34,8 +34,8 @@ export type StructureInfo = {
 
 const structureSchemas = new Map<string, StructureSchema>([
 	["ghostly/spawn", ghostlySpawn],
-	["ghostly/mangrove", ghostlyMangrove],
-	["ghostly/mangroveNoChests", ghostlyMangroveNoChests],
+	["ghostly/shop", ghostlyShop],
+	["ghostly/shopNoChests", ghostlyShopNoChests],
 	["ghostly/kitPvp", ghostlyKitPvp],
 	["frogzalcoatl/duels/mangrove", frogzalcoatlDuelsMangrove],
 	["frogzalcoatl/skywars/exotic", frogzalcoatlSkywarsExotic],
