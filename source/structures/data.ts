@@ -18,15 +18,15 @@ export type StructureInfo = {
 	relLocation: Vector3;
 };
 
-export const structureIds: string[] = [
-	"ghostlyCrates",
-	"ghostlyMangrove",
-	"ghostlyMangroveNoChests",
-	"ghostlySpawn",
-	"kitPvpArena",
-	"ghostlyTree",
-	"ghostlyMountain",
-];
+const structureSchemas = new Map<string, StructureSchema>([
+	["ghostlySpawn", ghostlySpawn],
+	["ghostlyMangrove", ghostlyMangrove],
+	["ghostlyMangroveNoChests", ghostlyMangroveNoChests],
+	["kitPvpArena", kitPvpArena],
+]);
+
+export const structureIds: string[] = ["ghostlyCrates", "ghostlyTree", "ghostlyMountain"];
+structureIds.push(...structureSchemas.keys());
 
 function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
 	const arr: StructureInfo[] = [];
@@ -40,16 +40,10 @@ function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
 }
 
 export function getStructureInfo(name: string): StructureInfo[] {
-	switch (name) {
-		case "ghostlySpawn":
-			return schemaToStructureInfo(ghostlySpawn);
-		case "ghostlyMangrove":
-			return schemaToStructureInfo(ghostlyMangrove);
-		case "ghostlyMangroveNoChests":
-			return schemaToStructureInfo(ghostlyMangroveNoChests);
-		case "kitPvpArena":
-			return schemaToStructureInfo(kitPvpArena);
-		default:
-			return [{ id: `${PACK_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
+	const schema: StructureSchema | undefined = structureSchemas.get(name);
+	if (schema === undefined) {
+		return [{ id: `${PACK_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
+	} else {
+		return schemaToStructureInfo(schema);
 	}
 }
