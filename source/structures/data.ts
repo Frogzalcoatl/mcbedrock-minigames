@@ -1,38 +1,25 @@
 import type { Vector3 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import rawFrogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json";
-import rawFrogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json";
-import rawFrogzalcoatlLobbyFrogland from "./json/frogzalcoatl/lobby/frogland.json";
-import rawFrogzalcoatlLobbyHaroldsRealm from "./json/frogzalcoatl/lobby/haroldsRealm.json";
-import rawFrogzalcoatlSkywarsExotic from "./json/frogzalcoatl/skywars/exotic.json";
-import rawFrogzalcoatlSurvivalGamesOverworld from "./json/frogzalcoatl/survivalGames/overworld.json";
-import rawGhostlyKitPvp from "./json/ghostly/kitPvp.json" with { type: "json" };
-import rawGhostlyShop from "./json/ghostly/shop.json" with { type: "json" };
-import rawGhostlyShopNoChests from "./json/ghostly/shopNoChests.json";
-import rawGhostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
+import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json";
+import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json";
+import frogzalcoatlLobbyFrogland from "./json/frogzalcoatl/lobby/frogland.json";
+import frogzalcoatlLobbyHaroldsRealm from "./json/frogzalcoatl/lobby/haroldsRealm.json";
+import frogzalcoatlSkywarsExotic from "./json/frogzalcoatl/skywars/exotic.json";
+import frogzalcoatlSurvivalGamesOverworld from "./json/frogzalcoatl/survivalGames/overworld.json";
+import ghostlyKitPvp from "./json/ghostly/kitPvp.json" with { type: "json" };
+import ghostlyShop from "./json/ghostly/shop.json" with { type: "json" };
+import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
+import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
 type JsonStructureEntry = [string, number, number, number]; // [structureId, relativeX, relativeY, relativeZ]
 type StructureSchema = JsonStructureEntry[];
-
-const ghostlySpawn = rawGhostlySpawn as unknown as StructureSchema;
-const ghostlyShop = rawGhostlyShop as unknown as StructureSchema;
-const ghostlyShopNoChests = rawGhostlyShopNoChests as unknown as StructureSchema;
-const ghostlyKitPvp = rawGhostlyKitPvp as unknown as StructureSchema;
-const frogzalcoatlDuelsMangrove = rawFrogzalcoatlDuelsMangrove as unknown as StructureSchema;
-const frogzalcoatlSkywarsExotic = rawFrogzalcoatlSkywarsExotic as unknown as StructureSchema;
-const frogzalcoatlBridgeEnd = rawFrogzalcoatlBridgeEnd as unknown as StructureSchema;
-const frogzalcoatlLobbyFrogland = rawFrogzalcoatlLobbyFrogland as unknown as StructureSchema;
-const frogzalcoatlSurvivalGamesOverworld =
-	rawFrogzalcoatlSurvivalGamesOverworld as unknown as StructureSchema;
-const frogzalcoatlLobbyHaroldsRealm =
-	rawFrogzalcoatlLobbyHaroldsRealm as unknown as StructureSchema;
 
 export type StructureInfo = {
 	id: string;
 	relLocation: Vector3;
 };
 
-const structureSchemas = new Map<string, StructureSchema>([
+const structureSchemas = new Map<string, unknown>([
 	["ghostly/spawn", ghostlySpawn],
 	["ghostly/shop", ghostlyShop],
 	["ghostly/shopNoChests", ghostlyShopNoChests],
@@ -82,10 +69,10 @@ function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
 }
 
 export function getStructureInfo(name: string): StructureInfo[] {
-	const schema: StructureSchema | undefined = structureSchemas.get(name);
+	const schema: unknown | undefined = structureSchemas.get(name);
 	if (schema === undefined) {
 		return [{ id: `${PACK_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
 	} else {
-		return schemaToStructureInfo(schema);
+		return schemaToStructureInfo(schema as StructureSchema);
 	}
 }
