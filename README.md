@@ -1,11 +1,12 @@
 # Minigames
 
-A collection of minecraft minigames that can be played concurrently.
+A collection of Minecraft Bedrock Edition minigames that can be played concurrently.
 Each minigame instance is split into its own custom dimension.
 
 ## Games
-We plan to include established games from popular servers such as Kit Pvp, Skywars, and The Bridge. We will brainstorm unique game ideas later on.
-I'll start a list of games im interested in adding below.
+We plan to include established games from popular servers such as Kit Pvp, Skywars, and The Bridge.
+We will brainstorm unique game ideas in the future.
+I'll start a list of games I'm interested in adding below.
 
 - Kit Pvp
 - The Bridge
@@ -39,29 +40,34 @@ I'll start a list of games im interested in adding below.
 
 ## Structure Loading
 This project solely uses structure files to improve ease of collaboration.
-Since we're not relying on a single world file, this project can be contributed to easily from any device.
+Since we're not relying on any world files, this project can be contributed to easily from any device.
 Structures built by contributors should be exported to .mcstructure files using structure blocks in game.
+Each structure has a maximum size of: (x = 64 Blocks, y = 384 Blocks, z = 64 Blocks).
+If your structure exceeds this size, I have implemented a system to map multiple structure files to a single in game structure id.
 
-**Exporting New Structures:**
+**One file needed:**
+1. Export your structure and save it to: `structures/mg/`.
+2. Copy the file name to structureIds in: `source/structures/data.ts`.
 
-* Export your structure and save it to: `structures/mg/`.
-* Then add a matching identifier to structureIds in: `source/structures/data.ts`.
-* If a structure cannot fit in one file, export multiple and store offsets in a json file: `source/structures/json/`.
-	* See type **StructureSchema** in data.ts for formatting.
-	* Make sure to import your json file to data.ts, add an identifier to structureIds, then add a matching case to the switch statement in getStructureInfo().
+**Multiple files needed:**
+1. Export your structures and save them to: `structures/mg/`.
+2. Store position offsets in a json file: `source/structures/json/`.
+	* See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/source/structures/data.ts) for formatting in: `source/structures/data.ts`.
+3. Import your json file in data.ts, then add it to the structureSchemas map in data.ts. 
 
 ## Rooms
-Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be cleared on world reload.
+Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
+Even if a world is loaded without registering a specific dimension, its data still exists and will remain if registered again.
 Rooms optionally include a hub, which can also be used for waiting rooms.
 Use the **/settings** command to manage rooms in game.
 
 ## Tools
 **Implemented:**
 - Kill Tracker
-	- Uses the EntityHurtAfterEvent to recognize undirect kills, such as knocking a player into the void.
-	- CooldownTicks represents the max amount of time that a kill will still be counted after last hit.
+	- Grants indirect kills by tracking who last attacked an entity using the EntityHurtAfterEvent.
+	- Cooldown ticks represents the max amount of time that a kill will still be counted after last hit.
 	- An optional per room onKill callback can be included, which is useful for death messages.
-	- An optional per room showCombatTime callback can be included as well.
+	- An optional per room showCombatTime callback can be included to display a cooldown countdown.
 
 - Projectile Tracker
 	- Can be used to kill projectiles shot by a player on leave.
@@ -72,9 +78,9 @@ Use the **/settings** command to manage rooms in game.
 - Custom knockback?
 
 ## Custom Items
-The extent of custom items on this world are currently just renamed vanilla items.
-As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of one of my custom items.
+Custom items on this world are currently just renamed vanilla items.
 I would like to learn about adding custom items through resource packs in the future, just in case we decide to give players anvil access in a future gamemode.
+As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of one of my custom items.
 
 ## Kits
 A collection of items with optional onKill and onDeath callbacks. Currently just used for kitpvp, but can be used for future modes like The Bridge.
