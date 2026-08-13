@@ -1,5 +1,5 @@
 import { system } from "@minecraft/server";
-import { customCommandClearSim } from "./commands/clearSim";
+import { customCommandClearSim } from "./commands/clearsim";
 import { customCommandExistingSave } from "./commands/existingsave";
 import { customCommandHub } from "./commands/hub";
 import { customCommandLoad } from "./commands/load";

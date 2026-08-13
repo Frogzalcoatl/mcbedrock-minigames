@@ -6,9 +6,53 @@ import {
 	MessageFormData,
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
-import type { Room } from "./room";
+import type { Room, RoomStructure } from "./room";
 import { roomTypes } from "./roomManager";
 import type { RoomType } from "./roomType";
+
+// if structureId undefined, assumes
+async function showLoadConfirmation(
+	player: Player,
+	room: Room,
+	roomType: RoomType,
+	selectedStructureIndex: number | "all",
+): Promise<void> {
+	let selectedStructureName: string;
+	if (selectedStructureIndex === "all") {
+		selectedStructureName = "all structures";
+	} else {
+		const selectedStructure: RoomStructure | undefined =
+			room.structures[selectedStructureIndex];
+		if (selectedStructure === undefined) {
+			player.sendMessage("§cInvalid Structure.");
+			return;
+		}
+		selectedStructureName = selectedStructure.id;
+	}
+	const form = new MessageFormData();
+	form.title(`§0Structure Loading`);
+	form.body(`Are you sure you want to load "${selectedStructureName}" for ${room.displayName}?`);
+	form.button1("I'm Sure!");
+	form.button2("Cancel");
+	let resp: MessageFormResponse;
+	try {
+		resp = await form.show(player);
+	} catch (error) {
+		if (error instanceof FormRejectError) {
+			return;
+		} else {
+			throw error;
+		}
+	}
+	if (resp.selection === undefined || resp.selection === 1) {
+		system.run(() => showRoomStructures(player, room, roomType));
+	} else if (resp.selection === 0) {
+		room.loadStructure(selectedStructureIndex);
+		world.sendMessage(
+			`Queued structure loading for "${selectedStructureName}" in: ${room.displayName}`,
+		);
+	}
+}
 
 async function showRoomStructures(player: Player, room: Room, roomType: RoomType): Promise<void> {
 	const form = new ActionFormData();
@@ -37,14 +81,10 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 		return;
 	}
 	if (resp.selection === allButtonIndex) {
-		room.loadStructure("all");
-		world.sendMessage(`Queued structure loading for all structures in: ${room.displayName}`);
+		system.run(() => showLoadConfirmation(player, room, roomType, "all"));
 	} else {
 		const selectedStructureIndex: number = resp.selection - structureButtonsStartingIndex;
-		room.loadStructure(selectedStructureIndex);
-		world.sendMessage(
-			`Queued structure loading for "${room.structures[selectedStructureIndex]?.id}" in: ${room.displayName}`,
-		);
+		system.run(() => showLoadConfirmation(player, room, roomType, selectedStructureIndex));
 	}
 }
 

@@ -119,8 +119,8 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
 		structures: [
-			{ id: "ghostlyMangroveNoChests", pos: { x: -33, y: -3, z: -41 } },
-			{ id: "kitPvpArena", pos: { x: 128, y: 0, z: 128 } },
+			{ id: "ghostly/shopNoChests", pos: { x: -33, y: -3, z: -41 } },
+			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
 	return room;

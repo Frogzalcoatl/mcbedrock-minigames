@@ -46,6 +46,6 @@ export const getRoomHub: RoomCreationFunc = (
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
-		structures: [{ id: "ghostlySpawn", pos: { x: -55, y: -11, z: -59 } }],
+		structures: [{ id: "ghostly/spawn", pos: { x: -55, y: -11, z: -59 } }],
 	});
 };
