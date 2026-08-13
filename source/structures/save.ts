@@ -17,10 +17,10 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 	if (from.y < dimension.heightRange.min || to.y > dimension.heightRange.max) {
 		return;
 	} else if (from.y === dimension.heightRange.min) {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlockFlat`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock/flat`;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
 		structureBlockY = from.y - 1;
 	}
 	for (let x: number = from.x - 1; x < to.x; x += 64) {
@@ -46,10 +46,10 @@ export function placeStructureBlocksFor(
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
 		return;
 	} else if (at.y === dimension.heightRange.min) {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlockFlat`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock/flat`;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock`;
+		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
 		structureBlockY = at.y - 1;
 	}
 	for (const i of info) {

@@ -47,12 +47,13 @@ If your structure exceeds this size, I have implemented a system to map multiple
 
 **One file needed:**
 1. Export your structure and save it to: `structures/mg/`.
-2. Copy the file name to structureIds in: `source/structures/data.ts`.
+2. Copy the relative file path using forward slashes to structureIds in: `source/structures/data.ts`.
 
 **Multiple files needed:**
 1. Export your structures and save them to: `structures/mg/`.
-2. Store position offsets in a json file: `source/structures/json/`.
+2. Store position offsets of each structure file in a json file: `source/structures/json/`.
 	* See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/source/structures/data.ts) for formatting in: `source/structures/data.ts`.
+	* structureId should be a file path relative to `structures/mg/`, ignoring the .mcstructure file extension.
 3. Import your json file in data.ts, then add it to the structureSchemas map in data.ts. 
 
 ## Rooms

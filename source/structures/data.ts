@@ -19,13 +19,13 @@ export type StructureInfo = {
 };
 
 const structureSchemas = new Map<string, StructureSchema>([
-	["ghostlySpawn", ghostlySpawn],
-	["ghostlyMangrove", ghostlyMangrove],
-	["ghostlyMangroveNoChests", ghostlyMangroveNoChests],
-	["kitPvpArena", kitPvpArena],
+	["ghostly/spawn", ghostlySpawn],
+	["ghostly/mangrove", ghostlyMangrove],
+	["ghostly/mangroveNoChests", ghostlyMangroveNoChests],
+	["ghostly/kitPvp", kitPvpArena],
 ]);
 
-export const structureIds: string[] = ["ghostlyCrates", "ghostlyTree", "ghostlyMountain"];
+export const structureIds: string[] = ["ghostly/crates", "ghostly/tree", "ghostly/mountain"];
 structureIds.push(...structureSchemas.keys());
 
 function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
