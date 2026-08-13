@@ -54,7 +54,7 @@ If your structure exceeds this size, I have implemented a system to map multiple
 2. Store position offsets of each structure file in a json file: `source/structures/json/`.
 	* See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/source/structures/data.ts) for formatting in: `source/structures/data.ts`.
 	* structureId should be a file path relative to `structures/mg/`, ignoring the .mcstructure file extension.
-3. Import your json file in data.ts, then add it to the structureSchemas map in data.ts. 
+3. Import your json file in data.ts, then add it to the structureSchemas map. 
 
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
