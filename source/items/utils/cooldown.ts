@@ -27,7 +27,9 @@ export function removeItemCooldown(nameTag: string): void {
 
 function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {
 	system.runTimeout(() => {
-		player.sendMessage(`Cooldown finished for ${itemNameTag}`);
+		if (players.has(player.id)) {
+			player.sendMessage(`Cooldown finished for ${itemNameTag}`);
+		}
 	}, delayTicks);
 }
 
@@ -74,6 +76,10 @@ export function isItemCooldownFinished(player: Player, item: ItemStack): boolean
 		);
 		return false;
 	}
+}
+
+export function clearPlayerCooldowns(player: Player): void {
+	players.delete(player.id);
 }
 
 world.beforeEvents.playerLeave.subscribe((event) => {

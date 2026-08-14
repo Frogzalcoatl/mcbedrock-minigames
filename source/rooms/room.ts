@@ -20,6 +20,7 @@ import {
 	projectileTrackerDimensionIds,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
+import { clearPlayerCooldowns } from "../items/utils/cooldown";
 import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub, type RoomHubConfig } from "./roomHub";
@@ -180,6 +181,7 @@ export class Room {
 		portalSoundRunIntervalClear(player);
 		projectileTrackerRemoveProjectiles(player);
 		killTrackerRemovePlayer(player);
+		clearPlayerCooldowns(player);
 	}
 
 	public loadStructure(index: number | "all"): void {
