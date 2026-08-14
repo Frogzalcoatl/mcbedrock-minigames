@@ -1,8 +1,5 @@
 import type { Dimension, Vector3 } from "@minecraft/server";
-
-function getRandomValWithinBounds(center: number, bounds: number): number {
-	return center + (Math.random() > 0.5 ? -1 : 1) * Math.random() * bounds;
-}
+import { getRandomValWithinBounds } from "./random";
 
 export function spreadParticles(
 	particle: string,

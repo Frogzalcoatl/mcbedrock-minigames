@@ -11,7 +11,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../particles/utils";
+import { spreadParticles } from "../particles/spread";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);

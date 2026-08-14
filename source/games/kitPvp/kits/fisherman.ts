@@ -1,6 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
+import { itemPoisonFishProjectile } from "../../../items/poisonFishProjectile";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../../../kits/kitManager";
 import {
@@ -34,12 +35,10 @@ export function getKitFisherman(): Kit {
 	setDurability(copperSword, "unbreakable");
 	const fishingRod = new ItemStack(MinecraftItemTypes.FishingRod);
 	setDurability(fishingRod, "unbreakable");
-	const pufferFish = new ItemStack(MinecraftItemTypes.Pufferfish);
-	pufferFish.nameTag = "§rPoison Projectile";
 	kit.inventory = [
 		{ item: copperSword, slot: 0 },
 		{ item: fishingRod, slot: 1 },
-		{ item: pufferFish, slot: 2 },
+		{ item: itemPoisonFishProjectile(), slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
 	kit.onKill = onKill;

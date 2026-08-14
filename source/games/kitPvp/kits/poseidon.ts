@@ -2,6 +2,7 @@ import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/se
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { projectileTrackerRemoveProjectiles } from "../../../entities/projectileTracker";
+import { itemLightningStick } from "../../../items/lightningStick";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
@@ -47,8 +48,7 @@ export function getKitPoseidon(): Kit {
 	setDurability(trident, "unbreakable");
 	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
 	effectBuff.nameTag = "§rEffect Buff";
-	const lightning = new ItemStack(MinecraftItemTypes.EndRod);
-	lightning.nameTag = "§rLightning";
+	const lightning: ItemStack = itemLightningStick();
 	kit.inventory = [
 		{ item: trident, slot: 0 },
 		{ item: effectBuff, slot: 1 },
