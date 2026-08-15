@@ -2,7 +2,6 @@ import { type Dimension, type Player, type Vector3, world } from "@minecraft/ser
 import { portalSoundRunInterval } from "../player/portalSound";
 
 export interface RoomHubConfig {
-	spawn?: Vector3; // Uses room spawn when undefined
 	onJoin?: (player: Player) => void;
 	onLeave?: (player: Player) => void;
 }
@@ -18,15 +17,15 @@ export class RoomHub {
 	constructor(
 		dimensionId: string,
 		spawn: Vector3,
-		onJoin: ((player: Player) => void) | null,
-		onLeave: ((player: Player) => void) | null,
+		onJoin?: (player: Player) => void,
+		onLeave?: (player: Player) => void,
 	) {
 		this.dimensionId = dimensionId;
 		this._spawn = spawn;
 		this._isActive = true;
 		this._playerIds = new Set<string>();
-		this._onJoin = onJoin;
-		this._onLeave = onLeave;
+		this._onJoin = onJoin ?? null;
+		this._onLeave = onLeave ?? null;
 	}
 
 	public get isActive(): boolean {
@@ -52,6 +51,12 @@ export class RoomHub {
 		const dimension: Dimension = world.getDimension(this.dimensionId);
 		player.teleport(this._spawn, { dimension: dimension });
 		portalSoundRunInterval(player);
+		player.setSpawnPoint({
+			dimension: dimension,
+			x: this._spawn.x,
+			y: this._spawn.y,
+			z: this._spawn.z,
+		});
 		if (this._onJoin !== null) {
 			this._onJoin(player);
 		}

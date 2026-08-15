@@ -88,9 +88,9 @@ export class Room {
 		} else {
 			this.hub = new RoomHub(
 				this.dimensionId,
-				config.hub.spawn ?? this._spawn,
-				config.hub.onJoin ?? null,
-				config.hub.onLeave ?? null,
+				config.spawn,
+				config.hub.onJoin,
+				config.hub.onLeave,
 			);
 		}
 		if (config.projectileTracker !== undefined) {
@@ -137,6 +137,12 @@ export class Room {
 		} else {
 			player.teleport(this._spawn, { dimension: this._dimension });
 			portalSoundRunInterval(player);
+			player.setSpawnPoint({
+				dimension: this._dimension,
+				x: this._spawn.x,
+				y: this._spawn.y,
+				z: this._spawn.z,
+			});
 		}
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
