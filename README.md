@@ -43,18 +43,26 @@ This project solely uses structure files to improve ease of collaboration.
 Since we're not relying on any world files, this project can be contributed to easily from any device.
 Structures built by contributors should be exported to .mcstructure files using structure blocks in game.
 Each structure has a maximum size of: (x = 64 Blocks, y = 384 Blocks, z = 64 Blocks).
-If your structure exceeds this size, I have implemented a system to map multiple structure files to a single in game structure id.
+If your structure exceeds this size, this pack can map multiple structure files to a single in game structure id.
 
 **One file needed:**
 1. Export your structure and save it to: `structures/mg/`.
-2. Copy the relative file path using forward slashes to structureIds in: `source/structures/data.ts`.
+2. Copy the relative file path using forward slashes to the structureIds array in: `source/structures/data.ts`.
 
 **Multiple files needed:**
 1. Export your structures and save them to: `structures/mg/`.
 2. Store position offsets of each structure file in a json file: `source/structures/json/`.
 	* See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/source/structures/data.ts) for formatting in: `source/structures/data.ts`.
 	* structureId should be a file path relative to `structures/mg/`, ignoring the .mcstructure file extension.
-3. Import your json file in data.ts, then add it to the structureSchemas map. 
+3. Import your json file in data.ts, then add it to the structureSchemas map.
+
+**Loading structures in game:**
+
+Use the /load command. Example:
+```
+/load "frogzalcoatl/lobby/minersRealm" 0 0 0
+```
+Loads the structure with id "frogzalcoatl/lobby/minersRealm" at position 0 0 0 in the user's current dimension.
 
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
