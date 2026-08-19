@@ -2,6 +2,7 @@ import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/se
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
+import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -16,7 +17,7 @@ function onKill(kitUser: Player, _dead: Entity): void {
 	giveItemToEntity(arrows, kitUser, false);
 }
 
-export function getKitArcher(): Kit {
+export function getKitSkirmisher(): Kit {
 	const kit: Kit = {
 		boots: new ItemStack(MinecraftItemTypes.LeatherBoots),
 		chestplate: new ItemStack(MinecraftItemTypes.CopperChestplate),
@@ -24,7 +25,7 @@ export function getKitArcher(): Kit {
 		icon: "textures/items/bow_standby.png",
 		inventory: [],
 		leggings: new ItemStack(MinecraftItemTypes.ChainmailLeggings),
-		name: "Archer",
+		name: "Skirmisher",
 	};
 	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
 	kitArmorDurability(kit, "unbreakable");
@@ -33,10 +34,16 @@ export function getKitArcher(): Kit {
 	setDurability(woodenSword, "unbreakable");
 	const bow = new ItemStack(MinecraftItemTypes.Bow);
 	setDurability(bow, "unbreakable");
+	const crossbow = new ItemStack(MinecraftItemTypes.Crossbow);
+	setDurability(crossbow, "unbreakable");
+	applyEnchant(crossbow, MinecraftEnchantmentTypes.QuickCharge, 3);
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 16);
 	kit.inventory = [
 		{ item: woodenSword, slot: 0 },
 		{ item: bow, slot: 1 },
+		{ item: crossbow, slot: 2 },
+		{ item: crossbow, slot: 3 },
+		{ item: crossbow, slot: 4 },
 		{ item: arrows, slot: 8 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);

@@ -29,13 +29,13 @@ import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { kits } from "../../kits/kitManager";
 import { Room, type RoomCreationFunc } from "../../rooms/room";
 import roomTypeIds from "../../roomTypeIds";
-import { getKitArcher } from "./kits/archer";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
 import { getKitLancer } from "./kits/lancer";
 import { getKitPoseidon } from "./kits/poseidon";
 import { getKitRabbit } from "./kits/rabbit";
+import { getKitSkirmisher } from "./kits/skirmisher";
 import { getKitSnowman } from "./kits/snowman";
 
 world.afterEvents.worldLoad.subscribe(() => {
@@ -46,7 +46,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 		getKitFisherman(),
 		getKitPoseidon(),
 		getKitRabbit(),
-		getKitArcher(),
+		getKitSkirmisher(),
 		getKitLancer(),
 	]);
 });
