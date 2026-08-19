@@ -21,7 +21,11 @@ export function beamParticles(
 	const changeByY: number = (distanceY / distance) * spacing;
 	const changeByZ: number = (distanceZ / distance) * spacing;
 	const current: Vector3 = startPos;
-	for (let distanceTraveled: number = 0; distanceTraveled < distance; distanceTraveled++) {
+	for (
+		let distanceTraveled: number = 0;
+		distanceTraveled < distance;
+		distanceTraveled += spacing
+	) {
 		dimension.spawnParticle(particle, current);
 		current.x += changeByX;
 		current.y += changeByY;
