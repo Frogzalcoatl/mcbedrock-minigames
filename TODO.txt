@@ -1,4 +1,6 @@
-* Finish kits
+* Determine why profile command ui isnt working
+
+* Finish poison fish item
 
 * Review everything
 

@@ -6,7 +6,7 @@ import { decrementMainhandItem } from "../../utils/remove";
 
 const typeId: string = MinecraftItemTypes.GoldenCarrot;
 const nameTag: string = "§r§eGolden Carrot §7(Use)";
-const effectDuration: number = 10;
+const effectDuration: number = 10 * 20;
 
 export function itemRabbitBuff(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
