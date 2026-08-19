@@ -24,8 +24,8 @@ import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../../entities/projectileTracker";
-import { itemKitPvpSelect } from "../../items/kitPvpSelect";
-import { itemTeleporter } from "../../items/teleporter";
+import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
+import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { kits } from "../../kits/kitManager";
 import { Room, type RoomCreationFunc } from "../../rooms/room";
 import roomTypeIds from "../../roomTypeIds";

@@ -9,7 +9,7 @@ import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
 import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import { itemTeleporter } from "../../items/teleporter";
+import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { Room, type RoomCreationFunc } from "../../rooms/room";
 
 export const getRoomHub: RoomCreationFunc = (

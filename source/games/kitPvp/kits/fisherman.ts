@@ -1,7 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
-import { itemPoisonFishProjectile } from "../../../items/poisonFishProjectile";
+import { itemPoisonFishProjectile } from "../../../items/games/kitPvp/poisonFishProjectile";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../../../kits/kitManager";
 import {

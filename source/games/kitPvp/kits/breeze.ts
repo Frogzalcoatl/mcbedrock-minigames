@@ -1,7 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
-import { itemBreezeLeap } from "../../../items/breezeLeap";
+import { itemBreezeLeap } from "../../../items/games/kitPvp/breezeLeap";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../../../kits/kitManager";
 import {

@@ -20,10 +20,7 @@ function despawnEffects(pos: Vector3, dimension: Dimension): void {
 
 // Returns horse entity
 export function spawnHorseRide(
-	horseType:
-		| MinecraftEntityTypes.Horse
-		| MinecraftEntityTypes.ZombieHorse
-		| MinecraftEntityTypes.SkeletonHorse,
+	horseType: MinecraftEntityTypes,
 	player: Player,
 	durationTicks: number,
 	armorTypeId?: string,

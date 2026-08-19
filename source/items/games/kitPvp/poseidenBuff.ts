@@ -1,8 +1,8 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "./utils/default";
-import { itemNameMatches } from "./utils/matches";
-import { decrementMainhandItem } from "./utils/remove";
+import { itemUseMap } from "../../events/itemUse";
+import { defaultItemStackFunc } from "../../utils/default";
+import { decrementMainhandItem } from "../../utils/remove";
 
 const typeId: string = MinecraftItemTypes.HeartOfTheSea;
 const nameTag: string = "§r§bPoseidon Buff §7(Use)";
@@ -12,16 +12,15 @@ export function itemPoseidenBuff(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
 }
 
-export function itemPoseidenBuffRun(event: ItemUseAfterEvent): void {
-	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
+itemUseMap.set(nameTag, {
+	callback: (event: ItemUseAfterEvent): void => {
 		if (event.source.getGameMode() !== GameMode.Creative) {
-			if (!decrementMainhandItem(event.source)) {
-				return;
-			}
+			decrementMainhandItem(event.source);
 		}
 		event.source.addEffect(MinecraftEffectTypes.Speed, effectDuration, { amplifier: 1 });
 		event.source.addEffect(MinecraftEffectTypes.ConduitPower, effectDuration);
 		event.source.addEffect(MinecraftEffectTypes.Regeneration, effectDuration, { amplifier: 2 });
 		event.source.dimension.playSound("random.burp", event.source.location);
-	}
-}
+	},
+	typeId: typeId,
+});

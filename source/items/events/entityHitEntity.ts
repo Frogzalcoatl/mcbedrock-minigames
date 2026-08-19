@@ -1,27 +1,32 @@
 import {
+	type Entity,
 	EntityComponentTypes,
 	type EntityEquippableComponent,
-	type EntityHitEntityAfterEvent,
 	EquipmentSlot,
 	type ItemStack,
 	world,
 } from "@minecraft/server";
-import { itemFireStickRun } from "../fireStick";
 
-function handleDamagingEntityEquippable(
-	event: EntityHitEntityAfterEvent,
-	equippable: EntityEquippableComponent,
-): void {
-	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
-	if (mainhandItem !== undefined) {
-		itemFireStickRun(mainhandItem, event.hitEntity);
-	}
+export interface ItemEntityHitEntry {
+	typeId: string;
+	callback: (mainhandItem: ItemStack, damagingEntity: Entity, hitEntity: Entity) => void;
 }
 
+export const itemEntityHitMap = new Map<string, ItemEntityHitEntry>();
+
 world.afterEvents.entityHitEntity.subscribe((event) => {
-	const equippableDamaging: EntityEquippableComponent | undefined =
-		event.damagingEntity.getComponent(EntityComponentTypes.Equippable);
-	if (equippableDamaging !== undefined) {
-		handleDamagingEntityEquippable(event, equippableDamaging);
+	const equippable: EntityEquippableComponent | undefined = event.damagingEntity.getComponent(
+		EntityComponentTypes.Equippable,
+	);
+	if (equippable === undefined) {
+		return;
+	}
+	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
+	if (mainhandItem === undefined || mainhandItem.nameTag === undefined) {
+		return;
+	}
+	const entry: ItemEntityHitEntry | undefined = itemEntityHitMap.get(mainhandItem.nameTag);
+	if (entry !== undefined && entry.typeId === mainhandItem.typeId) {
+		entry.callback(mainhandItem, event.damagingEntity, event.hitEntity);
 	}
 });

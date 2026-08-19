@@ -27,16 +27,16 @@ export function removeItem(container: Container, item: ItemStack, amount: number
 	}
 }
 
-export function decrementMainhandItem(entity: Entity): boolean {
+export function decrementMainhandItem(entity: Entity): void {
 	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Equippable,
 	);
 	if (equippable === undefined) {
-		return false;
+		return;
 	}
 	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
 	if (mainhandItem === undefined) {
-		return false;
+		return;
 	}
 	if (mainhandItem.amount === 1) {
 		equippable.setEquipment(EquipmentSlot.Mainhand);
@@ -44,5 +44,4 @@ export function decrementMainhandItem(entity: Entity): boolean {
 		mainhandItem.amount--;
 		equippable.setEquipment(EquipmentSlot.Mainhand, mainhandItem);
 	}
-	return true;
 }

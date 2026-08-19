@@ -1,24 +1,20 @@
 import { type ItemUseAfterEvent, world } from "@minecraft/server";
-import { itemBlazeFireballRun } from "../blazeFireballs";
-import { itemBreezeLeapRun } from "../breezeLeap";
-import { itemKitPvpSelectRun } from "../kitPvpSelect";
-import { itemLancerLeapRun } from "../lancerLeap";
-import { itemLightningStickRun } from "../lightningStick";
-import { itemPoisonFishProjectileRun } from "../poisonFishProjectile";
-import { itemPoseidenBuffRun } from "../poseidenBuff";
-import { itemTeleporterRun } from "../teleporter";
-import { itemZombieHorseRun } from "../zombieHorse";
+
+export interface ItemUseEntry {
+	typeId: string;
+	callback: (event: ItemUseAfterEvent) => void;
+}
+
+export const itemUseMap = new Map<string, ItemUseEntry>(); // [nameTag, entry]
 
 export function itemUseHandler(event: ItemUseAfterEvent): void {
-	itemTeleporterRun(event);
-	itemKitPvpSelectRun(event);
-	itemBlazeFireballRun(event);
-	itemBreezeLeapRun(event);
-	itemLancerLeapRun(event);
-	itemZombieHorseRun(event);
-	itemPoisonFishProjectileRun(event);
-	itemLightningStickRun(event);
-	itemPoseidenBuffRun(event);
+	if (event.itemStack.nameTag === undefined) {
+		return;
+	}
+	const entry: ItemUseEntry | undefined = itemUseMap.get(event.itemStack.nameTag);
+	if (entry !== undefined && entry.typeId === event.itemStack.typeId) {
+		entry.callback(event);
+	}
 }
 
 world.afterEvents.itemUse.subscribe(itemUseHandler);

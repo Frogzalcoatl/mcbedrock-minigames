@@ -11,14 +11,12 @@ const players = new Map<string, Map<string, number>>(); // [playerId, [itemNameT
 
 // Item must have a nametag
 export function setItemCooldown(
-	item: ItemStack,
+	nameTag: string,
+	typeId: string,
 	cooldownTicks: number,
 	sendMessage: boolean = false,
 ): void {
-	if (item.nameTag === undefined) {
-		return;
-	}
-	items.set(item.nameTag, [item.typeId, cooldownTicks, sendMessage]);
+	items.set(nameTag, [typeId, cooldownTicks, sendMessage]);
 }
 
 export function removeItemCooldown(nameTag: string): void {

@@ -1,7 +1,7 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showFormTeleporter } from "../rooms/formTeleporter";
-import { itemNameMatches } from "./utils/matches";
+import { showFormTeleporter } from "../../../rooms/formTeleporter";
+import { itemUseMap } from "../../events/itemUse";
 
 const typeId: string = MinecraftItemTypes.Compass;
 const nameTag: string = "§r§dTeleporter §7(Use)";
@@ -13,8 +13,9 @@ export function itemTeleporter(): ItemStack {
 	return item;
 }
 
-export function itemTeleporterRun(event: ItemUseAfterEvent): void {
-	if (itemNameMatches(event.itemStack, typeId, nameTag)) {
+itemUseMap.set(nameTag, {
+	callback: (event: ItemUseAfterEvent): void => {
 		showFormTeleporter(event.source);
-	}
-}
+	},
+	typeId: typeId,
+});

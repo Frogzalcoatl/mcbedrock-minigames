@@ -1,8 +1,8 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
-import { itemLightningStick } from "../../../items/lightningStick";
-import { itemPoseidenBuff } from "../../../items/poseidenBuff";
+import { itemLightningStick } from "../../../items/games/kitPvp/lightningStick";
+import { itemPoseidenBuff } from "../../../items/games/kitPvp/poseidenBuff";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";

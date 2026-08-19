@@ -1,6 +1,8 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
+import { itemRabbitBuff } from "../../../items/games/kitPvp/rabbitBuff";
+import { itemRabbitLeap } from "../../../items/games/kitPvp/rabbitLeap";
 import { setDurability } from "../../../items/utils/durability";
 import type { Kit } from "../../../kits/kitManager";
 import {
@@ -32,10 +34,8 @@ export function getKitRabbit(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const diamondAxe = new ItemStack(MinecraftItemTypes.DiamondAxe);
 	setDurability(diamondAxe, "unbreakable");
-	const leap = new ItemStack(MinecraftItemTypes.RabbitFoot);
-	leap.nameTag = "§rLeap";
-	const speedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
-	speedBuff.nameTag = "§rSpeed Buff";
+	const leap: ItemStack = itemRabbitLeap();
+	const speedBuff: ItemStack = itemRabbitBuff();
 	kit.inventory = [
 		{ item: diamondAxe, slot: 0 },
 		{ item: leap, slot: 1 },

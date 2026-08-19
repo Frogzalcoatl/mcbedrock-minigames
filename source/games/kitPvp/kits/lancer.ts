@@ -1,8 +1,8 @@
 import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemLancerLeap } from "../../../items/lancerLeap";
+import { itemLancerLeap } from "../../../items/games/kitPvp/lancerLeap";
+import { itemZombieHorse } from "../../../items/games/kitPvp/zombieHorse";
 import { setDurability } from "../../../items/utils/durability";
-import { itemZombieHorse } from "../../../items/zombieHorse";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
