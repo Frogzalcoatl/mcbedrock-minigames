@@ -17,20 +17,33 @@ export interface ProjectileTracker {
 	projectileTypeIds: string[];
 }
 
-export const projectileTrackerDimensionIds = new Map<string, ProjectileTracker>();
+const trackers = new Map<string, ProjectileTracker>();
 
-export function projectileTrackerAdd(dimensionId: string, projectileTypeIds: string[]): void {
-	projectileTrackerDimensionIds.set(dimensionId, {
+export function projectileTrackerAddDimension(
+	dimensionId: string,
+	projectileTypeIds: string[],
+): void {
+	trackers.set(dimensionId, {
 		map: new Map<string, string>(),
 		projectileTypeIds: projectileTypeIds,
 	});
 }
 
+export function projectileTrackerRemoveDimension(dimensionId: string): boolean {
+	return trackers.delete(dimensionId);
+}
+
+export function projectileTrackerHasDimension(dimensionId: string): boolean {
+	return trackers.has(dimensionId);
+}
+
+export function projectileTrackerClearDimensions(): void {
+	trackers.clear();
+}
+
 // Removes player's projectiles from their current dimension
 export function projectileTrackerRemoveProjectiles(player: Player): void {
-	const tracker: ProjectileTracker | undefined = projectileTrackerDimensionIds.get(
-		player.dimension.id,
-	);
+	const tracker: ProjectileTracker | undefined = trackers.get(player.dimension.id);
 	if (tracker === undefined) {
 		return;
 	}
@@ -46,9 +59,7 @@ export function projectileTrackerRemoveProjectiles(player: Player): void {
 }
 
 function entityRemove(event: EntityRemoveBeforeEvent): void {
-	const tracker: ProjectileTracker | undefined = projectileTrackerDimensionIds.get(
-		event.removedEntity.dimension.id,
-	);
+	const tracker: ProjectileTracker | undefined = trackers.get(event.removedEntity.dimension.id);
 	if (tracker === undefined) {
 		return;
 	}
@@ -60,9 +71,7 @@ function entitySpawn(event: EntitySpawnAfterEvent): void {
 	if (!event.entity.isValid) {
 		return;
 	}
-	const tracker: ProjectileTracker | undefined = projectileTrackerDimensionIds.get(
-		event.entity.dimension.id,
-	);
+	const tracker: ProjectileTracker | undefined = trackers.get(event.entity.dimension.id);
 	if (tracker === undefined) {
 		return;
 	}

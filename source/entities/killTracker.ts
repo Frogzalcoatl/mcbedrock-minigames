@@ -17,9 +17,25 @@ export interface KillTrackerConfig {
 	showCombatTimeTickInterval?: number;
 }
 
-export const killTrackerDimensionConfigs = new Map<string, KillTrackerConfig>(); // [dimensionId, config]
+const configs = new Map<string, KillTrackerConfig>(); // [dimensionId, config]
 const hitMap = new Map<string, [string, number]>(); // [entityId, [hitterId, timestamp (Date.now())]]
 const showTimeMap = new Map<string, number>(); //// [playerId, runIntervalId]
+
+export function killTrackerAddDimension(dimensionId: string, config: KillTrackerConfig): void {
+	configs.set(dimensionId, config);
+}
+
+export function killTrackerRemoveDimension(dimensionId: string): boolean {
+	return configs.delete(dimensionId);
+}
+
+export function killTrackerHasDimension(dimensionId: string): boolean {
+	return configs.has(dimensionId);
+}
+
+export function killTrackerClearDimensions(): void {
+	configs.clear();
+}
 
 // true when in combat
 function inCombatCondition(timestamp: number): boolean {
@@ -27,7 +43,7 @@ function inCombatCondition(timestamp: number): boolean {
 }
 
 export function killTrackerInCombat(player: Player): boolean {
-	if (!killTrackerDimensionConfigs.has(player.dimension.id)) {
+	if (!configs.has(player.dimension.id)) {
 		return false;
 	}
 	const entry = hitMap.get(player.id);
@@ -39,7 +55,7 @@ export function killTrackerInCombat(player: Player): boolean {
 }
 
 export function killTrackerGetLastHitter(player: Player): Entity | null {
-	if (!killTrackerDimensionConfigs.has(player.dimension.id)) {
+	if (!configs.has(player.dimension.id)) {
 		return null;
 	}
 	const entry = hitMap.get(player.id);
@@ -87,9 +103,7 @@ function clearCombatTimeRunInterval(player: Player): void {
 
 function showCombatTime(player: Player): void {
 	clearCombatTimeRunInterval(player);
-	const config: KillTrackerConfig | undefined = killTrackerDimensionConfigs.get(
-		player.dimension.id,
-	);
+	const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
@@ -125,9 +139,7 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 
 export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
-		const config: KillTrackerConfig | undefined = killTrackerDimensionConfigs.get(
-			player.dimension.id,
-		);
+		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
 		if (config !== undefined && config.onKill !== null) {
 			const event: EntityDieAfterEvent = createDeathEvent(player);
 			config.onKill(event);
@@ -146,7 +158,7 @@ function entityHurt(event: EntityHurtAfterEvent): void {
 	}
 	const hurtPlayer: Player = event.hurtEntity;
 	const damagingEntity: Entity = event.damageSource.damagingEntity;
-	if (!killTrackerDimensionConfigs.has(hurtPlayer.dimension.id)) {
+	if (!configs.has(hurtPlayer.dimension.id)) {
 		return;
 	}
 	hitMap.set(hurtPlayer.id, [damagingEntity.id, Date.now()]);
@@ -162,9 +174,7 @@ function entityDie(event: EntityDieAfterEvent): void {
 		return;
 	}
 	const deadPlayer: Player = event.deadEntity;
-	const config: KillTrackerConfig | undefined = killTrackerDimensionConfigs.get(
-		deadPlayer.dimension.id,
-	);
+	const config: KillTrackerConfig | undefined = configs.get(deadPlayer.dimension.id);
 	if (config === undefined) {
 		return;
 	}

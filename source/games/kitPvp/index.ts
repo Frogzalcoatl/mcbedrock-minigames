@@ -15,11 +15,15 @@ import { clearEntityEffects } from "../../entities/effects";
 import { changeEntityHealth, setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import {
+	killTrackerAddDimension,
 	killTrackerGetCombatTimeTicks,
 	killTrackerGetLastHitter,
 	killTrackerRemovePlayer,
 } from "../../entities/killTracker";
-import { projectileTrackerRemoveProjectiles } from "../../entities/projectileTracker";
+import {
+	projectileTrackerAddDimension,
+	projectileTrackerRemoveProjectiles,
+} from "../../entities/projectileTracker";
 import { itemKitPvpSelect } from "../../items/kitPvpSelect";
 import { itemTeleporter } from "../../items/teleporter";
 import { kits } from "../../kits/kitManager";
@@ -85,36 +89,6 @@ export const getRoomKitPvp: RoomCreationFunc = (
 			},
 		},
 		icon: icon,
-		killTracker: {
-			onKill: (event: EntityDieAfterEvent): void => {
-				const message: string | null = deathMessageFromEvent(event);
-				if (message !== null) {
-					room.sendMessage(message);
-				}
-				if (
-					event.damageSource.damagingEntity instanceof Player &&
-					event.damageSource.damagingEntity.isValid
-				) {
-					const killer: Player = event.damageSource.damagingEntity;
-					system.run(() => changeEntityHealth(killer, healthAddedOnKill));
-				}
-			},
-			showCombatTime: (player: Player): void => {
-				const lastHitter: Entity | null = killTrackerGetLastHitter(player);
-				if (lastHitter === null) {
-					return;
-				}
-				const inCombatWith: string = getEntityName(lastHitter);
-				const combatTimeSeconds: number = Math.ceil(
-					killTrackerGetCombatTimeTicks(player) / 20,
-				);
-				const display: string = `In Combat: §e${inCombatWith} §7(${combatTimeSeconds})`;
-				player.onScreenDisplay.setActionBar(display);
-			},
-		},
-		projectileTracker: {
-			typeIds: [MinecraftEntityTypes.ThrownTrident, MinecraftEntityTypes.SmallFireball],
-		},
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
@@ -123,5 +97,34 @@ export const getRoomKitPvp: RoomCreationFunc = (
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
+	killTrackerAddDimension(room.dimensionId, {
+		onKill: (event: EntityDieAfterEvent): void => {
+			const message: string | null = deathMessageFromEvent(event);
+			if (message !== null) {
+				room.sendMessage(message);
+			}
+			if (
+				event.damageSource.damagingEntity instanceof Player &&
+				event.damageSource.damagingEntity.isValid
+			) {
+				const killer: Player = event.damageSource.damagingEntity;
+				system.run(() => changeEntityHealth(killer, healthAddedOnKill));
+			}
+		},
+		showCombatTime: (player: Player): void => {
+			const lastHitter: Entity | null = killTrackerGetLastHitter(player);
+			if (lastHitter === null) {
+				return;
+			}
+			const inCombatWith: string = getEntityName(lastHitter);
+			const combatTimeSeconds: number = Math.ceil(killTrackerGetCombatTimeTicks(player) / 20);
+			const display: string = `In Combat: §e${inCombatWith} §7(${combatTimeSeconds})`;
+			player.onScreenDisplay.setActionBar(display);
+		},
+	});
+	projectileTrackerAddDimension(room.dimensionId, [
+		MinecraftEntityTypes.ThrownTrident,
+		MinecraftEntityTypes.SmallFireball,
+	]);
 	return room;
 };

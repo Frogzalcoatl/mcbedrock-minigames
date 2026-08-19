@@ -9,15 +9,9 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import { killTrackerHasDimension, killTrackerRemovePlayer } from "../entities/killTracker";
 import {
-	type KillTrackerConfig,
-	killTrackerDimensionConfigs,
-	killTrackerRemovePlayer,
-} from "../entities/killTracker";
-import {
-	type ProjectileTrackerConfig,
-	projectileTrackerAdd,
-	projectileTrackerDimensionIds,
+	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
 import { clearPlayerCooldowns } from "../items/utils/cooldown";
@@ -38,14 +32,12 @@ export interface RoomConfig {
 	displayName: string;
 	icon: string;
 	spawn: Vector3;
+	structures?: RoomStructure[];
+	hub?: RoomHubConfig;
 	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
 	onJoin?: (player: Player) => void;
 	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	onLeave?: (player: Player) => void;
-	structures?: RoomStructure[];
-	hub?: RoomHubConfig;
-	projectileTracker?: ProjectileTrackerConfig;
-	killTracker?: KillTrackerConfig;
 }
 
 export type RoomCreationFunc = (
@@ -65,11 +57,11 @@ export class Room {
 	public readonly structures: RoomStructure[];
 	private _dimension: Dimension | undefined;
 	private _spawn: Vector3;
+	public hub: RoomHub | null;
 	private _beforeJoin: ((player: Player) => Promise<boolean>) | null;
 	private _onJoin: ((player: Player) => void) | null;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
 	private _onLeave: ((player: Player) => void) | null;
-	public hub: RoomHub | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -79,10 +71,6 @@ export class Room {
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
 		this._spawn = config.spawn;
-		this._beforeJoin = config.beforeJoin ?? null;
-		this._onJoin = config.onJoin ?? null;
-		this._beforeLeave = config.beforeLeave ?? null;
-		this._onLeave = config.onLeave ?? null;
 		if (config.hub === undefined) {
 			this.hub = null;
 		} else {
@@ -93,12 +81,10 @@ export class Room {
 				config.hub.onLeave,
 			);
 		}
-		if (config.projectileTracker !== undefined) {
-			projectileTrackerAdd(this.dimensionId, config.projectileTracker.typeIds);
-		}
-		if (config.killTracker) {
-			killTrackerDimensionConfigs.set(this.dimensionId, config.killTracker);
-		}
+		this._beforeJoin = config.beforeJoin ?? null;
+		this._onJoin = config.onJoin ?? null;
+		this._beforeLeave = config.beforeLeave ?? null;
+		this._onLeave = config.onLeave ?? null;
 	}
 
 	public get dimension(): Dimension | undefined {
@@ -224,8 +210,8 @@ Player Count: §e${this.playerCount}§r
 Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
 Saved Structures: §e${this.structures.length}§r
 Includes Hub: §e${this.hub !== null}§r
-Projectile Tracker: §e${projectileTrackerDimensionIds.has(this.dimensionId)}§r
-Kill Tracker: §e${killTrackerDimensionConfigs.has(this.dimensionId)}§r
+Projectile Tracker: §e${projectileTrackerHasDimension(this.dimensionId)}§r
+Kill Tracker: §e${killTrackerHasDimension(this.dimensionId)}§r
 `.trim();
 	}
 }
