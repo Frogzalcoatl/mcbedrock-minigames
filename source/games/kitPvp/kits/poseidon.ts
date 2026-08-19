@@ -1,8 +1,8 @@
 import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
-import { projectileTrackerRemoveProjectiles } from "../../../entities/projectileTracker";
 import { itemLightningStick } from "../../../items/lightningStick";
+import { itemPoseidenBuff } from "../../../items/poseidenBuff";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
@@ -12,22 +12,10 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../kits/utils";
-import type { Room } from "../../../rooms/room";
-import { getPlayerRoom } from "../../../rooms/roomManager";
 
 function onKill(kitUser: Player, _dead: Entity): void {
-	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
-	effectBuff.lockMode = ItemLockMode.inventory;
-	effectBuff.nameTag = "§rEffect Buff";
-	giveItemToEntity(effectBuff, kitUser, false);
-}
-
-function onDeath(kitUser: Player, _killer?: Entity): void {
-	const room: Room | null = getPlayerRoom(kitUser);
-	if (room === null) {
-		return;
-	}
-	projectileTrackerRemoveProjectiles(kitUser);
+	const buff = itemPoseidenBuff();
+	giveItemToEntity(buff, kitUser, false);
 }
 
 export function getKitPoseidon(): Kit {
@@ -46,16 +34,14 @@ export function getKitPoseidon(): Kit {
 	const trident = new ItemStack(MinecraftItemTypes.Trident);
 	applyEnchant(trident, MinecraftEnchantmentTypes.Loyalty, 3);
 	setDurability(trident, "unbreakable");
-	const effectBuff = new ItemStack(MinecraftItemTypes.HeartOfTheSea);
-	effectBuff.nameTag = "§rEffect Buff";
+	const buff: ItemStack = itemPoseidenBuff();
 	const lightning: ItemStack = itemLightningStick();
 	kit.inventory = [
 		{ item: trident, slot: 0 },
-		{ item: effectBuff, slot: 1 },
+		{ item: buff, slot: 1 },
 		{ item: lightning, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
 	kit.onKill = onKill;
-	kit.onDeath = onDeath;
 	return kit;
 }

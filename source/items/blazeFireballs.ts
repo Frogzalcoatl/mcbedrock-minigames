@@ -8,7 +8,7 @@ import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-dat
 import { throwFireballFromEntity } from "../entities/fireball";
 import { defaultItemStackFunc } from "./utils/default";
 import { itemNameMatches } from "./utils/matches";
-import { removeItem } from "./utils/remove";
+import { decrementMainhandItem } from "./utils/remove";
 
 const typeId: string = MinecraftItemTypes.FireCharge;
 const nameTag: string = "§rBlaze Fireball";
@@ -25,7 +25,9 @@ export function itemBlazeFireballRun(event: ItemUseAfterEvent): void {
 			return;
 		}
 		if (event.source.getGameMode() !== GameMode.Creative) {
-			removeItem(inventory.container, event.itemStack, 1);
+			if (!decrementMainhandItem(event.source)) {
+				return;
+			}
 		}
 		throwFireballFromEntity(
 			MinecraftEntityTypes.SmallFireball,

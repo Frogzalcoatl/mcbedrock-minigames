@@ -1,4 +1,11 @@
-import type { Container, ItemStack } from "@minecraft/server";
+import {
+	type Container,
+	type Entity,
+	EntityComponentTypes,
+	type EntityEquippableComponent,
+	EquipmentSlot,
+	type ItemStack,
+} from "@minecraft/server";
 
 export function removeItem(container: Container, item: ItemStack, amount: number): void {
 	const itemIndex = container.find(item);
@@ -18,4 +25,24 @@ export function removeItem(container: Container, item: ItemStack, amount: number
 		inventoryItem.amount -= amount;
 		container.setItem(itemIndex, inventoryItem);
 	}
+}
+
+export function decrementMainhandItem(entity: Entity): boolean {
+	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
+		EntityComponentTypes.Equippable,
+	);
+	if (equippable === undefined) {
+		return false;
+	}
+	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
+	if (mainhandItem === undefined) {
+		return false;
+	}
+	if (mainhandItem.amount === 1) {
+		equippable.setEquipment(EquipmentSlot.Mainhand);
+	} else {
+		mainhandItem.amount--;
+		equippable.setEquipment(EquipmentSlot.Mainhand, mainhandItem);
+	}
+	return true;
 }
