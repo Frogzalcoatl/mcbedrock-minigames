@@ -1,19 +1,19 @@
 import { type ItemUseAfterEvent, world } from "@minecraft/server";
 
-export interface ItemUseEntry {
+export interface ItemUseValue {
 	typeId: string;
 	callback: (event: ItemUseAfterEvent) => void;
 }
 
-export const itemUseMap = new Map<string, ItemUseEntry>(); // [nameTag, entry]
+export const itemUseMap = new Map<string, ItemUseValue>(); // [nameTag, value]
 
 export function itemUseHandler(event: ItemUseAfterEvent): void {
 	if (event.itemStack.nameTag === undefined) {
 		return;
 	}
-	const entry: ItemUseEntry | undefined = itemUseMap.get(event.itemStack.nameTag);
-	if (entry !== undefined && entry.typeId === event.itemStack.typeId) {
-		entry.callback(event);
+	const value: ItemUseValue | undefined = itemUseMap.get(event.itemStack.nameTag);
+	if (value !== undefined && value.typeId === event.itemStack.typeId) {
+		value.callback(event);
 	}
 }
 

@@ -17,8 +17,13 @@ export interface KillTrackerConfig {
 	showCombatTimeTickInterval?: number;
 }
 
-const configs = new Map<string, KillTrackerConfig>(); // [dimensionId, config]
-const hitMap = new Map<string, [string, number]>(); // [entityId, [hitterId, timestamp (Date.now())]]
+interface HitMapValue {
+	lastHitterId: string;
+	timestamp: number;
+}
+
+const configs = new Map<string, KillTrackerConfig>(); // key is dimensionId
+const hitMap = new Map<string, HitMapValue>(); // key is entity id
 const showTimeMap = new Map<string, number>(); //// [playerId, runIntervalId]
 
 export function killTrackerAddDimension(dimensionId: string, config: KillTrackerConfig): void {
@@ -46,28 +51,26 @@ export function killTrackerInCombat(player: Player): boolean {
 	if (!configs.has(player.dimension.id)) {
 		return false;
 	}
-	const entry = hitMap.get(player.id);
-	if (entry === undefined) {
+	const value: HitMapValue | undefined = hitMap.get(player.id);
+	if (value === undefined) {
 		return false;
 	}
-	const [, timestamp] = entry;
-	return inCombatCondition(timestamp);
+	return inCombatCondition(value.timestamp);
 }
 
 export function killTrackerGetLastHitter(player: Player): Entity | null {
 	if (!configs.has(player.dimension.id)) {
 		return null;
 	}
-	const entry = hitMap.get(player.id);
-	if (entry === undefined) {
+	const value: HitMapValue | undefined = hitMap.get(player.id);
+	if (value === undefined) {
 		return null;
 	}
-	const [lastHitterId, timestamp] = entry;
-	if (!inCombatCondition(timestamp)) {
+	if (!inCombatCondition(value.timestamp)) {
 		hitMap.delete(player.id);
 		return null;
 	}
-	const lastHitter = world.getEntity(lastHitterId);
+	const lastHitter = world.getEntity(value.lastHitterId);
 	if (lastHitter === undefined || !lastHitter.isValid) {
 		return null;
 	}
@@ -125,16 +128,15 @@ function showCombatTime(player: Player): void {
 }
 
 export function killTrackerGetCombatTimeTicks(player: Player): number {
-	const entry = hitMap.get(player.id);
-	if (entry === undefined) {
+	const value: HitMapValue | undefined = hitMap.get(player.id);
+	if (value === undefined) {
 		return -1;
 	}
-	const [, timestamp] = entry;
 	const now: number = Date.now();
-	if (timestamp < now - hitCooldownTicks * 50) {
+	if (value.timestamp < now - hitCooldownTicks * 50) {
 		return -1;
 	}
-	return (timestamp - now) / 50 + hitCooldownTicks;
+	return (value.timestamp - now) / 50 + hitCooldownTicks;
 }
 
 export function killTrackerRemovePlayer(player: Player): void {
@@ -161,10 +163,16 @@ function entityHurt(event: EntityHurtAfterEvent): void {
 	if (!configs.has(hurtPlayer.dimension.id)) {
 		return;
 	}
-	hitMap.set(hurtPlayer.id, [damagingEntity.id, Date.now()]);
+	hitMap.set(hurtPlayer.id, {
+		lastHitterId: damagingEntity.id,
+		timestamp: Date.now(),
+	});
 	showCombatTime(event.hurtEntity);
 	if (event.damageSource.damagingEntity instanceof Player) {
-		hitMap.set(damagingEntity.id, [hurtPlayer.id, Date.now()]);
+		hitMap.set(damagingEntity.id, {
+			lastHitterId: hurtPlayer.id,
+			timestamp: Date.now(),
+		});
 		showCombatTime(event.damageSource.damagingEntity);
 	}
 }

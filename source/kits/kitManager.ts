@@ -45,7 +45,12 @@ function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void
 	equippable.setEquipment(EquipmentSlot.Offhand, kit.offhand);
 }
 
-const entityKits = new Map<string, [string, number]>(); // [entityId, [roomTypeId, kitIndex]]
+interface EntityKitsMapValue {
+	roomTypeId: string;
+	kitIndex: number;
+}
+
+const entityKits = new Map<string, EntityKitsMapValue>(); // [entityId, [roomTypeId, kitIndex]]
 
 export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): Kit | undefined {
 	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
@@ -68,19 +73,21 @@ export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): K
 	if (equippable !== undefined) {
 		giveKitEquipment(kit, equippable);
 	}
-	entityKits.set(entity.id, [roomTypeId, kitIndex]);
+	entityKits.set(entity.id, {
+		kitIndex: kitIndex,
+		roomTypeId: roomTypeId,
+	});
 	return kit;
 }
 
 export function getEntityKit(entity: Entity): Kit | null {
-	const entry: [string, number] | undefined = entityKits.get(entity.id);
-	if (entry === undefined) {
+	const value: EntityKitsMapValue | undefined = entityKits.get(entity.id);
+	if (value === undefined) {
 		return null;
 	}
-	const [roomTypeId, kitIndex] = entry;
-	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
+	const roomTypeKits: Kit[] | undefined = kits.get(value.roomTypeId);
 	if (roomTypeKits === undefined) {
 		return null;
 	}
-	return roomTypeKits[kitIndex] ?? null;
+	return roomTypeKits[value.kitIndex] ?? null;
 }

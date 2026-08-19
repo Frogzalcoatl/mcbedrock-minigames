@@ -7,12 +7,12 @@ import {
 	world,
 } from "@minecraft/server";
 
-export interface ItemEntityHitEntry {
+export interface ItemEntityHitValue {
 	typeId: string;
 	callback: (mainhandItem: ItemStack, damagingEntity: Entity, hitEntity: Entity) => void;
 }
 
-export const itemEntityHitMap = new Map<string, ItemEntityHitEntry>();
+export const itemEntityHitMap = new Map<string, ItemEntityHitValue>();
 
 world.afterEvents.entityHitEntity.subscribe((event) => {
 	const equippable: EntityEquippableComponent | undefined = event.damagingEntity.getComponent(
@@ -25,8 +25,8 @@ world.afterEvents.entityHitEntity.subscribe((event) => {
 	if (mainhandItem === undefined || mainhandItem.nameTag === undefined) {
 		return;
 	}
-	const entry: ItemEntityHitEntry | undefined = itemEntityHitMap.get(mainhandItem.nameTag);
-	if (entry !== undefined && entry.typeId === mainhandItem.typeId) {
-		entry.callback(mainhandItem, event.damagingEntity, event.hitEntity);
+	const value: ItemEntityHitValue | undefined = itemEntityHitMap.get(mainhandItem.nameTag);
+	if (value !== undefined && value.typeId === mainhandItem.typeId) {
+		value.callback(mainhandItem, event.damagingEntity, event.hitEntity);
 	}
 });
