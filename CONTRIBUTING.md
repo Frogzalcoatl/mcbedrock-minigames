@@ -46,7 +46,7 @@ You need the following utilities installed: [pnpm](https://pnpm.io/), [node LTS]
 ## Commands
 - ``pnpm run watch`` Cleans the output directory and automatically recompiles scripts when files are modified. Use this while developing.
 - ``pnpm run build`` Performs a single production build.
-- ``pnpm run pack`` Builds code and packs all necessary files into a addon.mcpack.
+- ``pnpm run pack`` Builds code and packs all necessary files into a addon.mcaddon.
 - ``pnpm run clean`` Removes temporary files.
 
 # Post-setup instructions.
