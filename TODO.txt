@@ -1,6 +1,4 @@
-* Determine why profile command ui isnt working
-
-* Finish poison fish item
+* Fix kill tracker onKill on indirect kill
 
 * Review everything
 

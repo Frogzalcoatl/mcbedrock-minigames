@@ -151,6 +151,24 @@ export function killTrackerRemovePlayer(player: Player): void {
 	clearCombatTimeRunInterval(player);
 }
 
+export function killTrackerSetCombat(hurtPlayer: Player, damagingEntity: Entity): void {
+	if (!configs.has(hurtPlayer.dimension.id)) {
+		return;
+	}
+	hitMap.set(hurtPlayer.id, {
+		lastHitterId: damagingEntity.id,
+		timestamp: Date.now(),
+	});
+	showCombatTime(hurtPlayer);
+	if (damagingEntity instanceof Player) {
+		hitMap.set(damagingEntity.id, {
+			lastHitterId: hurtPlayer.id,
+			timestamp: Date.now(),
+		});
+		showCombatTime(damagingEntity);
+	}
+}
+
 function entityHurt(event: EntityHurtAfterEvent): void {
 	if (
 		event.damageSource.damagingEntity === undefined ||
@@ -160,21 +178,7 @@ function entityHurt(event: EntityHurtAfterEvent): void {
 	}
 	const hurtPlayer: Player = event.hurtEntity;
 	const damagingEntity: Entity = event.damageSource.damagingEntity;
-	if (!configs.has(hurtPlayer.dimension.id)) {
-		return;
-	}
-	hitMap.set(hurtPlayer.id, {
-		lastHitterId: damagingEntity.id,
-		timestamp: Date.now(),
-	});
-	showCombatTime(event.hurtEntity);
-	if (event.damageSource.damagingEntity instanceof Player) {
-		hitMap.set(damagingEntity.id, {
-			lastHitterId: hurtPlayer.id,
-			timestamp: Date.now(),
-		});
-		showCombatTime(event.damageSource.damagingEntity);
-	}
+	killTrackerSetCombat(hurtPlayer, damagingEntity);
 }
 
 function entityDie(event: EntityDieAfterEvent): void {
