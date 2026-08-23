@@ -36,6 +36,7 @@ export function getKitRabbit(): Kit {
 	setDurability(diamondAxe, "unbreakable");
 	const leap: ItemStack = itemRabbitLeap();
 	const speedBuff: ItemStack = itemRabbitBuff();
+	speedBuff.amount = 2;
 	kit.inventory = [
 		{ item: diamondAxe, slot: 0 },
 		{ item: leap, slot: 1 },

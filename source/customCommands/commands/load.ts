@@ -28,7 +28,7 @@ export function customCommandLoad(): [
 ] {
 	return [
 		{
-			description: "Load structure from minigame behavior pack.",
+			description: "Load structure from behavior pack.",
 			mandatoryParameters: [
 				{ name: commandEnums.structureIds, type: CustomCommandParamType.Enum },
 			],

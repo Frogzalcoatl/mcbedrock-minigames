@@ -18,7 +18,7 @@ I'll start a list of games I'm interested in adding below.
 ## Custom Commands
 **Operators Only:**
 
-`/load` - Load structure from minigame behavior pack.
+`/load` - Load structure from behavior pack.
 
 `/settings` - Manage active rooms.
 
