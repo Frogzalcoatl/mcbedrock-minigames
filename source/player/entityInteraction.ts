@@ -7,10 +7,21 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
+import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { itemUseHandler } from "../items/events/itemUse";
+
+const typeIdsForItemUseTrigger: string[] = [
+	MinecraftEntityTypes.Villager,
+	MinecraftEntityTypes.Npc,
+	MinecraftEntityTypes.VillagerV2,
+	MinecraftEntityTypes.WanderingTrader,
+];
 
 world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
 	event.cancel = true;
+	if (!typeIdsForItemUseTrigger.includes(event.target.typeId)) {
+		return;
+	}
 	system.run(() => {
 		const equippable: EntityEquippableComponent | undefined = event.player.getComponent(
 			EntityComponentTypes.Equippable,
