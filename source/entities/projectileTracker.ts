@@ -17,7 +17,7 @@ export interface ProjectileTracker {
 	projectileTypeIds: string[];
 }
 
-const trackers = new Map<string, ProjectileTracker>();
+const trackers = new Map<string, ProjectileTracker>(); // key is dimensionId
 
 export function projectileTrackerAddDimension(
 	dimensionId: string,

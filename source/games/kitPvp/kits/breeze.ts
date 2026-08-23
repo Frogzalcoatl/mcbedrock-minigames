@@ -3,6 +3,7 @@ import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanill
 import { giveItemToEntity } from "../../../entities/inventory";
 import { itemBreezeLeap } from "../../../items/games/kitPvp/breezeLeap";
 import { setDurability } from "../../../items/utils/durability";
+import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -32,6 +33,7 @@ export function getKitBreeze(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const mace = new ItemStack(MinecraftItemTypes.Mace);
 	setDurability(mace, "unbreakable");
+	applyEnchant(mace, MinecraftEnchantmentTypes.WindBurst);
 	const breezeLeap = itemBreezeLeap();
 	kit.inventory = [
 		{ item: mace, slot: 0 },

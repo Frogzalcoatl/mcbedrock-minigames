@@ -1,10 +1,17 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import {
+	type Entity,
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	ItemLockMode,
+	ItemStack,
+	type Player,
+} from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/inventory";
-import { itemLightningStick } from "../../../items/games/kitPvp/lightningStick";
+import { itemLightning } from "../../../items/games/kitPvp/lightning";
 import { itemPoseidenBuff } from "../../../items/games/kitPvp/poseidenBuff";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
+import { giveItem } from "../../../items/utils/give";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -14,8 +21,18 @@ import {
 } from "../../../kits/utils";
 
 function onKill(kitUser: Player, _dead: Entity): void {
+	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
+		EntityComponentTypes.Inventory,
+	);
+	if (inventory === undefined) {
+		return;
+	}
 	const buff = itemPoseidenBuff();
-	giveItemToEntity(buff, kitUser, false);
+	buff.lockMode = ItemLockMode.inventory;
+	const lightning: ItemStack = itemLightning();
+	lightning.lockMode = ItemLockMode.inventory;
+	giveItem(buff, inventory.container, kitUser.location, kitUser.dimension, false);
+	giveItem(lightning, inventory.container, kitUser.location, kitUser.dimension, false);
 }
 
 export function getKitPoseidon(): Kit {
@@ -35,7 +52,9 @@ export function getKitPoseidon(): Kit {
 	applyEnchant(trident, MinecraftEnchantmentTypes.Loyalty, 3);
 	setDurability(trident, "unbreakable");
 	const buff: ItemStack = itemPoseidenBuff();
-	const lightning: ItemStack = itemLightningStick();
+	buff.amount = 2;
+	const lightning: ItemStack = itemLightning();
+	lightning.amount = 4;
 	kit.inventory = [
 		{ item: trident, slot: 0 },
 		{ item: buff, slot: 1 },

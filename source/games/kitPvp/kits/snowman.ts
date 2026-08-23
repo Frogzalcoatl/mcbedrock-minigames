@@ -16,6 +16,9 @@ function onKill(kitUser: Player, _dead: Entity): void {
 	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 2);
 	snowballs.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(snowballs, kitUser, false);
+	const iceBomb = new ItemStack(ICE_BOMB_ID);
+	iceBomb.lockMode = ItemLockMode.inventory;
+	giveItemToEntity(iceBomb, kitUser, false);
 }
 
 export function getKitSnowman(): Kit {
@@ -33,10 +36,10 @@ export function getKitSnowman(): Kit {
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const ironSword = new ItemStack(MinecraftItemTypes.IronSword);
 	setDurability(ironSword, "unbreakable");
-	const iceBomb = new ItemStack(ICE_BOMB_ID, 2);
+	const iceBomb = new ItemStack(ICE_BOMB_ID, 4);
 	kit.inventory = [
 		{ item: ironSword, slot: 0 },
-		{ item: new ItemStack(MinecraftItemTypes.Snowball, 16), slot: 1 },
+		{ item: new ItemStack(MinecraftItemTypes.Snowball, 12), slot: 1 },
 		{ item: iceBomb, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);

@@ -1,6 +1,7 @@
 import {
 	type Entity,
 	EntityDamageCause,
+	GameMode,
 	type ItemStack,
 	type ItemUseAfterEvent,
 	Player,
@@ -13,14 +14,13 @@ import { beamFrom } from "../../../entities/beam";
 import { killTrackerSetCombat } from "../../../entities/killTracker";
 import { beamParticles } from "../../../particles/beam";
 import { itemUseMap } from "../../events/itemUse";
-import { isItemCooldownFinished, setItemCooldown } from "../../utils/cooldown";
 import { defaultItemStackFunc } from "../../utils/default";
+import { decrementMainhandItem } from "../../utils/remove";
 
 const typeId: string = MinecraftItemTypes.EndRod;
-const nameTag: string = "§r§bLightning Stick§7 (Use)";
-setItemCooldown(nameTag, typeId, 20 * 3);
+const nameTag: string = "§r§bLightning§7 (Use)";
 
-export function itemLightningStick(): ItemStack {
+export function itemLightning(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
 }
 
@@ -70,8 +70,8 @@ world.afterEvents.entityHurt.subscribe((event) => {
 
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
-		if (!isItemCooldownFinished(event.source, event.itemStack)) {
-			return;
+		if (event.source.getGameMode() !== GameMode.Creative) {
+			decrementMainhandItem(event.source);
 		}
 		beamFrom(event.source, 128, onHit);
 		event.source.dimension.playSound(

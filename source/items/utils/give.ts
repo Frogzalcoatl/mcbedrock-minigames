@@ -24,7 +24,7 @@ export function giveItem(
 	container: Container,
 	containerLocation: Vector3,
 	containerDimension: Dimension,
-	spawnOverflowItems: boolean = true,
+	spawnOverflowItems: boolean,
 ): void {
 	const existingIndex: number | undefined = container.find(item);
 	if (!existingIndex) {

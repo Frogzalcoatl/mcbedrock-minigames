@@ -3,6 +3,7 @@ import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanill
 import { itemLancerLeap } from "../../../items/games/kitPvp/lancerLeap";
 import { itemZombieHorse } from "../../../items/games/kitPvp/zombieHorse";
 import { setDurability } from "../../../items/utils/durability";
+import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -24,12 +25,13 @@ export function getKitLancer(): Kit {
 	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
-	const ironSpear = new ItemStack(MinecraftItemTypes.IronSpear);
-	setDurability(ironSpear, "unbreakable");
+	const spear = new ItemStack(MinecraftItemTypes.NetheriteSpear);
+	setDurability(spear, "unbreakable");
+	applyEnchant(spear, MinecraftEnchantmentTypes.Lunge, 3);
 	const leap: ItemStack = itemLancerLeap();
 	const zombieHorse: ItemStack = itemZombieHorse();
 	kit.inventory = [
-		{ item: ironSpear, slot: 0 },
+		{ item: spear, slot: 0 },
 		{ item: leap, slot: 1 },
 		{ item: zombieHorse, slot: 2 },
 	];
