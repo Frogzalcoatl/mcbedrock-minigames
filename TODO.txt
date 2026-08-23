@@ -1,5 +1,3 @@
-* Fix kill tracker onKill on indirect kill
-
 * Review everything
 
 # Ask xsku for code review

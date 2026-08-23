@@ -77,17 +77,20 @@ export function killTrackerGetLastHitter(player: Player): Entity | null {
 	return lastHitter;
 }
 
-function createDeathEvent(player: Player): EntityDieAfterEvent {
+function createDeathEvent(
+	player: Player,
+	cause: EntityDamageCause = EntityDamageCause.override,
+): EntityDieAfterEvent {
 	const lastHitter: Entity | null = killTrackerGetLastHitter(player);
 	let source: EntityDamageSource;
 	if (lastHitter !== null) {
 		source = {
-			cause: EntityDamageCause.override,
+			cause: cause,
 			damagingEntity: lastHitter,
 		};
 	} else {
 		source = {
-			cause: EntityDamageCause.override,
+			cause: cause,
 		};
 	}
 	return {
@@ -191,10 +194,8 @@ function entityDie(event: EntityDieAfterEvent): void {
 		return;
 	}
 	if (event.damageSource.damagingEntity === undefined) {
-		const lastHitter: Entity | null = killTrackerGetLastHitter(deadPlayer);
-		if (lastHitter !== null) {
-			event.damageSource.damagingEntity = lastHitter;
-		}
+		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
+		event = createDeathEvent(event.deadEntity);
 	}
 	const damagingEntity: Entity | undefined = event.damageSource.damagingEntity;
 	hitMap.delete(deadPlayer.id);
