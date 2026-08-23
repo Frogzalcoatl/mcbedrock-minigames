@@ -3,6 +3,7 @@ import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanill
 import { giveItemToEntity } from "../../../entities/inventory";
 import { itemPoisonFishProjectile as itemPufferfishProjectile } from "../../../items/games/kitPvp/pufferfishProjectile";
 import { setDurability } from "../../../items/utils/durability";
+import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -27,11 +28,12 @@ export function getKitFisherman(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.CopperLeggings),
 		name: "Fisherman",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const copperSword = new ItemStack(MinecraftItemTypes.CopperSword);
 	setDurability(copperSword, "unbreakable");
+	applyEnchant(copperSword, MinecraftEnchantmentTypes.Sharpness, 2);
 	const fishingRod = new ItemStack(MinecraftItemTypes.FishingRod);
 	setDurability(fishingRod, "unbreakable");
 	const pufferfish: ItemStack = itemPufferfishProjectile();

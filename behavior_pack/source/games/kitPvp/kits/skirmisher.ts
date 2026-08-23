@@ -27,15 +27,18 @@ export function getKitSkirmisher(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.ChainmailLeggings),
 		name: "Skirmisher",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const woodenSword = new ItemStack(MinecraftItemTypes.WoodenSword);
 	setDurability(woodenSword, "unbreakable");
+	applyEnchant(woodenSword, MinecraftEnchantmentTypes.Sharpness, 2);
 	const bow = new ItemStack(MinecraftItemTypes.Bow);
 	setDurability(bow, "unbreakable");
+	applyEnchant(bow, MinecraftEnchantmentTypes.Power, 3);
 	const crossbow = new ItemStack(MinecraftItemTypes.Crossbow);
 	setDurability(crossbow, "unbreakable");
+	applyEnchant(crossbow, MinecraftEnchantmentTypes.Multishot);
 	applyEnchant(crossbow, MinecraftEnchantmentTypes.QuickCharge, 3);
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 16);
 	kit.inventory = [

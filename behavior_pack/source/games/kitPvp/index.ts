@@ -1,5 +1,4 @@
 import {
-	type Entity,
 	EntityComponentTypes,
 	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
@@ -10,16 +9,11 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
-import { deathMessageFromEvent, getEntityName } from "../../entities/deathMessages";
+import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
 import { changeEntityHealth, setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import {
-	killTrackerAddDimension,
-	killTrackerGetCombatTimeTicks,
-	killTrackerGetLastHitter,
-	killTrackerRemovePlayer,
-} from "../../entities/killTracker";
+import { killTrackerAddDimension, killTrackerRemovePlayer } from "../../entities/killTracker";
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
@@ -111,16 +105,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 				system.run(() => changeEntityHealth(killer, healthAddedOnKill));
 			}
 		},
-		showCombatTime: (player: Player): void => {
-			const lastHitter: Entity | null = killTrackerGetLastHitter(player);
-			if (lastHitter === null) {
-				return;
-			}
-			const inCombatWith: string = getEntityName(lastHitter);
-			const combatTimeSeconds: number = Math.ceil(killTrackerGetCombatTimeTicks(player) / 20);
-			const display: string = `In Combat: §e${inCombatWith} §7(${combatTimeSeconds})`;
-			player.onScreenDisplay.setActionBar(display);
-		},
+		showCombatTime: null,
 	});
 	projectileTrackerAddDimension(room.dimensionId, [
 		MinecraftEntityTypes.ThrownTrident,

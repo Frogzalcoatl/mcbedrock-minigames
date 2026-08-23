@@ -2,6 +2,7 @@ import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/se
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
+import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -31,11 +32,12 @@ export function getKitSnowman(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.ChainmailLeggings),
 		name: "Snowman",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const ironSword = new ItemStack(MinecraftItemTypes.IronSword);
 	setDurability(ironSword, "unbreakable");
+	applyEnchant(ironSword, MinecraftEnchantmentTypes.Sharpness, 2);
 	const iceBomb = new ItemStack(ICE_BOMB_ID, 4);
 	kit.inventory = [
 		{ item: ironSword, slot: 0 },

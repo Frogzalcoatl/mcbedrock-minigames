@@ -45,7 +45,7 @@ export function getKitPoseidon(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.LeatherLeggings),
 		name: "Poseidon",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const trident = new ItemStack(MinecraftItemTypes.Trident);

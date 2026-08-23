@@ -13,7 +13,7 @@ export function itemFireStick(): ItemStack {
 itemEntityHitMap.set(nameTag, {
 	callback: (_mainhandItem: ItemStack, _damagingEntity: Entity, hitEntity: Entity): void => {
 		if (hitEntity.isValid) {
-			hitEntity.setOnFire(5);
+			hitEntity.setOnFire(10, false);
 		}
 	},
 	typeId: typeId,

@@ -22,12 +22,13 @@ export function getKitLancer(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.LeatherLeggings),
 		name: "Lancer",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const spear = new ItemStack(MinecraftItemTypes.NetheriteSpear);
 	setDurability(spear, "unbreakable");
 	applyEnchant(spear, MinecraftEnchantmentTypes.Lunge, 3);
+	applyEnchant(spear, MinecraftEnchantmentTypes.Sharpness, 2);
 	const leap: ItemStack = itemLancerLeap();
 	const zombieHorse: ItemStack = itemZombieHorse();
 	kit.inventory = [

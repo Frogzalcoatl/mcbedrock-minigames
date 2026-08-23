@@ -28,7 +28,7 @@ export function getKitBreeze(): Kit {
 		leggings: new ItemStack(MinecraftItemTypes.ChainmailLeggings),
 		name: "Breeze",
 	};
-	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 1);
+	kitArmorEnchant(kit, MinecraftEnchantmentTypes.Protection, 4);
 	kitArmorDurability(kit, "unbreakable");
 	kitArmorLockMode(kit, ItemLockMode.slot);
 	const mace = new ItemStack(MinecraftItemTypes.Mace);

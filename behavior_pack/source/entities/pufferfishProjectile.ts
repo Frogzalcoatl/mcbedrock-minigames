@@ -26,7 +26,7 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 		if (entity.id === thrower.id || entity.typeId === MinecraftEntityTypes.Pufferfish) {
 			continue;
 		}
-		entity.addEffect(MinecraftEffectTypes.Poison, 20 * 10);
+		entity.addEffect(MinecraftEffectTypes.Poison, 20 * 10, { amplifier: 4 });
 		if (entity instanceof Player) {
 			killTrackerSetCombat(entity, thrower);
 		}
