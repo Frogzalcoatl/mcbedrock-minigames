@@ -1,0 +1,24 @@
+{
+	"dependencies": [
+		{
+			"uuid": "b38e4023-fc5b-4596-8218-359678e95f0a",
+			"version": [1, 0, 0]
+		}
+	],
+	"format_version": 2,
+	"header": {
+		"description": "SunnyTheFennec, Frogzalcoatl, Ghostly13169036",
+		"min_engine_version": [1, 26, 33],
+		"name": "Minigames",
+		"uuid": "725d5bd5-39bb-41b6-b143-648988372776",
+		"version": [1, 0, 0]
+	},
+	"modules": [
+		{
+			"description": "Resource Pack Module",
+			"type": "resources",
+			"uuid": "fa4eec98-732b-40c0-a922-728ace82a38c",
+			"version": [1, 0, 0]
+		}
+	]
+}

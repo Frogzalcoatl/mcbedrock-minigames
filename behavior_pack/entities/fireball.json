@@ -61,7 +61,7 @@
 		},
 		"description": {
 			"identifier": "minecraft:fireball",
-			"is_spawnable": true,
+			"is_spawnable": false,
 			"is_summonable": true
 		},
 		"events": {

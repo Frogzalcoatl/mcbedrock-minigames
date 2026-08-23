@@ -1,0 +1,18 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:client_entity": {
+		"description": {
+			"geometry": {
+				"default": "geometry.dummy"
+			},
+			"identifier": "mg:text",
+			"materials": {
+				"default": "entity_alphatest"
+			},
+			"render_controllers": ["controller.render.dummy"],
+			"textures": {
+				"default": "textures/entity/cow/cow"
+			}
+		}
+	}
+}

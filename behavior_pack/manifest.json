@@ -11,6 +11,10 @@
 		{
 			"module_name": "@minecraft/server-gametest",
 			"version": "1.0.0-beta"
+		},
+		{
+			"uuid": "725d5bd5-39bb-41b6-b143-648988372776",
+			"version": [1, 0, 0]
 		}
 	],
 	"format_version": 2,
