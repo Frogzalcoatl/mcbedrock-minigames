@@ -15,14 +15,14 @@ import type { RoomType } from "../../rooms/roomType";
 import { commandEnums } from "../enums";
 import { getPlayerFromOrigin } from "../utils";
 
-export function customCommandQueue(): [
+export function customCommandQ(): [
 	CustomCommand,
 	(origin: CustomCommandOrigin) => CustomCommandResult | undefined,
 ] {
 	return [
 		{
 			description: "Join a game queue.",
-			name: `${PACK_NAMESPACE}:queue`,
+			name: `${PACK_NAMESPACE}:q`,
 			optionalParameters: [
 				{ name: commandEnums.roomTypeId, type: CustomCommandParamType.Enum },
 			],

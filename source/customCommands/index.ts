@@ -5,7 +5,7 @@ import { customCommandHub } from "./commands/hub";
 import { customCommandLoad } from "./commands/load";
 import { customCommandNewSave } from "./commands/newsave";
 import { customCommandProfile } from "./commands/profile";
-import { customCommandQueue } from "./commands/queue";
+import { customCommandQ } from "./commands/q";
 import { customCommandSettings } from "./commands/settings";
 import { customCommandSim } from "./commands/sim";
 import { registerCommandEnums } from "./enums";
@@ -16,7 +16,7 @@ system.beforeEvents.startup.subscribe((e) => {
 	e.customCommandRegistry.registerCommand(...customCommandLoad());
 	e.customCommandRegistry.registerCommand(...customCommandHub());
 	e.customCommandRegistry.registerCommand(...customCommandProfile());
-	e.customCommandRegistry.registerCommand(...customCommandQueue());
+	e.customCommandRegistry.registerCommand(...customCommandQ());
 	e.customCommandRegistry.registerCommand(...customCommandNewSave());
 	e.customCommandRegistry.registerCommand(...customCommandExistingSave());
 	e.customCommandRegistry.registerCommand(...customCommandSim());

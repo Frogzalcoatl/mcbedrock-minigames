@@ -36,7 +36,7 @@ I'll start a list of games I'm interested in adding below.
 
 `/profile` - View a player profile.
 
-`/queue` - Join a game queue.
+`/q` - Join a game queue.
 
 ## Structure Loading
 This project solely uses structure files to improve ease of collaboration.
