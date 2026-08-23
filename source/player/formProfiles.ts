@@ -23,7 +23,7 @@ export async function showFormPlayerProfile(
 	}
 	let resp: ActionFormResponse;
 	try {
-		resp = await form.show(playerToView);
+		resp = await form.show(viewer);
 	} catch (error) {
 		if (error instanceof FormRejectError) {
 			return;
