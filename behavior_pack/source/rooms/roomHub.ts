@@ -1,4 +1,5 @@
 import { type Dimension, type Player, type Vector3, world } from "@minecraft/server";
+import { clearPlayerCooldowns } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 
 export interface RoomHubConfig {
@@ -57,6 +58,7 @@ export class RoomHub {
 			y: this._spawn.y,
 			z: this._spawn.z,
 		});
+		clearPlayerCooldowns(player);
 		if (this._onJoin !== null) {
 			this._onJoin(player);
 		}

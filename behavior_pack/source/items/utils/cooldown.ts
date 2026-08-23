@@ -35,7 +35,9 @@ export function removeItemCooldown(nameTag: string): void {
 
 function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {
 	system.runTimeout(() => {
-		if (players.has(player.id)) {
+		const cooldownMap = players.get(player.id);
+		if (cooldownMap?.has(itemNameTag)) {
+			cooldownMap.delete(itemNameTag);
 			player.sendMessage(`Cooldown finished for ${itemNameTag}`);
 		}
 	}, delayTicks);

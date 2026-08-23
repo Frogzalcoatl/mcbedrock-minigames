@@ -39,7 +39,7 @@ export function customCommandHub(): [
 				};
 			}
 			const playerRoom: Room | null = getPlayerRoom(player);
-			if (playerRoom !== null && playerRoom.hub !== null && !playerRoom.hub.has(player)) {
+			if (playerRoom?.hub?.isActive && !playerRoom.hub.has(player)) {
 				const hub: RoomHub = playerRoom.hub;
 				system.run(() => {
 					hub.join(player);
