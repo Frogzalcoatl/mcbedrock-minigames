@@ -60,9 +60,9 @@ If your structure exceeds this size, this pack can map multiple structure files 
 
 Use the /load command. Example:
 ```
-/load "frogzalcoatl/lobby/minersRealm" 0 0 0
+/load "frogzalcoatl/lobby/minersRealm"
 ```
-Loads the structure with id "frogzalcoatl/lobby/minersRealm" at position 0 0 0 in the user's current dimension.
+Loads structure with id "frogzalcoatl/lobby/minersRealm" at the user's current position.
 
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
