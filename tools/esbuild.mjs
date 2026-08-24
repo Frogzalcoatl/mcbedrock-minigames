@@ -8,7 +8,7 @@ const isWatch = args.includes("--watch");
 /** @type {import('esbuild').BuildOptions} */
 const options = {
 	bundle: true,
-	entryPoints: ["./behavior_pack/source/index.ts"],
+	entryPoints: ["./behaviors/source/index.ts"],
 	external: [
 		"@minecraft/server",
 		"@minecraft/server-ui",
@@ -20,7 +20,7 @@ const options = {
 	keepNames: true,
 	logLevel: "info",
 	minify: false,
-	outfile: "behavior_pack/scripts/main.esm.js",
+	outfile: "behaviors/scripts/main.esm.js",
 	platform: "neutral",
 	sourcemap: false,
 	sourcesContent: false,

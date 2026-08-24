@@ -8,11 +8,11 @@ const MCADDON_FILENAME = "addon.mcaddon";
 const OUTPUT_DIRECTORY_NAME = "_temp_mcpack_directory";
 
 const PROJECT_ROOT = _resolve(import.meta.dirname, "..");
-const BEHAVIOR_PACK_PATH = join(PROJECT_ROOT, "behavior_pack");
-const RESOURCE_PACK_PATH = join(PROJECT_ROOT, "resource_pack");
+const BEHAVIORS_DIRECTORY = join(PROJECT_ROOT, "behaviors");
+const RESOURCES_DIRECTORY = join(PROJECT_ROOT, "resources");
 const OUTPUT_DIRECTORY = join(PROJECT_ROOT, OUTPUT_DIRECTORY_NAME);
-const BEHAVIOR_OUTPUT_DIRECTORY = join(OUTPUT_DIRECTORY, "behavior_pack");
-const RESOURCE_OUTPUT_DIRECTORY = join(OUTPUT_DIRECTORY, "resource_pack");
+const BEHAVIOR_OUTPUT_DIRECTORY = join(OUTPUT_DIRECTORY, "behaviors");
+const RESOURCE_OUTPUT_DIRECTORY = join(OUTPUT_DIRECTORY, "resources");
 
 const SKIP_DIRECTORIES = ["source"];
 const LICENSE_PATH = join(PROJECT_ROOT, "LICENSE.md");
@@ -64,9 +64,9 @@ async function build() {
 		await promises.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
 
 		console.log(`Creating temporary directory at: ${OUTPUT_DIRECTORY}`);
-		await copyDirectory(BEHAVIOR_PACK_PATH, BEHAVIOR_OUTPUT_DIRECTORY);
+		await copyDirectory(BEHAVIORS_DIRECTORY, BEHAVIOR_OUTPUT_DIRECTORY);
 		await copyFileToDirectory(LICENSE_PATH, BEHAVIOR_OUTPUT_DIRECTORY);
-		await copyDirectory(RESOURCE_PACK_PATH, RESOURCE_OUTPUT_DIRECTORY);
+		await copyDirectory(RESOURCES_DIRECTORY, RESOURCE_OUTPUT_DIRECTORY);
 		await copyFileToDirectory(LICENSE_PATH, RESOURCE_OUTPUT_DIRECTORY);
 		console.log("Successfully copied files.");
 
