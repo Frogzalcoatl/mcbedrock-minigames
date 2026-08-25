@@ -1,10 +1,20 @@
 import { PACK_NAMESPACE } from "../constants";
-import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json";
-import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json";
-import frogzalcoatlLobbyFrogland from "./json/frogzalcoatl/lobby/frogland.json";
-import frogzalcoatlLobbyHaroldsRealm from "./json/frogzalcoatl/lobby/haroldsRealm.json";
-import frogzalcoatlSkywarsExotic from "./json/frogzalcoatl/skywars/exotic.json";
-import frogzalcoatlSurvivalGamesOverworld from "./json/frogzalcoatl/survivalGames/overworld.json";
+import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
+import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
+	type: "json",
+};
+import frogzalcoatlLobbyFrogland from "./json/frogzalcoatl/lobby/frogland.json" with {
+	type: "json",
+};
+import frogzalcoatlLobbyHaroldsRealm from "./json/frogzalcoatl/lobby/haroldsRealm.json" with {
+	type: "json",
+};
+import frogzalcoatlSkywarsExotic from "./json/frogzalcoatl/skywars/exotic.json" with {
+	type: "json",
+};
+import frogzalcoatlSurvivalGamesOverworld from "./json/frogzalcoatl/survivalGames/overworld.json" with {
+	type: "json",
+};
 import ghostlyKitPvp from "./json/ghostly/kitPvp.json" with { type: "json" };
 import ghostlyShop from "./json/ghostly/shop.json" with { type: "json" };
 import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
