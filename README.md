@@ -50,9 +50,9 @@ Structures built by contributors should be exported to .mcstructure files using 
 **Multiple files needed:**
 
 1. Store position offsets of each structure file in a json file: `behaviors/source/structures/json/`.
+	- When choosing your json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
 	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/structures/data.ts) for formatting in: `behaviors/source/structures/data.ts`.
 	- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
-	- When choosing your json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
 
 2. Import your json file in data.ts. Example Import:
 ```ts
