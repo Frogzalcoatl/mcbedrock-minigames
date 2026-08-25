@@ -15,7 +15,7 @@ You need the following utilities installed: [pnpm](https://pnpm.io/), [node LTS]
 ## Setup
 1. Clone the repository.
 
-	Open a terminal in that directory and clone this repository.
+	Open a terminal and clone this repository.
 	```sh
 	git clone https://github.com/Frogzalcoatl/mcbedrock-minigames.git
 	cd mcbedrock-minigames
@@ -34,10 +34,10 @@ You need the following utilities installed: [pnpm](https://pnpm.io/), [node LTS]
 
 4. Open your IDE.
 
-	After installing the packages, open the folder in VSCode.
+	After creating symlinks, open the folder in VSCode.
 	* If you have already opened VSCode, restart so Biome can initialize properly.
 
-5. Install recommended packages.
+5. Install the recommended extensions.
 
 	In the bottom right of VSCode, it should ask you to install some extensions. Click yes!
 
