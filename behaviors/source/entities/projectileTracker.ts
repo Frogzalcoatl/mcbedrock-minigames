@@ -1,6 +1,7 @@
 import {
 	type Entity,
 	EntityComponentTypes,
+	type EntityLoadAfterEvent,
 	type EntityProjectileComponent,
 	type EntityRemoveBeforeEvent,
 	type EntitySpawnAfterEvent,
@@ -40,6 +41,8 @@ export function projectileTrackerHasDimension(dimensionId: string): boolean {
 export function projectileTrackerClearDimensions(): void {
 	trackers.clear();
 }
+
+const trackedPojectilePropertyId: string = "mg:tracked_projectile";
 
 // Removes player's projectiles from their current dimension
 export function projectileTrackerRemoveProjectiles(player: Player): void {
@@ -83,8 +86,16 @@ function entitySpawn(event: EntitySpawnAfterEvent): void {
 	);
 	if (projectile?.owner && projectile.owner instanceof Player) {
 		tracker.map.set(event.entity.id, projectile.owner.id);
+		event.entity.setDynamicProperty(trackedPojectilePropertyId, true);
+	}
+}
+
+function entityLoad(event: EntityLoadAfterEvent): void {
+	if (event.entity.getDynamicProperty(trackedPojectilePropertyId) !== undefined) {
+		event.entity.remove();
 	}
 }
 
 world.beforeEvents.entityRemove.subscribe(entityRemove);
 world.afterEvents.entitySpawn.subscribe(entitySpawn);
+world.afterEvents.entityLoad.subscribe(entityLoad);
