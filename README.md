@@ -52,6 +52,7 @@ Structures built by contributors should be exported to .mcstructure files using 
 1. Store position offsets of each structure file in a json file: `behaviors/source/structures/json/`.
 	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/structures/data.ts) for formatting in: `behaviors/source/structures/data.ts`.
 	- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
+	- When choosing your json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
 
 2. Import your json file in data.ts. Example Import:
 ```ts
@@ -129,7 +130,7 @@ Use the **/settings** command to manage rooms in game.
 	- Would use custom kockback listed above to cancel attacks from teammates.
 
 - Custom Fall Damage
-	- Useful to enable, disable or edit fall damage based on gamemode.
+	- Useful to enable, disable, or edit fall damage based on gamemode.
 
 - Game States
 	- GameStarting, GameActive, GameResetting, etc.
