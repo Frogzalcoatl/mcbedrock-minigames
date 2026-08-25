@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
@@ -15,11 +15,8 @@ import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../../constants";
 import { getDimensionFromOrigin } from "../utils";
 
-export function customCommandSim(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin, amount: number, name: string) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandSim(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Spawn simulated players.",
 			name: `${PACK_NAMESPACE}:sim`,
@@ -34,9 +31,9 @@ export function customCommandSim(): [
 			amount: number = 1,
 			name: string = "SimulatedPlayer",
 		): CustomCommandResult | undefined => {
-			if (amount < 0) {
+			if (amount <= 0) {
 				return {
-					message: "Amount must be a positive integer",
+					message: "Amount must be an integer greater than 0",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -57,5 +54,5 @@ export function customCommandSim(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

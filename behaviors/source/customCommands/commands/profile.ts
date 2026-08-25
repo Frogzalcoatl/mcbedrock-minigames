@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Player,
@@ -12,18 +12,15 @@ import { PACK_NAMESPACE } from "../../constants";
 import { showFormAllProfiles, showFormPlayerProfile } from "../../player/formProfiles";
 import { getPlayerFromOrigin } from "../utils";
 
-export function customCommandProfile(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandProfile(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "View a player profile.",
 			name: `${PACK_NAMESPACE}:profile`,
 			optionalParameters: [{ name: "player", type: CustomCommandParamType.PlayerSelector }],
 			permissionLevel: CommandPermissionLevel.Any,
 		},
-		(origin: CustomCommandOrigin, players?: Player[]): undefined | CustomCommandResult => {
+		(origin: CustomCommandOrigin, players?: Player[]): CustomCommandResult | undefined => {
 			const viewer: Player | null = getPlayerFromOrigin(origin);
 			if (viewer === null) {
 				return {
@@ -33,17 +30,19 @@ export function customCommandProfile(): [
 			}
 			if (players === undefined) {
 				system.run(() => showFormAllProfiles(viewer));
-				return;
+				return {
+					status: CustomCommandStatus.Success,
+				};
+			} else if (players.length > 1) {
+				return {
+					message: "Cannot select more than one player.",
+					status: CustomCommandStatus.Failure,
+				};
 			}
 			const player: Player | undefined = players[0];
 			if (player === undefined) {
 				return {
 					message: "No valid player selected.",
-					status: CustomCommandStatus.Failure,
-				};
-			} else if (players.length > 1) {
-				return {
-					message: "Cannot select more than one player.",
 					status: CustomCommandStatus.Failure,
 				};
 			} else {
@@ -53,5 +52,5 @@ export function customCommandProfile(): [
 				};
 			}
 		},
-	];
+	);
 }

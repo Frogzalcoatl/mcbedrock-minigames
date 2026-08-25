@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Player,
@@ -15,11 +15,8 @@ import type { RoomType } from "../../rooms/roomType";
 import { commandEnums } from "../enums";
 import { getPlayerFromOrigin } from "../utils";
 
-export function customCommandQ(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandQ(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Join a game queue.",
 			name: `${PACK_NAMESPACE}:q`,
@@ -52,5 +49,5 @@ export function customCommandQ(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

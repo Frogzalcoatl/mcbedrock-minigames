@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
@@ -14,11 +14,8 @@ import { PACK_NAMESPACE } from "../../constants";
 import { placeStructureBlocks } from "../../structures/save";
 import { getDimensionFromOrigin, getPlayerFromOrigin } from "../utils";
 
-export function customCommandNewSave(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin, from: Vector3, to: Vector3) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandNewSave(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Place structure blocks for save based on bounds.",
 			mandatoryParameters: [
@@ -67,5 +64,5 @@ export function customCommandNewSave(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

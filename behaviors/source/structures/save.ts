@@ -14,9 +14,7 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 	}
 	let structureBlockY: number = 0;
 	let structureBlockId: string = "";
-	if (from.y < dimension.heightRange.min || to.y > dimension.heightRange.max) {
-		return;
-	} else if (from.y === dimension.heightRange.min) {
+	if (from.y === dimension.heightRange.min) {
 		structureBlockId = `${PACK_NAMESPACE}:structureBlock/flat`;
 		structureBlockY = dimension.heightRange.min;
 	} else {

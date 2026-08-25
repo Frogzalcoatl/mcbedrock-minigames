@@ -1,24 +1,30 @@
-import { system } from "@minecraft/server";
-import { customCommandClearSim } from "./commands/clearsim";
-import { customCommandExistingSave } from "./commands/existingsave";
-import { customCommandHub } from "./commands/hub";
-import { customCommandLoad } from "./commands/load";
-import { customCommandNewSave } from "./commands/newsave";
-import { customCommandProfile } from "./commands/profile";
-import { customCommandQ } from "./commands/q";
-import { customCommandSettings } from "./commands/settings";
-import { customCommandSim } from "./commands/sim";
+import { type CustomCommandRegistry, system } from "@minecraft/server";
+import { registerCommandClearSim } from "./commands/clearsim";
+import { registerCommandExistingSave } from "./commands/existingsave";
+import { registerCommandHub } from "./commands/hub";
+import { registerCommandLoad } from "./commands/load";
+import { registerCommandNewSave } from "./commands/newsave";
+import { registerCommandProfile } from "./commands/profile";
+import { registerCommandQ } from "./commands/q";
+import { registerCommandSettings } from "./commands/settings";
+import { registerCommandSim } from "./commands/sim";
 import { registerCommandEnums } from "./enums";
+
+const commandRegistryFuncs: ((r: CustomCommandRegistry) => void)[] = [
+	registerCommandClearSim,
+	registerCommandExistingSave,
+	registerCommandHub,
+	registerCommandLoad,
+	registerCommandNewSave,
+	registerCommandProfile,
+	registerCommandQ,
+	registerCommandSettings,
+	registerCommandSim,
+];
 
 system.beforeEvents.startup.subscribe((e) => {
 	registerCommandEnums(e.customCommandRegistry);
-	e.customCommandRegistry.registerCommand(...customCommandSettings());
-	e.customCommandRegistry.registerCommand(...customCommandLoad());
-	e.customCommandRegistry.registerCommand(...customCommandHub());
-	e.customCommandRegistry.registerCommand(...customCommandProfile());
-	e.customCommandRegistry.registerCommand(...customCommandQ());
-	e.customCommandRegistry.registerCommand(...customCommandNewSave());
-	e.customCommandRegistry.registerCommand(...customCommandExistingSave());
-	e.customCommandRegistry.registerCommand(...customCommandSim());
-	e.customCommandRegistry.registerCommand(...customCommandClearSim());
+	for (const func of commandRegistryFuncs) {
+		func(e.customCommandRegistry);
+	}
 });

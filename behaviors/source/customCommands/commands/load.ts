@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
@@ -16,17 +16,8 @@ import { loadStructure } from "../../structures/load";
 import { commandEnums } from "../enums";
 import { getDimensionFromOrigin, getLocationFromOrigin } from "../utils";
 
-export function customCommandLoad(): [
-	CustomCommand,
-	(
-		origin: CustomCommandOrigin,
-		id: string,
-		to?: Vector3,
-		animationMode?: StructureAnimationMode,
-		animationSeconds?: number,
-	) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandLoad(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Load structure from behavior pack.",
 			mandatoryParameters: [
@@ -90,5 +81,5 @@ export function customCommandLoad(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

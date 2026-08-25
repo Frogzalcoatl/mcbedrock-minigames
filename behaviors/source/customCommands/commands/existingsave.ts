@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
@@ -16,15 +16,8 @@ import { placeStructureBlocksFor } from "../../structures/save";
 import { commandEnums } from "../enums";
 import { getDimensionFromOrigin, getLocationFromOrigin, getPlayerFromOrigin } from "../utils";
 
-export function customCommandExistingSave(): [
-	CustomCommand,
-	(
-		origin: CustomCommandOrigin,
-		structureId: string,
-		location?: Vector3,
-	) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandExistingSave(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Place structure blocks for save based on existing structure.",
 			mandatoryParameters: [
@@ -37,7 +30,7 @@ export function customCommandExistingSave(): [
 		(
 			origin: CustomCommandOrigin,
 			structureId: string,
-			location?: Vector3,
+			at?: Vector3,
 		): CustomCommandResult | undefined => {
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
 			if (dimension === null) {
@@ -46,7 +39,7 @@ export function customCommandExistingSave(): [
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			if (location === undefined) {
+			if (at === undefined) {
 				const originLocation: Vector3 | null = getLocationFromOrigin(origin);
 				if (originLocation === null) {
 					return {
@@ -54,7 +47,7 @@ export function customCommandExistingSave(): [
 						status: CustomCommandStatus.Failure,
 					};
 				}
-				location = originLocation;
+				at = originLocation;
 			}
 			if (!structureIds.includes(structureId)) {
 				return {
@@ -64,7 +57,7 @@ export function customCommandExistingSave(): [
 			}
 			const player: Player | null = getPlayerFromOrigin(origin);
 			system.run(() => {
-				placeStructureBlocksFor(structureId, location, dimension);
+				placeStructureBlocksFor(structureId, at, dimension);
 				if (player?.isValid) {
 					player.sendMessage(
 						"§6You probably need to change the structure block sizes. There is no feasible way for me to edit them through scripting.",
@@ -75,5 +68,5 @@ export function customCommandExistingSave(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

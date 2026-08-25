@@ -1,7 +1,7 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	system,
@@ -10,11 +10,8 @@ import {
 import { SimulatedPlayer } from "@minecraft/server-gametest";
 import { PACK_NAMESPACE } from "../../constants";
 
-export function customCommandClearSim(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandClearSim(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Clear simulated players.",
 			name: `${PACK_NAMESPACE}:clearsim`,
@@ -32,5 +29,5 @@ export function customCommandClearSim(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }

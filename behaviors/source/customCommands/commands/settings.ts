@@ -1,7 +1,7 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Player,
@@ -11,11 +11,8 @@ import { PACK_NAMESPACE } from "../../constants";
 import { showFormSettings } from "../../rooms/settings";
 import { getPlayerFromOrigin } from "../utils";
 
-export function customCommandSettings(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandSettings(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Manage active rooms.",
 			name: `${PACK_NAMESPACE}:settings`,
@@ -28,9 +25,15 @@ export function customCommandSettings(): [
 					message: "No valid player for ui.",
 					status: CustomCommandStatus.Failure,
 				};
+			} else if (player.commandPermissionLevel === CommandPermissionLevel.Any) {
+				// No "/execute as <selector>" tomfoolery
+				return {
+					message: "Only operators can view this form.",
+					status: CustomCommandStatus.Failure,
+				};
 			}
 			system.run(() => showFormSettings(player));
 			return { status: CustomCommandStatus.Success };
 		},
-	];
+	);
 }

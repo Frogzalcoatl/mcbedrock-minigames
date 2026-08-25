@@ -1,8 +1,8 @@
 import {
 	CommandPermissionLevel,
-	type CustomCommand,
 	type CustomCommandOrigin,
 	CustomCommandParamType,
+	type CustomCommandRegistry,
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Player,
@@ -16,11 +16,8 @@ import type { RoomType } from "../../rooms/roomType";
 import roomTypeIds from "../../roomTypeIds";
 import { getPlayerFromOrigin } from "../utils";
 
-export function customCommandHub(): [
-	CustomCommand,
-	(origin: CustomCommandOrigin, index?: number) => CustomCommandResult | undefined,
-] {
-	return [
+export function registerCommandHub(registry: CustomCommandRegistry): void {
+	registry.registerCommand(
 		{
 			description: "Transfer to hub.",
 			name: `${PACK_NAMESPACE}:hub`,
@@ -76,5 +73,5 @@ export function customCommandHub(): [
 				status: CustomCommandStatus.Success,
 			};
 		},
-	];
+	);
 }
