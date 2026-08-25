@@ -1,6 +1,6 @@
 import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { spawnHorseRide } from "../../../entities/horse";
+import { spawnTemporaryMount } from "../../../entities/mount";
 import { itemUseMap } from "../../events/itemUse";
 import { isItemCooldownFinished, setItemCooldown } from "../../utils/cooldown";
 import { defaultItemStackFunc } from "../../utils/default";
@@ -20,7 +20,7 @@ itemUseMap.set(nameTag, {
 		if (!isItemCooldownFinished(event.source, event.itemStack)) {
 			return;
 		}
-		spawnHorseRide(
+		spawnTemporaryMount(
 			MinecraftEntityTypes.ZombieHorse,
 			event.source,
 			horseRideDurationTicks,

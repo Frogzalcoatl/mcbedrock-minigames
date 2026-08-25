@@ -1,15 +1,13 @@
 import {
 	type Dimension,
 	type DimensionRegistry,
-	EntityComponentTypes,
-	type EntityRideableComponent,
-	type EntityRidingComponent,
 	type Player,
 	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
 import { killTrackerHasDimension, killTrackerRemovePlayer } from "../entities/killTracker";
+import { ejectFromMount } from "../entities/mount";
 import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
@@ -154,22 +152,15 @@ export class Room {
 		this.removePlayer(player);
 	}
 
-	// doesnt run any leave callbacks or teleportation
+	// doesnt run any beforeLeave callback or teleportation
 	public removePlayer(player: Player): void {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
-		const riding: EntityRidingComponent | undefined = player.getComponent(
-			EntityComponentTypes.Riding,
-		);
-		if (riding !== undefined) {
+		system.run(() => {
 			// If i dont do this, player is teleported to the mount location in the new dimension for some reason
-			const rideable: EntityRideableComponent | undefined =
-				riding.entityRidingOn.getComponent(EntityComponentTypes.Rideable);
-			if (rideable !== undefined) {
-				rideable.ejectRider(player);
-			}
-		}
+			ejectFromMount(player);
+		});
 		portalSoundRunIntervalClear(player);
 		projectileTrackerRemoveProjectiles(player);
 		killTrackerRemovePlayer(player);
