@@ -2,6 +2,9 @@ import { type Dimension, type Vector3, world } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
 import { getStructureSchema, type StructureSchema } from "./data";
 
+const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/normal`;
+const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
+
 export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
 	if (from.x > to.x) {
 		[from.x, to.x] = [to.x, from.x];
@@ -15,10 +18,10 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 	let structureBlockY: number = 0;
 	let structureBlockId: string = "";
 	if (from.y === dimension.heightRange.min) {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock/flat`;
+		structureBlockId = structureBlockFlat;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
+		structureBlockId = structureBlockNormal;
 		structureBlockY = from.y - 1;
 	}
 	for (let x: number = from.x - 1; x < to.x; x += 64) {
@@ -44,10 +47,10 @@ export function placeStructureBlocksFor(
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
 		return;
 	} else if (at.y === dimension.heightRange.min) {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock/flat`;
+		structureBlockId = structureBlockFlat;
 		structureBlockY = dimension.heightRange.min;
 	} else {
-		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
+		structureBlockId = structureBlockNormal;
 		structureBlockY = at.y - 1;
 	}
 	for (const entry of schema) {

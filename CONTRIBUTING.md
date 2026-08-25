@@ -1,5 +1,5 @@
 # Contributing
-This project uses a slightly modified version of [sunshinekitsune's scripting template](https://github.com/sunshinekitsune/mcbedrock-gametest-starter) for Minecraft: Bedrock Edition.
+This project uses [sunshinekitsune's scripting template](https://github.com/sunshinekitsune/mcbedrock-gametest-starter) for Minecraft: Bedrock Edition, slightly modified to include a resource pack.
 
 ## Features
 * Typescript configured for ES2023.
