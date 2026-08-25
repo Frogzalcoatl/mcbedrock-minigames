@@ -149,6 +149,10 @@ export class Room {
 		if (this.hub?.isActive) {
 			this.hub.leave(player);
 		}
+		system.run(() => {
+			// If i dont do this, player is teleported to the mount location in the new dimension for some reason
+			ejectFromMount(player);
+		});
 		this.removePlayer(player);
 	}
 
@@ -157,10 +161,6 @@ export class Room {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
-		system.run(() => {
-			// If i dont do this, player is teleported to the mount location in the new dimension for some reason
-			ejectFromMount(player);
-		});
 		portalSoundRunIntervalClear(player);
 		projectileTrackerRemoveProjectiles(player);
 		killTrackerRemovePlayer(player);
