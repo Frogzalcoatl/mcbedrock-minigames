@@ -9,7 +9,7 @@ const nameTag: string = "§r§eGolden Carrot §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absoprtionDurationTicks: number = 20 * 180;
 
-export function itemRabbitBuff(): ItemStack {
+export function itemRabbitGoldenCarrot(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
 }
 
@@ -17,6 +17,9 @@ itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		decrementMainhandItem(event.source);
 		event.source.addEffect(MinecraftEffectTypes.Speed, effectDurationTicks, { amplifier: 4 });
+		event.source.addEffect(MinecraftEffectTypes.JumpBoost, effectDurationTicks, {
+			amplifier: 2,
+		});
 		event.source.addEffect(MinecraftEffectTypes.Regeneration, effectDurationTicks, {
 			amplifier: 2,
 		});

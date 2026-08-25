@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { itemBlazeFireball } from "../../../items/games/kitPvp/blazeFireballs";
@@ -13,11 +13,14 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
 	const fireballs: ItemStack = itemBlazeFireball();
 	fireballs.lockMode = ItemLockMode.inventory;
 	fireballs.amount = 4;
 	giveItemToEntity(fireballs, kitUser, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+4 Fireball");
+	}
 }
 
 export function getKitBlaze(): Kit {

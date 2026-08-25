@@ -16,7 +16,12 @@ export function entityLeap(entity: Entity, horizontalForce: number, verticalForc
 		EntityComponentTypes.Riding,
 	);
 	if (riding !== undefined) {
-		riding.entityRidingOn.applyKnockback(knockbackXz, verticalForce);
+		try {
+			// Throws an error when entityRidingOn is removed in same tick
+			riding.entityRidingOn.applyKnockback(knockbackXz, verticalForce);
+		} catch (_error) {
+			entity.applyKnockback(knockbackXz, verticalForce);
+		}
 	} else {
 		entity.applyKnockback(knockbackXz, verticalForce);
 	}

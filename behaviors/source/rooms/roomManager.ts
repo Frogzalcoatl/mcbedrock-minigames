@@ -59,6 +59,14 @@ export function getPlayerRoom(player: Player): Room | null {
 }
 
 world.afterEvents.worldLoad.subscribe(() => {
+	const hubRoomType: RoomType | undefined = roomTypes.find((t) => t.typeId === roomTypeIds.hub);
+	if (hubRoomType === undefined) {
+		return;
+	}
+	const mainHub: Room | undefined = hubRoomType.rooms[0];
+	if (mainHub === undefined) {
+		return;
+	}
 	for (const p of world.getAllPlayers()) {
 		if (
 			p.playerPermissionLevel === PlayerPermissionLevel.Operator &&
@@ -67,6 +75,6 @@ world.afterEvents.worldLoad.subscribe(() => {
 			// Dont teleport contributors to hub on reload
 			continue;
 		}
-		joinRoomType(p, roomTypeIds.hub);
+		mainHub.join(p);
 	}
 });

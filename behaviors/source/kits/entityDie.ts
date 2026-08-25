@@ -1,4 +1,4 @@
-import { type Entity, type EntityDieAfterEvent, Player, world } from "@minecraft/server";
+import type { EntityDieAfterEvent } from "@minecraft/server";
 import { getEntityKit, type Kit } from "./kitManager";
 
 function handleDeath(event: EntityDieAfterEvent): void {
@@ -6,10 +6,7 @@ function handleDeath(event: EntityDieAfterEvent): void {
 		return;
 	}
 	const kit: Kit | null = getEntityKit(event.deadEntity);
-	if (kit === null) {
-		return;
-	}
-	if (kit.onDeath !== undefined && event.deadEntity instanceof Player) {
+	if (kit?.onDeath) {
 		kit.onDeath(event.deadEntity, event.damageSource.damagingEntity);
 	}
 }
@@ -21,18 +18,13 @@ function handleKill(event: EntityDieAfterEvent): void {
 	) {
 		return;
 	}
-	const killerEntity: Entity = event.damageSource.damagingEntity;
-	const kit: Kit | null = getEntityKit(killerEntity);
-	if (
-		kit !== null &&
-		kit.onKill !== undefined &&
-		event.damageSource.damagingEntity instanceof Player
-	) {
+	const kit: Kit | null = getEntityKit(event.damageSource.damagingEntity);
+	if (kit?.onKill) {
 		kit.onKill(event.damageSource.damagingEntity, event.deadEntity);
 	}
 }
 
-world.afterEvents.entityDie.subscribe((e) => {
-	handleDeath(e);
-	handleKill(e);
-});
+export function kitsEntityDieHandler(event: EntityDieAfterEvent): void {
+	handleDeath(event);
+	handleKill(event);
+}

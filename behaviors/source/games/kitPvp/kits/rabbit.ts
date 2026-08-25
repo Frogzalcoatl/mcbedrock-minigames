@@ -1,7 +1,7 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
-import { itemRabbitBuff } from "../../../items/games/kitPvp/rabbitBuff";
+import { itemRabbitGoldenCarrot } from "../../../items/games/kitPvp/rabbitBuff";
 import { itemRabbitLeap } from "../../../items/games/kitPvp/rabbitLeap";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
@@ -13,11 +13,13 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
-	const speedBuff = new ItemStack(MinecraftItemTypes.GoldenCarrot);
-	speedBuff.lockMode = ItemLockMode.inventory;
-	speedBuff.nameTag = "§rSpeed Buff";
-	giveItemToEntity(speedBuff, kitUser, false);
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const rabbitBuff: ItemStack = itemRabbitGoldenCarrot();
+	rabbitBuff.lockMode = ItemLockMode.inventory;
+	giveItemToEntity(rabbitBuff, kitUser, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+1 Golden Carrot");
+	}
 }
 
 export function getKitRabbit(): Kit {
@@ -37,12 +39,12 @@ export function getKitRabbit(): Kit {
 	setDurability(diamondAxe, "unbreakable");
 	applyEnchant(diamondAxe, MinecraftEnchantmentTypes.Sharpness, 2);
 	const leap: ItemStack = itemRabbitLeap();
-	const speedBuff: ItemStack = itemRabbitBuff();
-	speedBuff.amount = 2;
+	const goldenCarrot: ItemStack = itemRabbitGoldenCarrot();
+	goldenCarrot.amount = 2;
 	kit.inventory = [
 		{ item: diamondAxe, slot: 0 },
 		{ item: leap, slot: 1 },
-		{ item: speedBuff, slot: 2 },
+		{ item: goldenCarrot, slot: 2 },
 	];
 	kitInventoryLockMode(kit, ItemLockMode.inventory);
 	kit.onKill = onKill;

@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { itemBreezeLeap } from "../../../items/games/kitPvp/breezeLeap";
@@ -12,10 +12,13 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
 	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 1);
 	windCharges.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(windCharges, kitUser, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+1 Wind Charge");
+	}
 }
 
 export function getKitBreeze(): Kit {

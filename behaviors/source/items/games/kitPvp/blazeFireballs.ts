@@ -19,9 +19,9 @@ itemUseMap.set(nameTag, {
 			decrementMainhandItem(event.source);
 		}
 		throwFireballFromEntity(
+			event.source,
 			MinecraftEntityTypes.SmallFireball,
 			blazeFireballSpeed,
-			event.source,
 		);
 		event.source.dimension.playSound("mob.blaze.shoot", event.source.location);
 	},

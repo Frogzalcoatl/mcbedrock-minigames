@@ -1,3 +1,1 @@
-* Review everything
-
-# Ask xsku for code review
+* Ask xsku for code review

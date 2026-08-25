@@ -9,7 +9,7 @@ const nameTag: string = "§r§bPoseidon Buff §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absoprtionDurationTicks: number = 20 * 120;
 
-export function itemPoseidenBuff(): ItemStack {
+export function itemPoseidonBuff(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);
 }
 

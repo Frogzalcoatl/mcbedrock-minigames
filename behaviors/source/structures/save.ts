@@ -50,11 +50,11 @@ export function placeStructureBlocksFor(
 		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
 		structureBlockY = at.y - 1;
 	}
-	for (const s of schema) {
+	for (const entry of schema) {
 		const location: Vector3 = {
-			x: at.x + s[1] - 1,
-			y: structureBlockY + s[2],
-			z: at.z + s[3] - 1,
+			x: at.x + entry[1] - 1,
+			y: structureBlockY + entry[2],
+			z: at.z + entry[3] - 1,
 		};
 		world.structureManager.place(structureBlockId, dimension, location);
 	}

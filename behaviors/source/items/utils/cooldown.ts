@@ -1,22 +1,20 @@
 import { type ItemStack, type Player, system, world } from "@minecraft/server";
 
-export interface ItemCooldownInfo {
-	cooldownTicks: number;
-	nameTag: string;
-	typeId: string;
-}
-
-interface ItemMapValue {
+interface ItemCooldownInfo {
 	typeId: string;
 	cooldownTicks: number;
 	sendCompletionMessage: boolean;
 }
+const items = new Map<string, ItemCooldownInfo>(); // [itemNameTag, info]
 
-const items = new Map<string, ItemMapValue>(); // key is item nameTag
-const players = new Map<string, Map<string, number>>(); // [playerId, [itemNameTag, lastUse in Date.now()][]]
+interface PlayerItemCooldown {
+	itemNameTag: string;
+	lastUse: number;
+}
+const playerCooldownData = new Map<string, PlayerItemCooldown[]>(); // [playerId, values[]]
 
 // Item must have a nametag
-export function setItemCooldown(
+export function itemCooldownSet(
 	nameTag: string,
 	typeId: string,
 	cooldownTicks: number,
@@ -29,68 +27,73 @@ export function setItemCooldown(
 	});
 }
 
-export function removeItemCooldown(nameTag: string): void {
+export function itemCooldownRemove(nameTag: string): void {
 	items.delete(nameTag);
 }
 
 function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {
 	system.runTimeout(() => {
-		const cooldownMap = players.get(player.id);
-		if (cooldownMap?.has(itemNameTag)) {
-			cooldownMap.delete(itemNameTag);
+		const playerCooldownValues = playerCooldownData.get(player.id);
+		if (playerCooldownValues === undefined) {
+			return;
+		}
+		const itemIndex = playerCooldownValues.findIndex((v) => v.itemNameTag === itemNameTag);
+		if (itemIndex !== -1) {
+			playerCooldownValues.splice(itemIndex, 1);
 			player.sendMessage(`Cooldown finished for ${itemNameTag}`);
 		}
 	}, delayTicks);
 }
 
-export function isItemCooldownFinished(player: Player, item: ItemStack): boolean {
+export function itemCooldownCheck(player: Player, item: ItemStack): boolean {
 	if (item.nameTag === undefined) {
 		return true;
 	}
-	const value: ItemMapValue | undefined = items.get(item.nameTag);
-	if (value === undefined) {
+	const itemInfo: ItemCooldownInfo | undefined = items.get(item.nameTag);
+	if (itemInfo === undefined) {
 		return true;
 	}
-	if (value.typeId !== item.typeId) {
+	if (itemInfo.typeId !== item.typeId) {
 		return true;
 	}
-	let playerUseInfo: Map<string, number> | undefined = players.get(player.id);
-	if (playerUseInfo === undefined) {
-		playerUseInfo = new Map<string, number>();
-		players.set(player.id, playerUseInfo);
-		playerUseInfo.set(item.nameTag, Date.now());
-		if (value.sendCompletionMessage) {
-			sendCooldownMessage(player, item.nameTag, value.cooldownTicks);
+	let cooldownData: PlayerItemCooldown[] | undefined = playerCooldownData.get(player.id);
+	if (cooldownData === undefined) {
+		cooldownData = [{ itemNameTag: item.nameTag, lastUse: Date.now() }];
+		playerCooldownData.set(player.id, cooldownData);
+		if (itemInfo.sendCompletionMessage) {
+			sendCooldownMessage(player, item.nameTag, itemInfo.cooldownTicks);
 		}
 		return true;
 	}
-	const lastUse: number | undefined = playerUseInfo.get(item.nameTag);
-	if (lastUse === undefined) {
-		playerUseInfo.set(item.nameTag, Date.now());
-		if (value.sendCompletionMessage) {
-			sendCooldownMessage(player, item.nameTag, value.cooldownTicks);
+	const cooldownValue: PlayerItemCooldown | undefined = cooldownData.find(
+		(v) => v.itemNameTag === item.nameTag,
+	);
+	if (cooldownValue === undefined) {
+		cooldownData.push({ itemNameTag: item.nameTag, lastUse: Date.now() });
+		if (itemInfo.sendCompletionMessage) {
+			sendCooldownMessage(player, item.nameTag, itemInfo.cooldownTicks);
 		}
 		return true;
 	}
-	const differenceMs: number = Date.now() - lastUse;
-	if (differenceMs >= value.cooldownTicks * 50) {
-		playerUseInfo.set(item.nameTag, Date.now());
-		if (value.sendCompletionMessage) {
-			sendCooldownMessage(player, item.nameTag, value.cooldownTicks);
+	const differenceMs: number = Date.now() - cooldownValue.lastUse;
+	if (differenceMs >= itemInfo.cooldownTicks * 50) {
+		cooldownValue.lastUse = Date.now();
+		if (itemInfo.sendCompletionMessage) {
+			sendCooldownMessage(player, item.nameTag, itemInfo.cooldownTicks);
 		}
 		return true;
 	} else {
 		player.sendMessage(
-			`§cPlease wait ${Math.ceil((value.cooldownTicks * 50 - differenceMs) / 100) / 10}s`,
+			`§cPlease wait ${Math.ceil((itemInfo.cooldownTicks * 50 - differenceMs) / 100) / 10}s`,
 		);
 		return false;
 	}
 }
 
-export function clearPlayerCooldowns(player: Player): void {
-	players.delete(player.id);
+export function itemCooldownClearPlayerData(player: Player): void {
+	playerCooldownData.delete(player.id);
 }
 
 world.beforeEvents.playerLeave.subscribe((event) => {
-	players.delete(event.player.id);
+	playerCooldownData.delete(event.player.id);
 });

@@ -1,8 +1,15 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import {
+	type Entity,
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	ItemLockMode,
+	ItemStack,
+	Player,
+} from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
+import { giveItem } from "../../../items/utils/give";
 import type { Kit } from "../../../kits/kitManager";
 import {
 	kitArmorDurability,
@@ -13,13 +20,23 @@ import {
 
 const ICE_BOMB_ID: string = "minecraft:ice_bomb";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
+	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
+		EntityComponentTypes.Inventory,
+	);
+	if (inventory === undefined) {
+		return;
+	}
 	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 2);
 	snowballs.lockMode = ItemLockMode.inventory;
-	giveItemToEntity(snowballs, kitUser, false);
 	const iceBomb = new ItemStack(ICE_BOMB_ID);
 	iceBomb.lockMode = ItemLockMode.inventory;
-	giveItemToEntity(iceBomb, kitUser, false);
+	giveItem(snowballs, inventory.container, kitUser.location, kitUser.dimension, false);
+	giveItem(iceBomb, inventory.container, kitUser.location, kitUser.dimension, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+2 Snowball");
+		kitUser.sendMessage("§7+1 Ice Bomb");
+	}
 }
 
 export function getKitSnowman(): Kit {

@@ -34,6 +34,7 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 }
 
 const maxTicks: number = 20 * 10;
+const pufferfishProjectilePropertyId: string = "mg:pufferfish_projectile";
 
 export function pufferfishProjectile(
 	thrower: Entity,
@@ -46,6 +47,7 @@ export function pufferfishProjectile(
 		MinecraftEntityTypes.Pufferfish,
 		headLocation,
 	);
+	pufferfish.setDynamicProperty(pufferfishProjectilePropertyId, true);
 	pufferfish.applyKnockback(
 		{
 			x: viewDirection.x * horizontalVelocity,
@@ -72,7 +74,7 @@ export function pufferfishProjectile(
 }
 
 world.afterEvents.entityLoad.subscribe((event) => {
-	if (event.entity.typeId === MinecraftEntityTypes.Pufferfish) {
+	if (event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined) {
 		event.entity.remove();
 	}
 });

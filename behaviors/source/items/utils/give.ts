@@ -18,6 +18,10 @@ function addItem(
 }
 
 // Properly stacks items to matching itemstack instances in container if applicable
+
+// Regular container.addItem does not properly stack matching items in some specific cases
+// ^^ e.g. two items both have itemLock set to inventory but are not stacked when container.addItem is run
+
 // spawnOverflowItems: When true, spawns item as entity if container is full
 export function giveItem(
 	item: ItemStack,

@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { setDurability } from "../../../items/utils/durability";
@@ -11,10 +11,13 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 4);
 	arrows.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(arrows, kitUser, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+4 Arrow");
+	}
 }
 
 export function getKitSkirmisher(): Kit {
@@ -40,7 +43,7 @@ export function getKitSkirmisher(): Kit {
 	setDurability(crossbow, "unbreakable");
 	applyEnchant(crossbow, MinecraftEnchantmentTypes.Multishot);
 	applyEnchant(crossbow, MinecraftEnchantmentTypes.QuickCharge, 3);
-	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 16);
+	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 32);
 	kit.inventory = [
 		{ item: woodenSword, slot: 0 },
 		{ item: bow, slot: 1 },

@@ -4,11 +4,11 @@ import {
 	type EntityInventoryComponent,
 	ItemLockMode,
 	ItemStack,
-	type Player,
+	Player,
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemLightning } from "../../../items/games/kitPvp/lightning";
-import { itemPoseidenBuff } from "../../../items/games/kitPvp/poseidenBuff";
+import { itemPoseidonBuff } from "../../../items/games/kitPvp/poseidonBuff";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import { giveItem } from "../../../items/utils/give";
@@ -20,19 +20,23 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
 		EntityComponentTypes.Inventory,
 	);
 	if (inventory === undefined) {
 		return;
 	}
-	const buff = itemPoseidenBuff();
+	const buff = itemPoseidonBuff();
 	buff.lockMode = ItemLockMode.inventory;
 	const lightning: ItemStack = itemLightning();
 	lightning.lockMode = ItemLockMode.inventory;
 	giveItem(buff, inventory.container, kitUser.location, kitUser.dimension, false);
 	giveItem(lightning, inventory.container, kitUser.location, kitUser.dimension, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+1 Poseidon Buff");
+		kitUser.sendMessage("§7+1 Lightning");
+	}
 }
 
 export function getKitPoseidon(): Kit {
@@ -51,7 +55,7 @@ export function getKitPoseidon(): Kit {
 	const trident = new ItemStack(MinecraftItemTypes.Trident);
 	applyEnchant(trident, MinecraftEnchantmentTypes.Loyalty, 3);
 	setDurability(trident, "unbreakable");
-	const buff: ItemStack = itemPoseidenBuff();
+	const buff: ItemStack = itemPoseidonBuff();
 	buff.amount = 2;
 	const lightning: ItemStack = itemLightning();
 	lightning.amount = 4;

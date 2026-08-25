@@ -21,7 +21,8 @@ import {
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { kits } from "../../kits/kitManager";
-import { Room, type RoomCreationFunc } from "../../rooms/room";
+import { Room } from "../../rooms/room";
+import type { RoomCreationFunc } from "../../rooms/roomType";
 import roomTypeIds from "../../roomTypeIds";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
@@ -60,7 +61,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		hub: {
 			onJoin: (player: Player): void => {
 				killTrackerRemovePlayer(player);
-				projectileTrackerRemoveProjectiles(player);
+				projectileTrackerRemoveProjectiles(player.id, room.dimensionId);
 				player.setGameMode(GameMode.Adventure);
 				setEntityHealth(player, "max");
 				clearEntityInventory(player);

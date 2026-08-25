@@ -6,7 +6,6 @@ import {
 	type EntityInventoryComponent,
 	EquipmentSlot,
 	type ItemStack,
-	type Player,
 } from "@minecraft/server";
 import "./entityDie";
 
@@ -21,8 +20,8 @@ export interface Kit {
 	boots?: ItemStack;
 	offhand?: ItemStack;
 	icon?: string; // server-ui icon
-	onDeath?: (kitUser: Player, killer?: Entity) => void;
-	onKill?: (kitUser: Player, dead: Entity) => void;
+	onDeath?: (kitUser: Entity, killer?: Entity) => void;
+	onKill?: (kitUser: Entity, dead: Entity) => void;
 }
 
 export const kits = new Map<string, Kit[]>(); // [roomTypeId, kits]

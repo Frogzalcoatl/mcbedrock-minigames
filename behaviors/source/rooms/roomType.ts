@@ -1,5 +1,5 @@
 import { PACK_NAMESPACE } from "../constants";
-import type { Room, RoomCreationFunc } from "./room";
+import type { Room } from "./room";
 
 export interface RoomType {
 	displayName: string;
@@ -7,6 +7,14 @@ export interface RoomType {
 	rooms: Room[];
 	typeId: string;
 }
+
+export type RoomCreationFunc = (
+	roomTypeIndex: number,
+	roomIndex: number,
+	dimensionId: string,
+	displayName: string,
+	icon: string,
+) => Room;
 
 interface RoomTypeConfig {
 	roomTypeIndex: number;

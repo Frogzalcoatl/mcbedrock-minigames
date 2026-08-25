@@ -60,8 +60,8 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 	form.button("Back");
 	const backButtonIndex: number = 0;
 	form.button("Load All");
-	form.divider();
 	const allButtonIndex: number = 1;
+	form.divider();
 	const structureButtonsStartingIndex: number = 2;
 	for (const s of room.structures) {
 		form.button(`${s.id}`);
@@ -78,9 +78,7 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		system.run(() => showRoomInfo(player, room, roomType));
-		return;
-	}
-	if (resp.selection === allButtonIndex) {
+	} else if (resp.selection === allButtonIndex) {
 		system.run(() => showLoadConfirmation(player, room, roomType, "all"));
 	} else {
 		const selectedStructureIndex: number = resp.selection - structureButtonsStartingIndex;
@@ -96,10 +94,10 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 	form.button("Back");
 	const backButtonIndex: number = 0;
 	form.button("Join");
-	form.button("Load Structures");
-	form.divider();
 	const joinButtonIndex: number = 1;
+	form.button("Load Structures");
 	const structuresButtonIndex: number = 2;
+	form.divider();
 	let resp: ActionFormResponse;
 	try {
 		resp = await form.show(player);
@@ -116,9 +114,7 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 		} else {
 			system.run(() => showRoomType(player, roomType));
 		}
-		return;
-	}
-	if (resp.selection === joinButtonIndex) {
+	} else if (resp.selection === joinButtonIndex) {
 		room.join(player);
 	} else if (resp.selection === structuresButtonIndex) {
 		system.run(() => showRoomStructures(player, room, roomType));
@@ -131,7 +127,7 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 	form.body(
 		"Are you sure you want to queue structure loading for EVERY dimension? This should only be run at the start of a new world. You can load structures for individual dimensions by going back and choosing a specific room.",
 	);
-	form.button1("I'm Sure");
+	form.button1("I'm Sure!");
 	form.button2("Cancel");
 	let resp: MessageFormResponse;
 	try {
@@ -143,7 +139,7 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 			throw error;
 		}
 	}
-	if (resp.selection === undefined) {
+	if (resp.selection === undefined || resp.selection === 1) {
 		system.run(() => showGeneral(player));
 	}
 	if (resp.selection === 0) {
@@ -153,7 +149,6 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 			}
 		}
 		world.sendMessage("Queued structure loading in every room");
-	} else {
 	}
 }
 

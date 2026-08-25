@@ -12,7 +12,7 @@ import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
-import { clearPlayerCooldowns } from "../items/utils/cooldown";
+import { itemCooldownClearPlayerData } from "../items/utils/cooldown";
 import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub, type RoomHubConfig } from "./roomHub";
@@ -37,14 +37,6 @@ export interface RoomConfig {
 	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	onLeave?: (player: Player) => void;
 }
-
-export type RoomCreationFunc = (
-	roomTypeIndex: number,
-	roomIndex: number,
-	dimensionId: string,
-	displayName: string,
-	icon: string,
-) => Room;
 
 export class Room {
 	public readonly dimensionId: string;
@@ -149,22 +141,21 @@ export class Room {
 		if (this.hub?.isActive) {
 			this.hub.leave(player);
 		}
-		system.run(() => {
-			// If i dont do this, player is teleported to the mount location in the new dimension for some reason
-			ejectFromMount(player);
-		});
+		ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
 		this.removePlayer(player);
 	}
 
-	// doesnt run any beforeLeave callback or teleportation
+	// doesnt run any leave callbacks or teleportation
 	public removePlayer(player: Player): void {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
 		portalSoundRunIntervalClear(player);
-		projectileTrackerRemoveProjectiles(player);
 		killTrackerRemovePlayer(player);
-		clearPlayerCooldowns(player);
+		itemCooldownClearPlayerData(player);
+		system.run(() => {
+			projectileTrackerRemoveProjectiles(player.id, this.dimensionId);
+		});
 	}
 
 	public loadStructure(index: number | "all"): void {

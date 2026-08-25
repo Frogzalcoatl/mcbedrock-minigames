@@ -1,2 +1,2 @@
 import "./arrowHitBlock";
-import "./snowBomb";
+import "./iceBomb";

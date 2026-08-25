@@ -45,13 +45,13 @@ export function projectileTrackerClearDimensions(): void {
 const trackedPojectilePropertyId: string = "mg:tracked_projectile";
 
 // Removes player's projectiles from their current dimension
-export function projectileTrackerRemoveProjectiles(player: Player): void {
-	const tracker: ProjectileTracker | undefined = trackers.get(player.dimension.id);
+export function projectileTrackerRemoveProjectiles(playerId: string, dimensionId: string): void {
+	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
 	if (tracker === undefined) {
 		return;
 	}
-	for (const [projectileId, playerId] of tracker.map) {
-		if (playerId === player.id) {
+	for (const [projectileId, currentPlayerId] of tracker.map) {
+		if (playerId === currentPlayerId) {
 			const projectileEntity: Entity | undefined = world.getEntity(projectileId);
 			if (projectileEntity?.isValid) {
 				projectileEntity.remove();

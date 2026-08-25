@@ -1,4 +1,4 @@
-import { type Entity, ItemLockMode, ItemStack, type Player } from "@minecraft/server";
+import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { giveItemToEntity } from "../../../entities/inventory";
 import { itemPoisonFishProjectile as itemPufferfishProjectile } from "../../../items/games/kitPvp/pufferfishProjectile";
@@ -12,10 +12,13 @@ import {
 	kitInventoryLockMode,
 } from "../../../kits/utils";
 
-function onKill(kitUser: Player, _dead: Entity): void {
+function onKill(kitUser: Entity, _dead: Entity): void {
 	const pufferFish: ItemStack = itemPufferfishProjectile();
 	pufferFish.lockMode = ItemLockMode.inventory;
 	giveItemToEntity(pufferFish, kitUser, false);
+	if (kitUser instanceof Player) {
+		kitUser.sendMessage("§7+1 Pufferfish");
+	}
 }
 
 export function getKitFisherman(): Kit {

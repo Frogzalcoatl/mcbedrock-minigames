@@ -9,13 +9,13 @@ export function loadStructure(
 	animationSeconds: number = 0,
 ): void {
 	const schema: StructureSchema = getStructureSchema(structure);
-	for (const s of schema) {
+	for (const entry of schema) {
 		const absLocation: Vector3 = {
-			x: location.x + s[1],
-			y: location.y + s[2],
-			z: location.z + s[3],
+			x: location.x + entry[1],
+			y: location.y + entry[2],
+			z: location.z + entry[3],
 		};
-		world.structureManager.place(s[0], dimension, absLocation, {
+		world.structureManager.place(entry[0], dimension, absLocation, {
 			animationMode: animationMode,
 			animationSeconds: animationSeconds,
 		});
