@@ -1,5 +1,5 @@
 import { type Dimension, StructureAnimationMode, type Vector3, world } from "@minecraft/server";
-import { getStructureInfo, type StructureInfo } from "./data";
+import { getStructureSchema, type StructureSchema } from "./data";
 
 export function loadStructure(
 	structure: string,
@@ -8,14 +8,14 @@ export function loadStructure(
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
 	animationSeconds: number = 0,
 ): void {
-	const structures: StructureInfo[] = getStructureInfo(structure);
-	for (const s of structures) {
+	const schema: StructureSchema = getStructureSchema(structure);
+	for (const s of schema) {
 		const absLocation: Vector3 = {
-			x: location.x + s.relLocation.x,
-			y: location.y + s.relLocation.y,
-			z: location.z + s.relLocation.z,
+			x: location.x + s[1],
+			y: location.y + s[2],
+			z: location.z + s[3],
 		};
-		world.structureManager.place(s.id, dimension, absLocation, {
+		world.structureManager.place(s[0], dimension, absLocation, {
 			animationMode: animationMode,
 			animationSeconds: animationSeconds,
 		});

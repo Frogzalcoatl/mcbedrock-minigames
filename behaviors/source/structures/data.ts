@@ -1,4 +1,3 @@
-import type { Vector3 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json";
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json";
@@ -12,12 +11,7 @@ import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
 type JsonStructureEntry = [string, number, number, number]; // [structureId, relativeX, relativeY, relativeZ]
-type StructureSchema = JsonStructureEntry[];
-
-export type StructureInfo = {
-	id: string;
-	relLocation: Vector3;
-};
+export type StructureSchema = JsonStructureEntry[];
 
 const structureSchemas = new Map<string, unknown>([
 	["ghostly/spawn", ghostlySpawn],
@@ -57,22 +51,11 @@ export const structureIds: string[] = [
 ];
 structureIds.push(...structureSchemas.keys());
 
-function schemaToStructureInfo(schema: StructureSchema): StructureInfo[] {
-	const arr: StructureInfo[] = [];
-	for (const entry of schema) {
-		arr.push({
-			id: `${PACK_NAMESPACE}:${entry[0]}`,
-			relLocation: { x: entry[1], y: entry[2], z: entry[3] },
-		});
-	}
-	return arr;
-}
-
-export function getStructureInfo(name: string): StructureInfo[] {
+export function getStructureSchema(name: string): StructureSchema {
 	const schema: unknown | undefined = structureSchemas.get(name);
 	if (schema === undefined) {
-		return [{ id: `${PACK_NAMESPACE}:${name}`, relLocation: { x: 0, y: 0, z: 0 } }];
+		return [[`${PACK_NAMESPACE}:${name}`, 0, 0, 0]];
 	} else {
-		return schemaToStructureInfo(schema as StructureSchema);
+		return schema as StructureSchema;
 	}
 }

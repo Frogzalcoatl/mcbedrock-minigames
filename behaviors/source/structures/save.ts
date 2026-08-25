@@ -1,6 +1,6 @@
 import { type Dimension, type Vector3, world } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { getStructureInfo, type StructureInfo } from "./data";
+import { getStructureSchema, type StructureSchema } from "./data";
 
 export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
 	if (from.x > to.x) {
@@ -40,7 +40,7 @@ export function placeStructureBlocksFor(
 	at: Vector3,
 	dimension: Dimension,
 ): void {
-	const info: StructureInfo[] = getStructureInfo(structureId);
+	const schema: StructureSchema = getStructureSchema(structureId);
 	let structureBlockY: number = 0;
 	let structureBlockId: string = "";
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
@@ -52,11 +52,11 @@ export function placeStructureBlocksFor(
 		structureBlockId = `${PACK_NAMESPACE}:structureBlock/normal`;
 		structureBlockY = at.y - 1;
 	}
-	for (const i of info) {
+	for (const s of schema) {
 		const location: Vector3 = {
-			x: at.x + i.relLocation.x - 1,
-			y: structureBlockY + i.relLocation.y,
-			z: at.z + i.relLocation.z - 1,
+			x: at.x + s[1] - 1,
+			y: structureBlockY + s[2],
+			z: at.z + s[3] - 1,
 		};
 		world.structureManager.place(structureBlockId, dimension, location);
 	}
