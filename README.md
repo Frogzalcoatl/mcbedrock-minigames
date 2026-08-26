@@ -4,7 +4,7 @@ A collection of Minecraft Bedrock Edition minigames that can be played concurren
 Each minigame instance is split into its own custom dimension.
 
 ## Games
-We plan to include established games from popular servers such as Kit Pvp, Skywars, and The Bridge.
+Will include established games from popular servers such as Kit Pvp, Skywars, and The Bridge.
 We will brainstorm unique game ideas in the future.
 I'll start a list of games I'm interested in adding below.
 
@@ -18,7 +18,7 @@ I'll start a list of games I'm interested in adding below.
 
 ## Structure Loading
 This project solely uses structure files to improve ease of collaboration.
-Since we're not relying on any world files, this project can be contributed to easily from any device.
+Since this project does not rely on world files, it can easily be contributed to  from any device.
 
 ### Exporting Structures
 Structures built by contributors should be exported to .mcstructure files using structure blocks in game.
@@ -29,37 +29,37 @@ Structures built by contributors should be exported to .mcstructure files using 
 /give @s structure_block
 ```
 
-2. Once you place it and enter its UI, type anything into the Structure Name field.
+2. Place it and enter its UI, then type anything into the Structure Name field.
 	- The name itself is not important, but is required to enable the export button.
 
-3. Adjust your size and offset.
-	- Do not include structure blocks within the bounds of your export. (Use offset)
+3. Adjust the size and offset.
+	- Do not include structure blocks within the structure's bounds. (Use offset)
 	- Each structure has a maximum size of: (x = 64 Blocks, y = world height, z = 64 Blocks).
 
 4. Click export and save the .mcstructure file(s) to `behaviors/structures/mg/yourUsernameHere/`.
-	- If your structure exceeds the max size, this pack can map multiple structure files to a single in game structure id.
-	- I suggest you create a folder with your intended structure name, then export each file as 1.mcstructure, 2.mcstructure, etc.
+	- If a structure exceeds the max size, this pack can map multiple structure files to a single in game structure id.
+	- Create a folder with your intended structure name, then export each file as 1.mcstructure, 2.mcstructure, etc.
 
 ### Managing Structure Files
 **One file needed:**
 
-1. Determine your structure's file path relative to `behaviors/structures/mg/` (Example: "ghostly/crates").
+1. Determine the structure file's path relative to `behaviors/structures/mg/` (Example: "ghostly/crates").
 
 2. Add that value to the structureIds array in: `behaviors/source/structures/data.ts`.
 
 **Multiple files needed:**
 
-1. Store position offsets of each structure file in a json file: `behaviors/source/structures/json/`.
-	- When choosing your json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
-	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/structures/data.ts) for formatting in: `behaviors/source/structures/data.ts`.
+1. Store position offsets of each structure file in a json file at: `behaviors/source/structures/json/`.
+	- When choosing a json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
+	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/structures/data.ts) for json formatting in: `behaviors/source/structures/data.ts`.
 	- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
 
-2. Import your json file in data.ts. Example Import:
+2. Import the json file in data.ts. Example Import:
 ```ts
 import usernameMyStructure from "./json/username/myStructure" with { type: "json" };
 ```
 
-3. Add your structure to the structureSchemas map. The key (left value) represents its in game id. I prefer to set it to the structure's relative file path for consistency. Example:
+3. Add your structure to the structureSchemas map. The key (left value) represents its in game id. Please set it to the structure's relative file path for consistency. Example:
 ```ts
 import usernameMyStructure from "./json/username/myStructure" with { type: "json" };
 
@@ -138,11 +138,11 @@ Use the **/settings** command to manage rooms in game.
 
 - Player Statistics
 	- Kills, Wins, etc.
-	- Use dynamic properties (per stat properties instead of the json stringify tomfoolery I did before)
+	- Use dynamic properties (per stat properties instead of json stringify tomfoolery)
 
 - Game Queuing
 	- For modes that should have more than one instance such as duels.
-	- I don't think we'd ever have enough players for skill based matchmaking, so just fill rooms in order.
+	- We'd never have enough players for something like skill based matchmaking, so just fill rooms in order.
 
 ## Floating Text
 A basic invisible entity whose nametag is always visible. 
@@ -151,7 +151,7 @@ A basic invisible entity whose nametag is always visible.
 
 Rename the default mg:text spawn egg with an anvil and place it down. 
 
-Or you can instead run:
+Or instead run:
 ```
 /summon mg:text "your text here" ~ ~ ~
 ```
@@ -162,12 +162,12 @@ Remove all text entities within 1 block of the user:
 ```
 /kill @e[r=1,type=mg:text]
 ```
-If you need more precision than 1 block, change the number after r= (Example: r=0.5).
+If 1 block of precision is not enough, change the number after r= (Example: r=0.5).
 
 ## Custom Items
 Custom items on this world are currently just renamed vanilla items.
 I would like to learn about adding custom items through resource packs in the future, especially if we decide to give players anvil access in a future gamemode.
-As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of one of my custom items.
+As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
 
 ## Kits
 A collection of items with optional onKill and onDeath callbacks. Currently just used for kitpvp, but can be used for future modes like The Bridge.
