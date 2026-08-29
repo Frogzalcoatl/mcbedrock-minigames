@@ -17,13 +17,13 @@ I'll start a list of games I'm interested in adding below.
 - Build Battle
 
 ## Structure Loading
-This project solely uses structure files to improve ease of collaboration.
-Since this project does not rely on world files, it can easily be contributed to  from any device.
+This project does not rely on a world file.
+We solely use structure files to improve ease of collaboration.
 
 ### Exporting Structures
 Structures built by contributors should be exported to .mcstructure files using structure blocks in game.
 
-1. To get a structure block, run the following command:
+1. To get a structure block, run the following command in game:
 
 ```
 /give @s structure_block
@@ -149,7 +149,7 @@ A basic invisible entity whose nametag is always visible.
 
 **Spawning:**
 
-Rename the default mg:text spawn egg with an anvil and place it down. 
+Rename a mg:text spawn egg with an anvil and place it down. 
 
 Or instead run:
 ```
@@ -166,7 +166,7 @@ If 1 block of precision is not enough, change the number after r= (Example: r=0.
 
 ## Custom Items
 Custom items on this world are currently just renamed vanilla items.
-I would like to learn about adding custom items through resource packs in the future, especially if we decide to give players anvil access in a future gamemode.
+I would like to learn about adding custom items through resource packs, especially if we decide to give players anvil access in a future gamemode.
 As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
 
 ## Kits
