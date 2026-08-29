@@ -17,7 +17,7 @@
 	"packageManager": "pnpm@11.4.0",
 	"scripts": {
 		"build": "pnpm run clean && node tools/esbuild.mjs",
-		"clean": "rimraf scripts _temp_mcpack_directory addon.mcpack",
+		"clean": "rimraf scripts _temp_mcpack_directory addon.mcaddon",
 		"pack": "pnpm run build && node tools/pack.mjs",
 		"watch": "pnpm run clean && node tools/esbuild.mjs --watch"
 	},

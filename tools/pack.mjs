@@ -73,7 +73,7 @@ async function build() {
 		const zipFilePath = join(PROJECT_ROOT, MCADDON_FILENAME);
 		console.log(`Zipping contents to ${MCADDON_FILENAME}...`);
 		await createZip(OUTPUT_DIRECTORY, zipFilePath);
-		console.log("Successfully created addon.mcpack.");
+		console.log("Successfully created addon.mcaddon.");
 
 		console.log("Deleting temporary output directory...");
 		await promises.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
