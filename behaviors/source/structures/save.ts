@@ -41,7 +41,6 @@ export function placeStructureBlocksFor(
 	at: Vector3,
 	dimension: Dimension,
 ): void {
-	const schema: StructureSchema = getStructureSchema(structureId);
 	let structureBlockY: number = 0;
 	let structureBlockId: string = "";
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
@@ -52,6 +51,15 @@ export function placeStructureBlocksFor(
 	} else {
 		structureBlockId = structureBlockNormal;
 		structureBlockY = at.y - 1;
+	}
+	const schema: StructureSchema | null = getStructureSchema(structureId);
+	if (schema === null) {
+		world.structureManager.place(structureBlockId, dimension, {
+			x: at.x - 1,
+			y: structureBlockY,
+			z: at.z - 1,
+		});
+		return;
 	}
 	for (const entry of schema) {
 		const location: Vector3 = {
