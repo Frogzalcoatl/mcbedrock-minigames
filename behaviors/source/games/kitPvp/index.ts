@@ -1,6 +1,7 @@
 import {
 	EntityComponentTypes,
 	type EntityDieAfterEvent,
+	type EntityHealthComponent,
 	type EntityInventoryComponent,
 	GameMode,
 	Player,
@@ -11,9 +12,9 @@ import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-d
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
-import { changeEntityHealth, setEntityHealth } from "../../entities/health";
+import { changeEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import { killTrackerAddDimension, killTrackerRemovePlayer } from "../../entities/killTracker";
+import { killTrackerAddDimension, killTrackerClearPlayerData } from "../../entities/killTracker";
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
@@ -60,10 +61,15 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		displayName: displayName,
 		hub: {
 			onJoin: (player: Player): void => {
-				killTrackerRemovePlayer(player);
-				projectileTrackerRemoveProjectiles(player.id, room.dimensionId);
+				killTrackerClearPlayerData(player);
+				projectileTrackerRemoveProjectiles(player, room.dimensionId);
 				player.setGameMode(GameMode.Adventure);
-				setEntityHealth(player, "max");
+				const health: EntityHealthComponent | undefined = player.getComponent(
+					EntityComponentTypes.Health,
+				);
+				if (health !== undefined) {
+					health.resetToMaxValue();
+				}
 				clearEntityInventory(player);
 				clearEntityEffects(player);
 				player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {

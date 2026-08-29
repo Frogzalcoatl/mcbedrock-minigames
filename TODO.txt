@@ -1,1 +1,3 @@
-* Ask xsku for code review
+* Cleanup onKill kits/room callbacks
+
+* Add duels and the tools necessary to recreate similar gamemodes

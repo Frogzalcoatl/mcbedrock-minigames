@@ -19,12 +19,12 @@ export interface Kit {
 	leggings?: ItemStack;
 	boots?: ItemStack;
 	offhand?: ItemStack;
-	icon?: string; // server-ui icon
+	icon?: string;
 	onDeath?: (kitUser: Entity, killer?: Entity) => void;
 	onKill?: (kitUser: Entity, dead: Entity) => void;
 }
 
-export const kits = new Map<string, Kit[]>(); // [roomTypeId, kits]
+export const kits = new Map<string, Kit[]>(); // key is roomTypeId
 
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
 	for (const entry of kitInventory) {

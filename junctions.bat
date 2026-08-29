@@ -4,7 +4,7 @@ setlocal
 :: Reset the variable in case it was set elsewhere
 set "runCommands="
 
-set /P "runCommands=Would you like to create symlinks in the shared com.mojang folder? (y/n): "
+set /P "runCommands=Would you like to create junctions in the shared com.mojang folder? (y/n): "
 if /I "%runCommands%"=="y" (
 	echo Running commands...
 	:: %~dp0 represents directory of batch file

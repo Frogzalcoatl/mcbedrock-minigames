@@ -19,14 +19,14 @@ export function beamFrom(
 			z: headLocation.z + viewDirection.z * hitEntityRaycast.distance,
 		};
 	} else {
-		const blockRaycact: BlockRaycastHit | undefined = entity.getBlockFromViewDirection({
+		const blockRaycast: BlockRaycastHit | undefined = entity.getBlockFromViewDirection({
 			maxDistance: maxDistance,
 		});
-		if (blockRaycact !== undefined) {
-			endPos = blockRaycact.block.location;
-			endPos.x += blockRaycact.faceLocation.x;
-			endPos.y += blockRaycact.faceLocation.y;
-			endPos.z += blockRaycact.faceLocation.z;
+		if (blockRaycast !== undefined) {
+			endPos = blockRaycast.block.location;
+			endPos.x += blockRaycast.faceLocation.x;
+			endPos.y += blockRaycast.faceLocation.y;
+			endPos.z += blockRaycast.faceLocation.z;
 		}
 	}
 	if (endPos === undefined) {

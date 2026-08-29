@@ -1,8 +1,12 @@
-import { GameMode, type Player } from "@minecraft/server";
+import {
+	EntityComponentTypes,
+	type EntityHealthComponent,
+	GameMode,
+	type Player,
+} from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
-import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import { giveKit, type Kit } from "../../kits/kitManager";
 import type { Room } from "../../rooms/room";
@@ -11,7 +15,12 @@ import roomTypeIds from "../../roomTypeIds";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
 	player.setGameMode(GameMode.Adventure);
-	setEntityHealth(player, "max");
+	const health: EntityHealthComponent | undefined = player.getComponent(
+		EntityComponentTypes.Health,
+	);
+	if (health !== undefined) {
+		health.resetToMaxValue();
+	}
 	clearEntityInventory(player);
 	clearEntityEffects(player);
 	player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {

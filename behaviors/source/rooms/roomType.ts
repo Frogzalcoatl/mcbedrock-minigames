@@ -3,7 +3,7 @@ import type { Room } from "./room";
 
 export interface RoomType {
 	displayName: string;
-	icon: string; // server-ui icon
+	icon: string;
 	rooms: Room[];
 	typeId: string;
 }

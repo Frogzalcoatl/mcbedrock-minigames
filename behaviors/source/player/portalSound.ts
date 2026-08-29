@@ -1,4 +1,4 @@
-import { type Player, system } from "@minecraft/server";
+import { type Player, system, world } from "@minecraft/server";
 
 const portalSoundMap = new Map<string, number>(); // [playerId, runIntervalId]
 
@@ -22,3 +22,7 @@ export function portalSoundRunInterval(player: Player): void {
 	});
 	portalSoundMap.set(player.id, intervalId);
 }
+
+world.beforeEvents.playerLeave.subscribe((event) => {
+	portalSoundRunIntervalClear(event.player);
+});

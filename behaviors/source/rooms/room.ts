@@ -6,14 +6,14 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { killTrackerHasDimension, killTrackerRemovePlayer } from "../entities/killTracker";
+import { killTrackerClearPlayerData, killTrackerHasDimension } from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
 import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
 import { itemCooldownClearPlayerData } from "../items/utils/cooldown";
-import { portalSoundRunInterval, portalSoundRunIntervalClear } from "../player/portalSound";
+import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub, type RoomHubConfig } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
@@ -106,7 +106,7 @@ export class Room {
 		}
 		const previousRoom: Room | null = getPlayerRoom(player);
 		if (previousRoom !== null) {
-			previousRoom.leave(player);
+			await previousRoom.leave(player);
 		}
 		if (this.hub?.isActive) {
 			this.hub.join(player);
@@ -150,11 +150,10 @@ export class Room {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
-		portalSoundRunIntervalClear(player);
-		killTrackerRemovePlayer(player);
+		killTrackerClearPlayerData(player);
 		itemCooldownClearPlayerData(player);
 		system.run(() => {
-			projectileTrackerRemoveProjectiles(player.id, this.dimensionId);
+			projectileTrackerRemoveProjectiles(player, this.dimensionId);
 		});
 	}
 

@@ -8,9 +8,6 @@ export async function showFormPlayerProfile(
 	playerToView: Player,
 	showPlayersFormOnCancel: boolean,
 ): Promise<void> {
-	if (!(viewer.isValid && playerToView.isValid)) {
-		return;
-	}
 	const form = new ActionFormData();
 	form.title(`§0${playerToView.name}`);
 	const room: Room | null = getPlayerRoom(playerToView);

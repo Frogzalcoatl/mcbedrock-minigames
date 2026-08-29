@@ -4,7 +4,7 @@ import { itemEntityHitMap } from "../../events/entityHitEntity";
 import { defaultItemStackFunc } from "../../utils/default";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;
-const nameTag: string = "§r§eFire Sitck";
+const nameTag: string = "§r§eFire Stick";
 
 export function itemFireStick(): ItemStack {
 	return defaultItemStackFunc(typeId, nameTag);

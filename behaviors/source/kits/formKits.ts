@@ -26,5 +26,5 @@ export async function showFormKits(
 			throw error;
 		}
 	}
-	return Promise.resolve(resp.selection);
+	return resp.selection;
 }

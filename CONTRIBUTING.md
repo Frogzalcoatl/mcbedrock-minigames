@@ -30,11 +30,11 @@ You need the following utilities installed: [pnpm](https://pnpm.io/), [node LTS]
 
 3. Link this project to the com.mojang folder.
 
-	Open `symlinks.bat` and enter "y" to create symlinks in the com.mojang folder.
+	Open `junctions.bat` and enter "y" to create junctions in the com.mojang folder.
 
 4. Open your IDE.
 
-	After creating symlinks, open the folder in VSCode.
+	After creating junctions, open the folder in VSCode.
 	* If you have already opened VSCode, restart so Biome can initialize properly.
 
 5. Install the recommended extensions.

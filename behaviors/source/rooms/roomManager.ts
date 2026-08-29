@@ -78,3 +78,10 @@ world.afterEvents.worldLoad.subscribe(() => {
 		mainHub.join(p);
 	}
 });
+
+world.beforeEvents.playerLeave.subscribe((event) => {
+	const room: Room | null = getPlayerRoom(event.player);
+	if (room !== null) {
+		room.removePlayer(event.player);
+	}
+});

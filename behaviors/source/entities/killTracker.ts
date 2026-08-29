@@ -142,7 +142,7 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 	return (value.timestamp - now) / 50 + hitCooldownTicks;
 }
 
-export function killTrackerRemovePlayer(player: Player): void {
+export function killTrackerClearPlayerData(player: Player): void {
 	if (killTrackerInCombat(player)) {
 		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
 		if (config?.onKill) {
@@ -193,7 +193,7 @@ function entityDie(event: EntityDieAfterEvent): void {
 	}
 	if (event.damageSource.damagingEntity === undefined) {
 		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
-		event = createDeathEvent(event.deadEntity);
+		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
 	}
 	if (config.onKill !== null) {
 		config.onKill(event);

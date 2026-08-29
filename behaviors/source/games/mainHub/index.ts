@@ -1,5 +1,6 @@
 import {
 	EntityComponentTypes,
+	type EntityHealthComponent,
 	type EntityInventoryComponent,
 	GameMode,
 	type Player,
@@ -7,7 +8,6 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
-import { setEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { Room } from "../../rooms/room";
@@ -27,7 +27,12 @@ export const getRoomHub: RoomCreationFunc = (
 		onJoin: (player: Player): void => {
 			player.setGameMode(GameMode.Adventure);
 			clearEntityInventory(player);
-			setEntityHealth(player, "max");
+			const health: EntityHealthComponent | undefined = player.getComponent(
+				EntityComponentTypes.Health,
+			);
+			if (health !== undefined) {
+				health.resetToMaxValue();
+			}
 			clearEntityEffects(player);
 			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
 				amplifier: 255,

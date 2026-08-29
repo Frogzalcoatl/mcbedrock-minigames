@@ -1,4 +1,4 @@
 export default {
 	hub: "hub",
 	kitPvp: "kit",
-} satisfies Record<string, string>;
+} as const satisfies Record<string, string>;
