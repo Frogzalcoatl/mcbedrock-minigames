@@ -142,7 +142,7 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 	return (value.timestamp - now) / 50 + hitCooldownTicks;
 }
 
-export function killTrackerClearPlayerData(player: Player): void {
+export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
 		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
 		if (config?.onKill) {

@@ -6,13 +6,13 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { killTrackerClearPlayerData, killTrackerHasDimension } from "../entities/killTracker";
+import { killTrackerHasDimension, killTrackerRemovePlayer } from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
 import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
-import { itemCooldownClearPlayerData } from "../items/utils/cooldown";
+import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub, type RoomHubConfig } from "./roomHub";
@@ -45,9 +45,9 @@ export class Room {
 	public displayName: string;
 	public icon: string;
 	public readonly structures: RoomStructure[];
+	public hub: RoomHub | null;
 	private _dimension: Dimension | undefined;
 	private _spawn: Vector3;
-	public hub: RoomHub | null;
 	private _beforeJoin: ((player: Player) => Promise<boolean>) | null;
 	private _onJoin: ((player: Player) => void) | null;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
@@ -60,7 +60,6 @@ export class Room {
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
-		this._spawn = config.spawn;
 		if (config.hub === undefined) {
 			this.hub = null;
 		} else {
@@ -71,6 +70,7 @@ export class Room {
 				config.hub.onLeave,
 			);
 		}
+		this._spawn = config.spawn;
 		this._beforeJoin = config.beforeJoin ?? null;
 		this._onJoin = config.onJoin ?? null;
 		this._beforeLeave = config.beforeLeave ?? null;
@@ -150,8 +150,8 @@ export class Room {
 		if (this.hub !== null) {
 			this.hub.removePlayer(player);
 		}
-		killTrackerClearPlayerData(player);
-		itemCooldownClearPlayerData(player);
+		killTrackerRemovePlayer(player);
+		itemCooldownRemovePlayer(player);
 		system.run(() => {
 			projectileTrackerRemoveProjectiles(player, this.dimensionId);
 		});

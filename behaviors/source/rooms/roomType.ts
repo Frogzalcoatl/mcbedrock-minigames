@@ -16,7 +16,7 @@ export type RoomCreationFunc = (
 	icon: string,
 ) => Room;
 
-interface RoomTypeConfig {
+export interface RoomTypeConfig {
 	roomTypeIndex: number;
 	typeId: string;
 	displayName: string;

@@ -90,7 +90,7 @@ export function itemCooldownCheck(player: Player, item: ItemStack): boolean {
 	}
 }
 
-export function itemCooldownClearPlayerData(player: Player): void {
+export function itemCooldownRemovePlayer(player: Player): void {
 	playerCooldownData.delete(player.id);
 }
 

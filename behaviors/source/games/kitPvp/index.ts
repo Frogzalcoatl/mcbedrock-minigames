@@ -14,7 +14,7 @@ import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
 import { changeEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import { killTrackerAddDimension, killTrackerClearPlayerData } from "../../entities/killTracker";
+import { killTrackerAddDimension, killTrackerRemovePlayer } from "../../entities/killTracker";
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
@@ -61,7 +61,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		displayName: displayName,
 		hub: {
 			onJoin: (player: Player): void => {
-				killTrackerClearPlayerData(player);
+				killTrackerRemovePlayer(player);
 				projectileTrackerRemoveProjectiles(player, room.dimensionId);
 				player.setGameMode(GameMode.Adventure);
 				const health: EntityHealthComponent | undefined = player.getComponent(

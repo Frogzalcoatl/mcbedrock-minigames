@@ -1,4 +1,3 @@
-import { PACK_NAMESPACE } from "../constants";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
 	type: "json",
@@ -63,10 +62,10 @@ export const structureIds: string[] = [
 ];
 structureIds.push(...structureSchemas.keys());
 
-export function getStructureSchema(name: string): StructureSchema {
+export function getStructureSchema(name: string): StructureSchema | null {
 	const schema: unknown | undefined = structureSchemas.get(name);
 	if (schema === undefined) {
-		return [[`${PACK_NAMESPACE}:${name}`, 0, 0, 0]];
+		return null;
 	} else {
 		return schema as StructureSchema;
 	}

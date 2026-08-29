@@ -2,7 +2,7 @@ import { type Player, system, world } from "@minecraft/server";
 
 const portalSoundMap = new Map<string, number>(); // [playerId, runIntervalId]
 
-export function portalSoundRunIntervalClear(player: Player): void {
+function portalSoundRunIntervalClear(player: Player): void {
 	const oldIntervalId: number | undefined = portalSoundMap.get(player.id);
 	if (oldIntervalId !== undefined) {
 		system.clearRun(oldIntervalId);

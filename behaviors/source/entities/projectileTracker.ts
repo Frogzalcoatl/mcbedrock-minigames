@@ -13,7 +13,7 @@ export interface ProjectileTrackerConfig {
 	typeIds: string[];
 }
 
-export interface ProjectileTracker {
+interface ProjectileTracker {
 	map: Map<string, string>; // [projectileId, playerId]
 	projectileTypeIds: string[];
 }
