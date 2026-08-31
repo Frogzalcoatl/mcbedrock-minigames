@@ -13,7 +13,7 @@ import { showFormTeleporter, showRoomTypesRoomSelect } from "../../rooms/formTel
 import { roomTypes } from "../../rooms/roomManager";
 import type { RoomType } from "../../rooms/roomType";
 import { commandEnums } from "../enums";
-import { getPlayerFromOrigin } from "../utils";
+import { getPlayerFromOrigin } from "../origin";
 
 export function registerCommandQ(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

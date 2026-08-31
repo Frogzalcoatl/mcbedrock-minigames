@@ -14,7 +14,7 @@ import { PACK_NAMESPACE } from "../../constants";
 import { structureIds } from "../../structures/data";
 import { loadStructure } from "../../structures/load";
 import { commandEnums } from "../enums";
-import { getDimensionFromOrigin, getLocationFromOrigin } from "../utils";
+import { getDimensionFromOrigin, getLocationFromOrigin } from "../origin";
 
 export function registerCommandLoad(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

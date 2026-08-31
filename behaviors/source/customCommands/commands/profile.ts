@@ -10,7 +10,7 @@ import {
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
 import { showFormAllProfiles, showFormPlayerProfile } from "../../player/formProfiles";
-import { getPlayerFromOrigin } from "../utils";
+import { getPlayerFromOrigin } from "../origin";
 
 export function registerCommandProfile(registry: CustomCommandRegistry): void {
 	registry.registerCommand(
