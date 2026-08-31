@@ -6,14 +6,21 @@ const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBl
 const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
 
 export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
+	let temp: number = 0;
 	if (from.x > to.x) {
-		[from.x, to.x] = [to.x, from.x];
+		temp = from.x;
+		from.x = to.x;
+		to.x = temp;
 	}
 	if (from.y > to.y) {
-		[from.y, to.y] = [to.y, from.y];
+		temp = from.y;
+		from.y = to.y;
+		to.y = temp;
 	}
 	if (from.z > to.z) {
-		[from.z, to.z] = [to.z, from.z];
+		temp = from.z;
+		from.z = to.z;
+		to.z = temp;
 	}
 	let structureBlockY: number = 0;
 	let structureBlockId: string = "";
