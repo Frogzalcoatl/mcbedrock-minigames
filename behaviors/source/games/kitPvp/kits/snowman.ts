@@ -17,8 +17,7 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../kits/utils";
-
-const ICE_BOMB_ID: string = "minecraft:ice_bomb";
+import { ICE_BOMB_ID } from "../../../constants";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
