@@ -42,7 +42,7 @@ export function projectileTrackerClearDimensions(): void {
 	trackers.clear();
 }
 
-const trackedPojectilePropertyId: string = "mg:tracked_projectile";
+const trackedPojectilePropertyId: string = "tracked_projectile";
 
 // Removes player's projectiles from their current dimension
 export function projectileTrackerRemoveProjectiles(player: Player, dimensionId: string): void {

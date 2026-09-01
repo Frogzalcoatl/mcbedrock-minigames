@@ -15,7 +15,7 @@ import {
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { spreadParticles } from "../particles/spread";
 
-const temporaryMountPropertyId: string = "mg:is_temporary_mount";
+const temporaryMountPropertyId: string = "is_temporary_mount";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);

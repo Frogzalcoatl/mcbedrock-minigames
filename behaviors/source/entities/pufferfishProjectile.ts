@@ -34,7 +34,7 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 }
 
 const maxTicks: number = 20 * 10;
-const pufferfishProjectilePropertyId: string = "mg:pufferfish_projectile";
+const pufferfishProjectilePropertyId: string = "pufferfish_projectile";
 
 export function pufferfishProjectile(
 	thrower: Entity,

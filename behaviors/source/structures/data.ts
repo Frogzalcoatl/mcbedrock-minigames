@@ -20,7 +20,7 @@ import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
 // [structureId, relativeX, relativeY, relativeZ]
-// structureId is the .mcstructure file path relative to behaviors/structures/mg/ (.mcstructure not included)
+// structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/ (.mcstructure not included)
 type JsonStructureEntry = [string, number, number, number];
 export type StructureSchema = JsonStructureEntry[];
 
