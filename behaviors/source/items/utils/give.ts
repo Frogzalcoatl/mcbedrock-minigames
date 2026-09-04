@@ -8,7 +8,11 @@ function addItem(
 	spawnOverflowItems: boolean,
 ): void {
 	const leftoverItem: ItemStack | undefined = container.addItem(item);
-	if (spawnOverflowItems && leftoverItem !== undefined) {
+	if (
+		spawnOverflowItems &&
+		leftoverItem !== undefined &&
+		containerDimension.isChunkLoaded(containerLocation)
+	) {
 		containerDimension.spawnItem(leftoverItem, {
 			x: containerLocation.x,
 			y: containerLocation.y,
