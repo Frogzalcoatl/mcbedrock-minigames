@@ -1,24 +1,26 @@
 {
-	"author": "sunshinekitsune",
-	"devDependencies": {
-		"@biomejs/biome": "^2.5.6",
-		"@minecraft/server": "^2.8.0",
-		"@minecraft/server-ui": "^2.1.0",
-		"@minecraft/vanilla-data": "^1.26.33",
-		"archiver": "^8.0.0",
-		"esbuild": "^0.28.1",
-		"rimraf": "^6.1.3",
-		"typescript": "^7.0.2"
-	},
+	"name": "scripts-package",
+	"version": "2.2.0",
 	"keywords": [],
 	"license": "MIT",
-	"name": "scripts-package",
-	"packageManager": "pnpm@11.4.0",
+	"author": "sunshinekitsune",
 	"scripts": {
 		"build": "pnpm run clean && node tools/esbuild.mjs",
-		"clean": "rimraf scripts _temp_mcpack_directory addon.mcpack",
+		"clean": "node tools/clean.mjs",
 		"pack": "pnpm run build && node tools/pack.mjs",
 		"watch": "pnpm run clean && node tools/esbuild.mjs --watch"
 	},
-	"version": "2.1.0"
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.12",
+		"@felixarntz/biome": "^0.2.0",
+		"@minecraft/server": "^2.9.0",
+		"@minecraft/server-ui": "^2.1.0",
+		"@minecraft/vanilla-data": "^1.26.44",
+		"@total-typescript/ts-reset": "^0.6.1",
+		"archiver": "^8.0.0",
+		"biome-plugin-no-type-assertion": "^1.1.1",
+		"esbuild": "^0.28.2",
+		"typescript": "^7.0.2"
+	},
+	"packageManager": "pnpm@11.4.0"
 }

@@ -1,25 +1,53 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
 	"assist": {
 		"actions": {
 			"source": {
 				"organizeImports": "on",
+				"useSortedAttributes": "on",
+				"useSortedEnumMembers": "on",
+				"useSortedInterfaceMembers": "on",
 				"useSortedKeys": "on",
-				"useSortedProperties": "on"
+				"useSortedPackageJson": "on",
+				"useSortedProperties": "on",
+				"useSortedTypeFields": "on"
 			}
 		},
 		"enabled": true
 	},
+	"css": {
+		"formatter": {
+			"enabled": true,
+			"quoteStyle": "double"
+		},
+		"linter": {
+			"enabled": true
+		},
+		"parser": {
+			"cssModules": true,
+			"tailwindDirectives": true
+		}
+	},
+	"files": {
+		"ignoreUnknown": true
+	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
-		"indentWidth": 4,
+		"indentWidth": 3,
 		"lineEnding": "lf",
 		"lineWidth": 100
 	},
-	"javascript": {
-		"experimentalEmbeddedSnippetsEnabled": true,
+	"html": {
+		"experimentalFullSupportEnabled": true,
 		"formatter": {
+			"enabled": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"arrowParentheses": "always",
+			"quoteProperties": "asNeeded",
 			"quoteStyle": "double",
 			"semicolons": "always",
 			"trailingCommas": "all"
@@ -28,64 +56,134 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"a11y": {
+				"noSvgWithoutTitle": "error",
+				"useAltText": "error",
+				"useAnchorContent": "error",
+				"useButtonType": "error",
+				"useHtmlLang": "error",
+				"useIframeTitle": "error",
+				"useMediaCaption": "error",
+				"useValidLang": "error"
+			},
 			"complexity": {
-				"noExcessiveCognitiveComplexity": "info",
+				"noDivRegex": "warn",
+				"noExcessiveCognitiveComplexity": {
+					"level": "warn",
+					"options": {
+						"maxAllowedComplexity": 25
+					}
+				},
 				"noForEach": "error",
-				"noVoid": "error",
+				"noImportantStyles": "error",
+				"noRedundantDefaultExport": "warn",
+				"noStaticOnlyClass": "error",
+				"noVoid": "warn",
+				"useArrowFunction": "error",
 				"useSimplifiedLogicExpression": "error"
 			},
 			"correctness": {
-				"noConstantCondition": "error",
-				"noInnerDeclarations": "error",
-				"noSelfAssign": "error",
-				"noSwitchDeclarations": "error",
-				"noUndeclaredDependencies": "error",
-				"noUnusedImports": "error",
-				"noUnusedPrivateClassMembers": "error",
-				"noUnusedVariables": "error",
-				"useYield": "error"
+				"noDuplicateAttributes": "error",
+				"noInvalidDirectionInLinearGradient": "error",
+				"noMissingVarFunction": "error",
+				"noUnknownFunction": "error",
+				"noUnknownProperty": "error",
+				"noUnknownPseudoClass": "error",
+				"noUnknownPseudoElement": "error",
+				"noUnresolvedImports": "off"
 			},
 			"nursery": {
-				"useExplicitReturnType": "error",
-				"useExplicitType": "error",
-				"useSortedClasses": "warn"
+				"noEmptyObjectKeys": "warn",
+				"noImpliedEval": "warn",
+				"noInlineStyles": "error",
+				"noMisusedPromises": "warn",
+				"noRestrictedDependencies": "warn",
+				"noUndeclaredClasses": "error",
+				"noUnusedClasses": "off",
+				"useBaseline": "warn",
+				"useExhaustiveSwitchCases": "warn",
+				"useExplicitType": "warn",
+				"useIframeSandbox": "error",
+				"useImportsFirst": "warn",
+				"useNullishCoalescing": "warn",
+				"useReduceTypeParameter": "warn",
+				"useUnicodeRegex": "warn"
 			},
-			"performance": {
-				"noAccumulatingSpread": "error",
-				"noDelete": "error",
-				"useTopLevelRegex": "error"
+			"performance": "warn",
+			"preset": "recommended",
+			"security": {
+				"noScriptUrl": "error"
 			},
 			"style": {
-				"noNonNullAssertion": "error",
-				"useAsConstAssertion": "error",
+				"noDescendingSpecificity": "error",
+				"noEnum": "warn",
+				"noInferrableTypes": "warn",
+				"noParameterProperties": "warn",
+				"noProcessEnv": "warn",
 				"useBlockStatements": "error",
-				"useCollapsedElseIf": "error",
-				"useConsistentArrayType": "error",
-				"useConst": "error",
-				"useDefaultParameterLast": "error",
-				"useExportType": "error",
-				"useFilenamingConvention": "error",
-				"useImportType": "error",
-				"useNamingConvention": "error",
-				"useNumberNamespace": "error",
-				"useNumericSeparators": "error",
-				"useTemplate": "error"
+				"useConsistentEnumValueType": "warn",
+				"useConsistentMemberAccessibility": {
+					"level": "error",
+					"options": {
+						"accessibility": "explicit"
+					}
+				},
+				"useDefaultSwitchClause": "warn",
+				"useExportsLast": "warn",
+				"useFilenamingConvention": {
+					"level": "warn",
+					"options": {
+						"filenameCases": ["camelCase", "export"],
+						"requireAscii": true,
+						"strictCase": true
+					}
+				},
+				"useNamingConvention": "warn"
 			},
 			"suspicious": {
-				"noAsyncPromiseExecutor": "error",
-				"noConsole": "warn",
-				"noDoubleEquals": "error",
+				"noDeprecatedImports": "warn",
+				"noDoubleEquals": {
+					"level": "error",
+					"options": {
+						"ignoreNull": false
+					}
+				},
+				"noDuplicateObjectKeys": "off",
 				"noEvolvingTypes": "error",
-				"noExplicitAny": "error",
 				"noImplicitAnyLet": "error",
-				"noMisrefactoredShorthandAssign": "error",
-				"noSelfCompare": "error",
-				"noShadowRestrictedNames": "error"
+				"noReturnAssign": "error",
+				"useArraySortCompare": "warn",
+				"useGuardForIn": "error",
+				"useNumberToFixedDigitsArgument": "warn"
 			}
 		}
 	},
+	"overrides": [
+		{
+			"assist": {
+				"actions": {
+					"source": {
+						"useSortedKeys": "off"
+					}
+				}
+			},
+			"includes": ["**/package.json"]
+		}
+	],
+	"plugins": [
+		"./node_modules/@felixarntz/biome/rules/no-as-unknown-as.grit",
+		"./node_modules/@felixarntz/biome/rules/no-empty-object-accumulator.grit",
+		"./node_modules/@felixarntz/biome/rules/no-has-own-property.grit",
+		"./node_modules/@felixarntz/biome/rules/no-in-operator.grit",
+		"./node_modules/@felixarntz/biome/rules/no-object-assign-target.grit",
+		"./node_modules/@felixarntz/biome/rules/no-object-from-entries.grit",
+		"./node_modules/@felixarntz/biome/rules/no-prototype-mutation.grit",
+		"./node_modules/@felixarntz/biome/rules/no-prototype-property-access.grit",
+		"./node_modules/biome-plugin-no-type-assertion/no-type-assertion.grit"
+	],
 	"vcs": {
 		"clientKind": "git",
+		"defaultBranch": "main",
 		"enabled": true,
 		"useIgnoreFile": true
 	}
