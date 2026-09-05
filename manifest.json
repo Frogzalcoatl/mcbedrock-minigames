@@ -1,0 +1,36 @@
+{
+	"dependencies": [
+		{
+			"module_name": "@minecraft/server",
+			"version": "2.9.0"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "2.1.0"
+		}
+	],
+	"format_version": 2,
+	"header": {
+		"description": "Made with moderate amounts of care.",
+		"min_engine_version": [1, 26, 33],
+		"name": "Gametest Starter Addon",
+		"uuid": "1ea0288f-1f50-4b20-ba90-48acdaa922ef",
+		"version": [1, 0, 0]
+	},
+	"modules": [
+		{
+			"description": "Addon Module",
+			"type": "data",
+			"uuid": "6164d51f-d279-40d3-b71e-a192b62d42fb",
+			"version": [1, 0, 0]
+		},
+		{
+			"description": "Scripting Module",
+			"entry": "scripts/main.esm.js",
+			"language": "javascript",
+			"type": "script",
+			"uuid": "e6eeceee-5020-4c64-b9ed-43cd04822296",
+			"version": [1, 0, 0]
+		}
+	]
+}

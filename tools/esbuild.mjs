@@ -1,5 +1,6 @@
 // biome-ignore-all lint/suspicious/noConsole: intended logging
 
+import { execSync } from "node:child_process";
 import { context } from "esbuild";
 
 const args = process.argv.slice(2);
@@ -24,7 +25,7 @@ const options = {
 	platform: "neutral",
 	sourcemap: false,
 	sourcesContent: false,
-	target: "es2023",
+	target: "es2021",
 };
 
 const ctx = await context(options);

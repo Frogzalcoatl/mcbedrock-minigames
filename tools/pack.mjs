@@ -1,6 +1,6 @@
 // biome-ignore-all lint/suspicious/noConsole: intended logging
 
-import { createWriteStream, promises } from "node:fs";
+import { createWriteStream, promises as promisesFs } from "node:fs";
 import { resolve as _resolve, basename, join } from "node:path";
 import { ZipArchive } from "archiver";
 
@@ -18,8 +18,9 @@ const SKIP_DIRECTORIES = ["source"];
 const LICENSE_PATH = join(PROJECT_ROOT, "LICENSE.md");
 
 async function copyDirectory(source, destination) {
-	await promises.mkdir(destination, { recursive: true });
-	for (const entry of await promises.readdir(source, { withFileTypes: true })) {
+	await promisesFs.mkdir(destination, { recursive: true });
+	const promises = [];
+	for (const entry of await promisesFs.readdir(source, { withFileTypes: true })) {
 		const name = entry.name;
 		const sourcePath = join(source, name);
 		const destinationPath = join(destination, name);
@@ -27,18 +28,19 @@ async function copyDirectory(source, destination) {
 			if (SKIP_DIRECTORIES.includes(name)) {
 				continue;
 			}
-			await copyDirectory(sourcePath, destinationPath);
+			promises.push(copyDirectory(sourcePath, destinationPath));
 		} else {
-			await promises.copyFile(sourcePath, destinationPath);
+			promises.push(promisesFs.copyFile(sourcePath, destinationPath));
 		}
 	}
+	await Promise.all(promises);
 }
 
 async function copyFileToDirectory(filePath, destination) {
-	await promises.mkdir(destination, { recursive: true });
+	await promisesFs.mkdir(destination, { recursive: true });
 	const name = basename(filePath);
 	const destinationPath = join(destination, name);
-	await promises.copyFile(filePath, destinationPath);
+	await promisesFs.copyFile(filePath, destinationPath);
 }
 
 async function createZip(sourceDir, outputFilePath) {
@@ -57,11 +59,13 @@ async function createZip(sourceDir, outputFilePath) {
 
 async function build() {
 	try {
-		await promises.rm(OUTPUT_DIRECTORY, { force: true, recursive: true }).catch(() => {});
+		await promisesFs
+			.rm(OUTPUT_DIRECTORY, { force: true, recursive: true })
+			.catch(() => {});
 
 		console.log(`Starting build in: ${PROJECT_ROOT}`);
 		console.log("Cleaning up old output directory...");
-		await promises.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
+		await promisesFs.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
 
 		console.log(`Creating temporary directory at: ${OUTPUT_DIRECTORY}`);
 		await copyDirectory(BEHAVIORS_DIRECTORY, BEHAVIOR_OUTPUT_DIRECTORY);
@@ -76,7 +80,7 @@ async function build() {
 		console.log("Successfully created addon.mcaddon.");
 
 		console.log("Deleting temporary output directory...");
-		await promises.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
+		await promisesFs.rm(OUTPUT_DIRECTORY, { force: true, recursive: true });
 		console.log("Cleanup complete.");
 
 		console.log("\nBuild finished successfully!");
