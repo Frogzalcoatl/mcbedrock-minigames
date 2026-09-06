@@ -1,0 +1,41 @@
+{
+	"format_version": "1.21.0",
+	"minecraft:entity": {
+		"components": {
+			"minecraft:breathable": {
+				"breathes_air": true,
+				"breathes_water": true
+			},
+			"minecraft:collision_box": {
+				"height": 0,
+				"width": 0
+			},
+			"minecraft:damage_sensor": {
+				"triggers": [
+					{
+						"cause": "all",
+						"deals_damage": "no"
+					}
+				]
+			},
+			"minecraft:inventory": {
+				"additional_slots_per_strength": 0,
+				"can_be_siphoned_from": false,
+				"container_type": "container",
+				"inventory_size": 1,
+				"private": true,
+				"restrict_to_owner": true
+			},
+			"minecraft:physics": {
+				"has_collision": false,
+				"has_gravity": false
+			}
+		},
+		"description": {
+			"identifier": "mg:container",
+			"is_experimental": false,
+			"is_spawnable": false,
+			"is_summonable": true
+		}
+	}
+}
