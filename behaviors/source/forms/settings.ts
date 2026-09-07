@@ -6,9 +6,10 @@ import {
 	MessageFormData,
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
-import type { Room, RoomStructure } from "./room";
-import { roomTypes } from "./roomManager";
-import type { RoomType } from "./roomType";
+import type { Room, RoomStructure } from "../rooms/room";
+import { roomTypes } from "../rooms/roomManager";
+import type { RoomType } from "../rooms/roomType";
+import { safeActionFormShow, safeMessageFormShow } from "./safeShow";
 
 // if structureId undefined, assumes
 async function showLoadConfirmation(
@@ -21,8 +22,7 @@ async function showLoadConfirmation(
 	if (selectedStructureIndex === "all") {
 		selectedStructureName = "all structures";
 	} else {
-		const selectedStructure: RoomStructure | undefined =
-			room.structures[selectedStructureIndex];
+		const selectedStructure: RoomStructure | undefined = room.structures[selectedStructureIndex];
 		if (selectedStructure === undefined) {
 			player.sendMessage("§cInvalid Structure.");
 			return;
@@ -34,15 +34,9 @@ async function showLoadConfirmation(
 	form.body(`Are you sure you want to load "${selectedStructureName}" for ${room.displayName}?`);
 	form.button1("I'm Sure!");
 	form.button2("Cancel");
-	let resp: MessageFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: MessageFormResponse = await safeMessageFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined || resp.selection === 1) {
 		system.run(() => showRoomStructures(player, room, roomType));
@@ -66,15 +60,9 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 	for (const s of room.structures) {
 		form.button(`${s.id}`);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		system.run(() => showRoomInfo(player, room, roomType));
@@ -98,15 +86,9 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 	form.button("Load Structures");
 	const structuresButtonIndex: number = 2;
 	form.divider();
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		if (roomType.rooms.length === 1) {
@@ -129,15 +111,9 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 	);
 	form.button1("I'm Sure!");
 	form.button2("Cancel");
-	let resp: MessageFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: MessageFormResponse = await safeMessageFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined || resp.selection === 1) {
 		system.run(() => showGeneral(player));
@@ -159,15 +135,9 @@ async function showGeneral(player: Player): Promise<void> {
 	const backButtonIndex: number = 0;
 	form.button("Load All Structures");
 	const loadAllIndex: number = 1;
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		system.run(() => showFormSettings(player));
@@ -194,17 +164,8 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 	for (const room of roomType.rooms) {
 		form.button(room.displayName, room.icon);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
-	}
-	if (resp.selection === undefined) {
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid || resp.selection === undefined) {
 		return;
 	}
 	if (resp.selection === backButtonIndex) {
@@ -226,17 +187,8 @@ export async function showFormSettings(player: Player): Promise<void> {
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
-	}
-	if (resp.selection === undefined) {
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid || resp.selection === undefined) {
 		return;
 	}
 	if (resp.selection === generalButtonIndex) {

@@ -1,8 +1,9 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
-import type { Room } from "./room";
-import { roomTypes } from "./roomManager";
-import type { RoomType } from "./roomType";
+import type { Room } from "../rooms/room";
+import { roomTypes } from "../rooms/roomManager";
+import type { RoomType } from "../rooms/roomType";
+import { safeActionFormShow } from "./safeShow";
 
 export async function showRoomTypesRoomSelect(
 	player: Player,
@@ -26,15 +27,9 @@ export async function showRoomTypesRoomSelect(
 	for (const room of selectedType.rooms) {
 		form.button(room.displayName, room.icon);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid) {
+		return;
 	}
 	if (resp.selection === undefined) {
 		if (formOnCancel) {
@@ -56,17 +51,8 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
-	}
-	if (resp.selection === undefined) {
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid || resp.selection === undefined) {
 		return;
 	}
 	const selectedType: RoomType | undefined = roomTypes[resp.selection];

@@ -2,6 +2,7 @@ import { type Player, system, world } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
 import type { Room } from "../rooms/room";
 import { getPlayerRoom } from "../rooms/roomManager";
+import { safeActionFormShow } from "./safeShow";
 
 export async function showFormPlayerProfile(
 	viewer: Player,
@@ -11,24 +12,15 @@ export async function showFormPlayerProfile(
 	const form = new ActionFormData();
 	form.title(`§0${playerToView.name}`);
 	const room: Room | null = getPlayerRoom(playerToView);
-	let currentButtonIndex: number = 0;
+	let currentButtonIndex = 0;
 	let joinButtonIndex: number | undefined;
 	if (viewer.id !== playerToView.id && room !== null) {
 		form.button(`>> Join <<\nPlaying: ${room.displayName}`);
 		joinButtonIndex = currentButtonIndex;
 		currentButtonIndex++;
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(viewer);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
-	}
-	if (!playerToView.isValid) {
+	const resp: ActionFormResponse = await safeActionFormShow(form, viewer);
+	if (!(viewer.isValid && playerToView.isValid)) {
 		return;
 	}
 	if (resp.selection === undefined) {
@@ -50,17 +42,8 @@ export async function showFormAllProfiles(player: Player): Promise<void> {
 	for (const p of worldPlayers) {
 		form.button(p.name);
 	}
-	let resp: ActionFormResponse;
-	try {
-		resp = await form.show(player);
-	} catch (error) {
-		if (error instanceof FormRejectError) {
-			return;
-		} else {
-			throw error;
-		}
-	}
-	if (resp.selection === undefined) {
+	const resp: ActionFormResponse = await safeActionFormShow(form, player);
+	if (!player.isValid || resp.selection === undefined) {
 		return;
 	}
 	const selectedPlayer: Player | undefined = worldPlayers[resp.selection];

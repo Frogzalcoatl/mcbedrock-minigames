@@ -8,7 +8,7 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
-import { showFormSettings } from "../../rooms/settings";
+import { showFormSettings } from "../../forms/settings";
 import { getPlayerFromOrigin } from "../origin";
 
 export function registerCommandSettings(registry: CustomCommandRegistry): void {

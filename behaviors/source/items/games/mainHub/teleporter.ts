@@ -1,6 +1,6 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showFormTeleporter } from "../../../rooms/formTeleporter";
+import { showFormTeleporter } from "../../../forms/teleporter";
 import { itemUseMap } from "../../events/itemUse";
 
 const typeId: string = MinecraftItemTypes.Compass;

@@ -9,7 +9,7 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
-import { showFormTeleporter, showRoomTypesRoomSelect } from "../../rooms/formTeleporter";
+import { showFormTeleporter, showRoomTypesRoomSelect } from "../../forms/teleporter";
 import { roomTypes } from "../../rooms/roomManager";
 import type { RoomType } from "../../rooms/roomType";
 import { commandEnums } from "../enums";
@@ -20,9 +20,7 @@ export function registerCommandQ(registry: CustomCommandRegistry): void {
 		{
 			description: "Join a game queue.",
 			name: `${PACK_NAMESPACE}:q`,
-			optionalParameters: [
-				{ name: commandEnums.roomTypeId, type: CustomCommandParamType.Enum },
-			],
+			optionalParameters: [{ name: commandEnums.roomTypeId, type: CustomCommandParamType.Enum }],
 			permissionLevel: CommandPermissionLevel.Any,
 		},
 		(origin: CustomCommandOrigin, roomTypeId?: string): CustomCommandResult | undefined => {
@@ -38,9 +36,7 @@ export function registerCommandQ(registry: CustomCommandRegistry): void {
 					showFormTeleporter(player);
 					return;
 				}
-				const roomType: RoomType | undefined = roomTypes.find(
-					(t) => t.typeId === roomTypeId,
-				);
+				const roomType: RoomType | undefined = roomTypes.find((t) => t.typeId === roomTypeId);
 				if (roomType !== undefined) {
 					showRoomTypesRoomSelect(player, roomType, false);
 				}

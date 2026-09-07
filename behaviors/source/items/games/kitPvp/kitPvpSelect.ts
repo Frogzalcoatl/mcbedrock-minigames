@@ -1,7 +1,7 @@
 import { ItemLockMode, ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { joinKitPvpArena } from "../../../games/kitPvp/joinArena";
-import { showFormKits } from "../../../kits/formKits";
+import { showFormKits } from "../../../kits/kits";
 import roomTypeIds from "../../../roomTypeIds";
 import { itemUseMap } from "../../events/itemUse";
 
