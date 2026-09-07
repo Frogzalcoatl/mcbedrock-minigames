@@ -1,1 +1,3 @@
+* Remove periods from command results to match vanilla
+
 * Add duels and the tools necessary to recreate similar gamemodes
