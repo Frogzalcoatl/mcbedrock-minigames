@@ -7,13 +7,6 @@ import {
 	world,
 } from "@minecraft/server";
 
-export interface ItemEntityHitValue {
-	typeId: string;
-	callback: (mainhandItem: ItemStack, damagingEntity: Entity, hitEntity: Entity) => void;
-}
-
-export const itemEntityHitMap = new Map<string, ItemEntityHitValue>();
-
 world.afterEvents.entityHitEntity.subscribe((event) => {
 	const equippable: EntityEquippableComponent | undefined = event.damagingEntity.getComponent(
 		EntityComponentTypes.Equippable,
@@ -30,3 +23,10 @@ world.afterEvents.entityHitEntity.subscribe((event) => {
 		value.callback(mainhandItem, event.damagingEntity, event.hitEntity);
 	}
 });
+
+export interface ItemEntityHitValue {
+	callback: (mainhandItem: ItemStack, damagingEntity: Entity, hitEntity: Entity) => void;
+	typeId: string;
+}
+
+export const itemEntityHitMap = new Map<string, ItemEntityHitValue>();

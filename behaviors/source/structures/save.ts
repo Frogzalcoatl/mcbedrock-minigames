@@ -6,7 +6,7 @@ const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBl
 const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
 
 export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
-	let temp: number = 0;
+	let temp = 0;
 	if (from.x > to.x) {
 		temp = from.x;
 		from.x = to.x;
@@ -22,8 +22,8 @@ export function placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dime
 		from.z = to.z;
 		to.z = temp;
 	}
-	let structureBlockY: number = 0;
-	let structureBlockId: string = "";
+	let structureBlockY = 0;
+	let structureBlockId = "";
 	if (from.y === dimension.heightRange.min) {
 		structureBlockId = structureBlockFlat;
 		structureBlockY = dimension.heightRange.min;
@@ -48,8 +48,8 @@ export function placeStructureBlocksFor(
 	at: Vector3,
 	dimension: Dimension,
 ): void {
-	let structureBlockY: number = 0;
-	let structureBlockId: string = "";
+	let structureBlockY = 0;
+	let structureBlockId = "";
 	if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
 		return;
 	} else if (at.y === dimension.heightRange.min) {

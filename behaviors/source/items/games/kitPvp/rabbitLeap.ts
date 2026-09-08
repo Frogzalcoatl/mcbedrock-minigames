@@ -9,10 +9,6 @@ const typeId: string = MinecraftItemTypes.RabbitFoot;
 const nameTag: string = "§rRabbit Leap §7(Use)";
 itemCooldownSet(nameTag, typeId, 20 * 3);
 
-export function itemRabbitLeap(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		if (itemCooldownCheck(event.source, event.itemStack)) {
@@ -22,3 +18,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemRabbitLeap(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

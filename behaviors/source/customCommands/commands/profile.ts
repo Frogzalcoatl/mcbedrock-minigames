@@ -29,7 +29,9 @@ export function registerCommandProfile(registry: CustomCommandRegistry): void {
 				};
 			}
 			if (players === undefined) {
-				system.run(() => showFormAllProfiles(viewer));
+				system.run(() => {
+					showFormAllProfiles(viewer);
+				});
 				return {
 					status: CustomCommandStatus.Success,
 				};
@@ -46,7 +48,9 @@ export function registerCommandProfile(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			} else {
-				system.run(() => showFormPlayerProfile(viewer, player, false));
+				system.run(() => {
+					showFormPlayerProfile(viewer, player, false);
+				});
 				return {
 					status: CustomCommandStatus.Success,
 				};

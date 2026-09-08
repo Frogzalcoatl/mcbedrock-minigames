@@ -10,11 +10,16 @@ function portalSoundRunIntervalClear(player: Player): void {
 	}
 }
 
+world.beforeEvents.playerLeave.subscribe((event) => {
+	portalSoundRunIntervalClear(event.player);
+});
+
 export function portalSoundRunInterval(player: Player): void {
 	portalSoundRunIntervalClear(player);
 	player.clearVelocity();
 	const intervalId: number = system.runInterval(() => {
-		player.stopSound("portal.travel");
+		// player.stopSound("portal.travel"); Mojang removed stopSound for some reason?
+		player.runCommand("stopsound @s portal.travel");
 		if (Math.abs(player.getVelocity().x) >= 0.2 || Math.abs(player.getVelocity().z) >= 0.2) {
 			system.clearRun(intervalId);
 			portalSoundMap.delete(player.id);
@@ -22,7 +27,3 @@ export function portalSoundRunInterval(player: Player): void {
 	});
 	portalSoundMap.set(player.id, intervalId);
 }
-
-world.beforeEvents.playerLeave.subscribe((event) => {
-	portalSoundRunIntervalClear(event.player);
-});

@@ -1,5 +1,5 @@
 import { type Player, system, world } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
+import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import type { Room } from "../rooms/room";
 import { getPlayerRoom } from "../rooms/roomManager";
 import { safeActionFormShow } from "./safeShow";
@@ -25,7 +25,9 @@ export async function showFormPlayerProfile(
 	}
 	if (resp.selection === undefined) {
 		if (showPlayersFormOnCancel) {
-			system.run(() => showFormAllProfiles(viewer));
+			system.run(() => {
+				showFormAllProfiles(viewer);
+			});
 		}
 	} else if (resp.selection === joinButtonIndex) {
 		const room: Room | null = getPlayerRoom(playerToView);
@@ -51,6 +53,8 @@ export async function showFormAllProfiles(player: Player): Promise<void> {
 		player.sendMessage("§cPlayer not found");
 		return;
 	} else {
-		system.run(() => showFormPlayerProfile(player, selectedPlayer, true));
+		system.run(() => {
+			showFormPlayerProfile(player, selectedPlayer, true);
+		});
 	}
 }

@@ -12,12 +12,6 @@ import { kitsEntityDieHandler } from "../kits/entityDie";
 
 const hitCooldownTicks: number = 20 * 7;
 
-export interface KillTrackerConfig {
-	onKill: ((event: EntityDieAfterEvent) => void) | null;
-	showCombatTime: ((player: Player) => void) | null;
-	showCombatTimeTickInterval?: number;
-}
-
 interface HitMapValue {
 	lastHitterId: string;
 	timestamp: number;
@@ -27,54 +21,9 @@ const configs = new Map<string, KillTrackerConfig>(); // key is dimensionId
 const hitMap = new Map<string, HitMapValue>(); // key is entity id
 const showTimeRunIntervalMap = new Map<string, number>(); //// [playerId, runIntervalId]
 
-export function killTrackerAddDimension(dimensionId: string, config: KillTrackerConfig): void {
-	configs.set(dimensionId, config);
-}
-
-export function killTrackerRemoveDimension(dimensionId: string): boolean {
-	return configs.delete(dimensionId);
-}
-
-export function killTrackerHasDimension(dimensionId: string): boolean {
-	return configs.has(dimensionId);
-}
-
-export function killTrackerClearDimensions(): void {
-	configs.clear();
-}
-
 // true when in combat
 function inCombatCondition(timestamp: number): boolean {
 	return timestamp >= Date.now() - hitCooldownTicks * 50;
-}
-
-export function killTrackerInCombat(player: Player): boolean {
-	if (!configs.has(player.dimension.id)) {
-		return false;
-	}
-	const value: HitMapValue | undefined = hitMap.get(player.id);
-	if (value === undefined) {
-		return false;
-	}
-	return inCombatCondition(value.timestamp);
-}
-
-export function killTrackerGetLastHitter(player: Player): Entity | null {
-	if (!configs.has(player.dimension.id)) {
-		return null;
-	}
-	const value: HitMapValue | undefined = hitMap.get(player.id);
-	if (value === undefined) {
-		return null;
-	}
-	if (!inCombatCondition(value.timestamp)) {
-		return null;
-	}
-	const lastHitter = world.getEntity(value.lastHitterId);
-	if (lastHitter === undefined || !lastHitter.isValid) {
-		return null;
-	}
-	return lastHitter;
 }
 
 function createDeathEvent(
@@ -130,6 +79,93 @@ function showCombatTime(player: Player): void {
 	showTimeRunIntervalMap.set(player.id, intervalId);
 }
 
+function entityHurt(event: EntityHurtAfterEvent): void {
+	if (
+		event.damageSource.damagingEntity === undefined ||
+		event.hurtEntity instanceof Player === false
+	) {
+		return;
+	}
+	killTrackerSetCombat(event.hurtEntity, event.damageSource.damagingEntity);
+}
+
+function entityDie(event: EntityDieAfterEvent): void {
+	if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
+		return;
+	}
+	const deadPlayer: Player = event.deadEntity;
+	const config: KillTrackerConfig | undefined = configs.get(deadPlayer.dimension.id);
+	if (config === undefined) {
+		return;
+	}
+	if (event.damageSource.damagingEntity === undefined) {
+		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
+		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
+	}
+	if (config.onKill !== null) {
+		config.onKill(event);
+	}
+	kitsEntityDieHandler(event);
+	hitMap.delete(event.deadEntity.id);
+	if (event.damageSource.damagingEntity !== undefined) {
+		hitMap.delete(event.damageSource.damagingEntity.id);
+	}
+}
+
+world.afterEvents.entityHurt.subscribe(entityHurt);
+world.afterEvents.entityDie.subscribe(entityDie);
+
+export interface KillTrackerConfig {
+	onKill: ((event: EntityDieAfterEvent) => void) | null;
+	showCombatTime: ((player: Player) => void) | null;
+	showCombatTimeTickInterval?: number;
+}
+
+export function killTrackerAddDimension(dimensionId: string, config: KillTrackerConfig): void {
+	configs.set(dimensionId, config);
+}
+
+export function killTrackerRemoveDimension(dimensionId: string): boolean {
+	return configs.delete(dimensionId);
+}
+
+export function killTrackerHasDimension(dimensionId: string): boolean {
+	return configs.has(dimensionId);
+}
+
+export function killTrackerClearDimensions(): void {
+	configs.clear();
+}
+
+export function killTrackerInCombat(player: Player): boolean {
+	if (!configs.has(player.dimension.id)) {
+		return false;
+	}
+	const value: HitMapValue | undefined = hitMap.get(player.id);
+	if (value === undefined) {
+		return false;
+	}
+	return inCombatCondition(value.timestamp);
+}
+
+export function killTrackerGetLastHitter(player: Player): Entity | null {
+	if (!configs.has(player.dimension.id)) {
+		return null;
+	}
+	const value: HitMapValue | undefined = hitMap.get(player.id);
+	if (value === undefined) {
+		return null;
+	}
+	if (!inCombatCondition(value.timestamp)) {
+		return null;
+	}
+	const lastHitter = world.getEntity(value.lastHitterId);
+	if (lastHitter === undefined || !lastHitter.isValid) {
+		return null;
+	}
+	return lastHitter;
+}
+
 export function killTrackerGetCombatTimeTicks(player: Player): number {
 	const value: HitMapValue | undefined = hitMap.get(player.id);
 	if (value === undefined) {
@@ -171,39 +207,3 @@ export function killTrackerSetCombat(hurtPlayer: Player, damagingEntity: Entity)
 		showCombatTime(damagingEntity);
 	}
 }
-
-function entityHurt(event: EntityHurtAfterEvent): void {
-	if (
-		event.damageSource.damagingEntity === undefined ||
-		event.hurtEntity instanceof Player === false
-	) {
-		return;
-	}
-	killTrackerSetCombat(event.hurtEntity, event.damageSource.damagingEntity);
-}
-
-function entityDie(event: EntityDieAfterEvent): void {
-	if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
-		return;
-	}
-	const deadPlayer: Player = event.deadEntity;
-	const config: KillTrackerConfig | undefined = configs.get(deadPlayer.dimension.id);
-	if (config === undefined) {
-		return;
-	}
-	if (event.damageSource.damagingEntity === undefined) {
-		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
-		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
-	}
-	if (config.onKill !== null) {
-		config.onKill(event);
-	}
-	kitsEntityDieHandler(event);
-	hitMap.delete(event.deadEntity.id);
-	if (event.damageSource.damagingEntity !== undefined) {
-		hitMap.delete(event.damageSource.damagingEntity.id);
-	}
-}
-
-world.afterEvents.entityHurt.subscribe(entityHurt);
-world.afterEvents.entityDie.subscribe(entityDie);

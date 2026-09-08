@@ -17,13 +17,13 @@ export type RoomCreationFunc = (
 ) => Room;
 
 export interface RoomTypeConfig {
-	roomTypeIndex: number;
-	typeId: string;
+	defaultDimensionId: string;
 	displayName: string;
 	icon?: string;
-	defaultDimensionId: string;
-	roomCreationFunc: RoomCreationFunc;
 	roomCount: number;
+	roomCreationFunc: RoomCreationFunc;
+	roomTypeIndex: number;
+	typeId: string;
 }
 
 export function initRoomType(config: RoomTypeConfig): RoomType {
@@ -37,7 +37,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 		return type;
 	}
 	if (!config.defaultDimensionId.startsWith("minecraft:")) {
-		for (let i: number = 0; i < config.roomCount; i++) {
+		for (let i = 0; i < config.roomCount; i++) {
 			type.rooms.push(
 				config.roomCreationFunc(
 					config.roomTypeIndex,
@@ -64,7 +64,7 @@ export function initRoomType(config: RoomTypeConfig): RoomType {
 	}
 	const namespaceColonIndex: number = config.defaultDimensionId.indexOf(":");
 	const customDimensionId = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(namespaceColonIndex + 1)}`;
-	for (let i: number = 1; i < config.roomCount; i++) {
+	for (let i = 1; i < config.roomCount; i++) {
 		type.rooms.push(
 			config.roomCreationFunc(
 				config.roomTypeIndex,

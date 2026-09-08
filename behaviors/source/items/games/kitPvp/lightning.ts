@@ -19,11 +19,6 @@ import { decrementMainhandItem } from "../../utils/remove";
 
 const typeId: string = MinecraftItemTypes.EndRod;
 const nameTag: string = "§r§bLightning§7 (Use)";
-
-export function itemLightning(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 const lightningMap = new Map<string, string>(); // [lightningId, entityId]
 
 function onHit(from: Entity, hitLocation: Vector3, _hitEntity?: Entity): void {
@@ -81,3 +76,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemLightning(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

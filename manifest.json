@@ -2,11 +2,15 @@
 	"dependencies": [
 		{
 			"module_name": "@minecraft/server",
-			"version": "2.9.0"
+			"version": "beta"
 		},
 		{
 			"module_name": "@minecraft/server-ui",
-			"version": "2.1.0"
+			"version": "beta"
+		},
+		{
+			"module_name": "@minecraft/server-gametest",
+			"version": "beta"
 		}
 	],
 	"format_version": 2,

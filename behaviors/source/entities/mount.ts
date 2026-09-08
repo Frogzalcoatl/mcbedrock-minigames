@@ -22,6 +22,12 @@ function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	spreadParticles("minecraft:dust_plume", dimension, pos, 1, 1, 20);
 }
 
+world.afterEvents.entityLoad.subscribe((event) => {
+	if (event.entity.getDynamicProperty(temporaryMountPropertyId) !== undefined) {
+		event.entity.remove();
+	}
+});
+
 // Returns horse entity
 export function spawnTemporaryMount(
 	mountType: MinecraftEntityTypes,
@@ -68,7 +74,7 @@ export function spawnTemporaryMount(
 			inventory.container.setItem(1, new ItemStack(armorTypeId));
 		}
 	}, 1);
-	let tickCount: number = 0;
+	let tickCount = 0;
 	const intervalId: number = system.runInterval(() => {
 		tickCount++;
 		if (!rideable.isValid || rideable.getRiders().length === 0) {
@@ -92,12 +98,6 @@ export function spawnTemporaryMount(
 	}, durationTicks);
 	return mountEntity;
 }
-
-world.afterEvents.entityLoad.subscribe((event) => {
-	if (event.entity.getDynamicProperty(temporaryMountPropertyId) !== undefined) {
-		event.entity.remove();
-	}
-});
 
 export function ejectFromMount(entity: Entity): void {
 	const riding: EntityRidingComponent | undefined = entity.getComponent(

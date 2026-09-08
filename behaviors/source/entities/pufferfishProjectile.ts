@@ -36,6 +36,12 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 const maxTicks: number = 20 * 10;
 const pufferfishProjectilePropertyId: string = "pufferfish_projectile";
 
+world.afterEvents.entityLoad.subscribe((event) => {
+	if (event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined) {
+		event.entity.remove();
+	}
+});
+
 export function pufferfishProjectile(
 	thrower: Entity,
 	horizontalVelocity: number,
@@ -55,7 +61,7 @@ export function pufferfishProjectile(
 		},
 		viewDirection.y * verticalVelocity,
 	);
-	let tickCount: number = 0;
+	let tickCount = 0;
 	const intervalId: number = system.runInterval(() => {
 		if (!pufferfish.isValid) {
 			system.clearRun(intervalId);
@@ -72,9 +78,3 @@ export function pufferfishProjectile(
 		tickCount++;
 	});
 }
-
-world.afterEvents.entityLoad.subscribe((event) => {
-	if (event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined) {
-		event.entity.remove();
-	}
-});

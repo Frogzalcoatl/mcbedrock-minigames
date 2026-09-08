@@ -28,8 +28,8 @@ export function registerCommandSim(registry: CustomCommandRegistry): void {
 		},
 		(
 			origin: CustomCommandOrigin,
-			amount: number = 1,
-			name: string = "SimulatedPlayer",
+			amount = 1,
+			name = "SimulatedPlayer",
 		): CustomCommandResult | undefined => {
 			if (amount <= 0) {
 				return {
@@ -42,7 +42,7 @@ export function registerCommandSim(registry: CustomCommandRegistry): void {
 				dimension = world.getDimension(MinecraftDimensionTypes.Overworld);
 			}
 			system.run(() => {
-				for (let i: number = 0; i < amount; i++) {
+				for (let i = 0; i < amount; i++) {
 					spawnSimulatedPlayer(
 						{ dimension: dimension, x: 0, y: 0, z: 0 },
 						name,

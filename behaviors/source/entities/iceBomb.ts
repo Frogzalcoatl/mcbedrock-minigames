@@ -1,7 +1,7 @@
 import { type Dimension, type Entity, type Vector3, world } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../particles/spread";
 import { ICE_BOMB_ID } from "../constants";
+import { spreadParticles } from "../particles/spread";
 
 function run(dimension: Dimension, at: Vector3, source: Entity | undefined): void {
 	const hitEntities: Entity[] = dimension.getEntities({ location: at, maxDistance: 5 });

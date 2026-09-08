@@ -7,9 +7,6 @@ import roomTypeIds from "../roomTypeIds";
 import type { Room } from "./room";
 import { initRoomType, type RoomType } from "./roomType";
 
-export const roomTypes: RoomType[] = [];
-export const rooms = new Map<string, Room>(); // [DimensionId, Room]
-
 system.beforeEvents.startup.subscribe((e) => {
 	roomTypes.push(
 		initRoomType({
@@ -41,23 +38,6 @@ system.beforeEvents.startup.subscribe((e) => {
 	}
 });
 
-export function joinRoomType(player: Player, typeId: string, roomIndex: number = 0): void {
-	for (const type of roomTypes) {
-		if (type.typeId !== typeId) {
-			continue;
-		}
-		const room: Room | undefined = type.rooms[roomIndex];
-		if (room !== undefined) {
-			room.join(player);
-		}
-		break;
-	}
-}
-
-export function getPlayerRoom(player: Player): Room | null {
-	return rooms.get(player.dimension.id) ?? null;
-}
-
 world.afterEvents.worldLoad.subscribe(() => {
 	const hubRoomType: RoomType | undefined = roomTypes.find((t) => t.typeId === roomTypeIds.hub);
 	if (hubRoomType === undefined) {
@@ -85,3 +65,23 @@ world.beforeEvents.playerLeave.subscribe((event) => {
 		room.removePlayer(event.player);
 	}
 });
+
+export const roomTypes: RoomType[] = [];
+export const rooms = new Map<string, Room>(); // [DimensionId, Room]
+
+export function joinRoomType(player: Player, typeId: string, roomIndex = 0): void {
+	for (const type of roomTypes) {
+		if (type.typeId !== typeId) {
+			continue;
+		}
+		const room: Room | undefined = type.rooms[roomIndex];
+		if (room !== undefined) {
+			room.join(player);
+		}
+		break;
+	}
+}
+
+export function getPlayerRoom(player: Player): Room | null {
+	return rooms.get(player.dimension.id) ?? null;
+}

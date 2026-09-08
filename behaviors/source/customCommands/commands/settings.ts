@@ -32,7 +32,9 @@ export function registerCommandSettings(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() => showFormSettings(player));
+			system.run(() => {
+				showFormSettings(player);
+			});
 			return { status: CustomCommandStatus.Success };
 		},
 	);

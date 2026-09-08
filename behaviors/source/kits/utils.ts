@@ -3,7 +3,7 @@ import { setDurability } from "../items/utils/durability";
 import { applyEnchant } from "../items/utils/enchant";
 import type { Kit } from "./kitManager";
 
-export function kitArmorEnchant(kit: Kit, id: string, level: number = 1): void {
+export function kitArmorEnchant(kit: Kit, id: string, level = 1): void {
 	if (kit.helmet) {
 		applyEnchant(kit.helmet, id, level);
 	}

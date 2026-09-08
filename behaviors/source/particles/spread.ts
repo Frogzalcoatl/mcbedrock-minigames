@@ -14,7 +14,7 @@ export function spreadParticles(
 	const maxY: number = position.y + verticalSpread;
 	const minZ: number = position.z - horizontalSpread;
 	const maxZ: number = position.z + horizontalSpread;
-	for (let i: number = 0; i < particleCount; i++) {
+	for (let i = 0; i < particleCount; i++) {
 		const particlePos: Vector3 = {
 			x: minX + Math.random() * (maxX - minX),
 			y: minY + Math.random() * (maxY - minY),

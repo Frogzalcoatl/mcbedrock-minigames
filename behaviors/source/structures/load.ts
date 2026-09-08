@@ -7,7 +7,7 @@ export function loadStructure(
 	location: Vector3,
 	dimension: Dimension,
 	animationMode: StructureAnimationMode = StructureAnimationMode.None,
-	animationSeconds: number = 0,
+	animationSeconds = 0,
 ): void {
 	const schema: StructureSchema | null = getStructureSchema(structure);
 	if (schema === null) {

@@ -1,8 +1,10 @@
 import { type ItemUseAfterEvent, world } from "@minecraft/server";
 
+world.afterEvents.itemUse.subscribe(itemUseHandler);
+
 export interface ItemUseValue {
-	typeId: string;
 	callback: (event: ItemUseAfterEvent) => void;
+	typeId: string;
 }
 
 export const itemUseMap = new Map<string, ItemUseValue>(); // [nameTag, value]
@@ -16,5 +18,3 @@ export function itemUseHandler(event: ItemUseAfterEvent): void {
 		value.callback(event);
 	}
 }
-
-world.afterEvents.itemUse.subscribe(itemUseHandler);

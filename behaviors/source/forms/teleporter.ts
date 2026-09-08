@@ -1,5 +1,5 @@
 import { type Player, system } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
+import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import type { Room } from "../rooms/room";
 import { roomTypes } from "../rooms/roomManager";
 import type { RoomType } from "../rooms/roomType";
@@ -33,7 +33,9 @@ export async function showRoomTypesRoomSelect(
 	}
 	if (resp.selection === undefined) {
 		if (formOnCancel) {
-			system.run(() => showFormTeleporter(player));
+			system.run(() => {
+				showFormTeleporter(player);
+			});
 		}
 		return;
 	}

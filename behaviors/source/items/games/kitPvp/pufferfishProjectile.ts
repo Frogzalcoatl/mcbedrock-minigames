@@ -8,10 +8,6 @@ import { decrementMainhandItem } from "../../utils/remove";
 const typeId: string = MinecraftItemTypes.Pufferfish;
 const nameTag: string = "§r§aPufferfish§7 (Use)";
 
-export function itemPoisonFishProjectile(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		if (event.source.getGameMode() !== GameMode.Creative) {
@@ -25,3 +21,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemPoisonFishProjectile(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

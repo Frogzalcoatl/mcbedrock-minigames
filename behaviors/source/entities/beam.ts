@@ -29,12 +29,11 @@ export function beamFrom(
 			endPos.z += blockRaycast.faceLocation.z;
 		}
 	}
-	if (endPos === undefined) {
-		endPos = {
-			x: headLocation.x + viewDirection.x * maxDistance,
-			y: headLocation.y + viewDirection.y * maxDistance,
-			z: headLocation.z + viewDirection.z * maxDistance,
-		};
-	}
+	// New syntax unlocked?? same as "if (endPos === undefined) { endPos = value }"
+	endPos ??= {
+		x: headLocation.x + viewDirection.x * maxDistance,
+		y: headLocation.y + viewDirection.y * maxDistance,
+		z: headLocation.z + viewDirection.z * maxDistance,
+	};
 	onHit(entity, endPos, hitEntityRaycast?.entity);
 }

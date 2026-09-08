@@ -9,23 +9,6 @@ import {
 } from "@minecraft/server";
 import "./entityDie";
 
-type KitInventory = { item: ItemStack; slot: number }[];
-
-export interface Kit {
-	name: string;
-	inventory: KitInventory;
-	helmet?: ItemStack;
-	chestplate?: ItemStack;
-	leggings?: ItemStack;
-	boots?: ItemStack;
-	offhand?: ItemStack;
-	icon?: string;
-	onDeath?: (kitUser: Entity, killer?: Entity) => void;
-	onKill?: (kitUser: Entity, dead: Entity) => void;
-}
-
-export const kits = new Map<string, Kit[]>(); // key is roomTypeId
-
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
 	for (const entry of kitInventory) {
 		if (container.size <= entry.slot || entry.slot < 0) {
@@ -45,11 +28,28 @@ function giveKitEquipment(kit: Kit, equippable: EntityEquippableComponent): void
 }
 
 interface EntityKitsMapValue {
-	roomTypeId: string;
 	kitIndex: number;
+	roomTypeId: string;
 }
 
-const entityKits = new Map<string, EntityKitsMapValue>(); // [entityId, [roomTypeId, kitIndex]]
+const entityKits = new Map<string, EntityKitsMapValue>(); // key is entityId
+
+export type KitInventory = { item: ItemStack; slot: number }[];
+
+export interface Kit {
+	boots?: ItemStack;
+	chestplate?: ItemStack;
+	helmet?: ItemStack;
+	icon?: string;
+	inventory: KitInventory;
+	leggings?: ItemStack;
+	name: string;
+	offhand?: ItemStack;
+	onDeath?: (kitUser: Entity, killer?: Entity) => void;
+	onKill?: (kitUser: Entity, dead: Entity) => void;
+}
+
+export const kits = new Map<string, Kit[]>(); // key is roomTypeId
 
 export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): Kit | undefined {
 	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);

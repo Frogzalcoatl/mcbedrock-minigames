@@ -1,9 +1,9 @@
 import { type ItemStack, type Player, system, world } from "@minecraft/server";
 
 interface ItemCooldownInfo {
-	typeId: string;
 	cooldownTicks: number;
 	sendCompletionMessage: boolean;
+	typeId: string;
 }
 const items = new Map<string, ItemCooldownInfo>(); // [itemNameTag, info]
 
@@ -12,24 +12,6 @@ interface PlayerItemCooldown {
 	lastUse: number;
 }
 const playerCooldownData = new Map<string, PlayerItemCooldown[]>(); // [playerId, values[]]
-
-// Item must have a nametag
-export function itemCooldownSet(
-	nameTag: string,
-	typeId: string,
-	cooldownTicks: number,
-	sendCompletionMessage: boolean = false,
-): void {
-	items.set(nameTag, {
-		cooldownTicks: cooldownTicks,
-		sendCompletionMessage: sendCompletionMessage,
-		typeId: typeId,
-	});
-}
-
-export function itemCooldownRemove(nameTag: string): void {
-	items.delete(nameTag);
-}
 
 function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {
 	system.runTimeout(() => {
@@ -43,6 +25,28 @@ function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: nu
 			player.sendMessage(`Cooldown finished for ${itemNameTag}`);
 		}
 	}, delayTicks);
+}
+
+world.beforeEvents.playerLeave.subscribe((event) => {
+	playerCooldownData.delete(event.player.id);
+});
+
+// Item must have a nametag
+export function itemCooldownSet(
+	nameTag: string,
+	typeId: string,
+	cooldownTicks: number,
+	sendCompletionMessage = false,
+): void {
+	items.set(nameTag, {
+		cooldownTicks: cooldownTicks,
+		sendCompletionMessage: sendCompletionMessage,
+		typeId: typeId,
+	});
+}
+
+export function itemCooldownRemove(nameTag: string): void {
+	items.delete(nameTag);
 }
 
 export function itemCooldownCheck(player: Player, item: ItemStack): boolean {
@@ -93,7 +97,3 @@ export function itemCooldownCheck(player: Player, item: ItemStack): boolean {
 export function itemCooldownRemovePlayer(player: Player): void {
 	playerCooldownData.delete(player.id);
 }
-
-world.beforeEvents.playerLeave.subscribe((event) => {
-	playerCooldownData.delete(event.player.id);
-});

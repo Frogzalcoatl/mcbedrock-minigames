@@ -9,10 +9,6 @@ const nameTag: string = "§r§eGolden Carrot §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absorptionDurationTicks: number = 20 * 180;
 
-export function itemRabbitGoldenCarrot(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		decrementMainhandItem(event.source);
@@ -31,3 +27,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemRabbitGoldenCarrot(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

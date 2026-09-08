@@ -1,5 +1,6 @@
 import {
 	type Dimension,
+	type DimensionLocation,
 	type DimensionRegistry,
 	type Player,
 	system,
@@ -24,18 +25,18 @@ export interface RoomStructure {
 }
 
 export interface RoomConfig {
+	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
+	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	dimensionId: string;
-	roomTypeIndex: number;
-	roomIndex: number;
 	displayName: string;
+	hub?: RoomHubConfig;
 	icon: string;
+	onJoin?: (player: Player) => void;
+	onLeave?: (player: Player) => void;
+	roomIndex: number;
+	roomTypeIndex: number;
 	spawn: Vector3;
 	structures?: RoomStructure[];
-	hub?: RoomHubConfig;
-	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
-	onJoin?: (player: Player) => void;
-	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
-	onLeave?: (player: Player) => void;
 }
 
 export class Room {
@@ -46,8 +47,8 @@ export class Room {
 	public icon: string;
 	public readonly structures: RoomStructure[];
 	public hub: RoomHub | null;
-	private _dimension: Dimension | undefined;
 	private _spawn: Vector3;
+	private _dimension: Dimension | undefined;
 	private _beforeJoin: ((player: Player) => Promise<boolean>) | null;
 	private _onJoin: ((player: Player) => void) | null;
 	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
@@ -83,6 +84,29 @@ export class Room {
 
 	public get playerCount(): number | null {
 		return this._dimension?.getPlayers().length ?? null;
+	}
+
+	public get spawn(): Vector3 {
+		return this._spawn;
+	}
+
+	public set spawn(val: Vector3) {
+		this._spawn = val;
+		if (this._dimension === undefined) {
+			return;
+		}
+		const location: DimensionLocation = {
+			dimension: this._dimension,
+			x: val.x,
+			y: val.y,
+			z: val.z,
+		};
+		for (const player of this._dimension.getPlayers()) {
+			if (this.hub?.has(player)) {
+				continue;
+			}
+			player.setSpawnPoint(location);
+		}
 	}
 
 	public registerDimension(dimensionRegistry: DimensionRegistry): void {

@@ -6,10 +6,6 @@ import { defaultItemStackFunc } from "../../utils/default";
 const typeId: string = MinecraftItemTypes.BlazeRod;
 const nameTag: string = "§r§eFire Stick";
 
-export function itemFireStick(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemEntityHitMap.set(nameTag, {
 	callback: (_mainhandItem: ItemStack, _damagingEntity: Entity, hitEntity: Entity): void => {
 		if (hitEntity.isValid) {
@@ -18,3 +14,7 @@ itemEntityHitMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemFireStick(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

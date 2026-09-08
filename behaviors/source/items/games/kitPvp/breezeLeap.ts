@@ -9,10 +9,6 @@ const typeId: string = MinecraftItemTypes.BreezeRod;
 const nameTag: string = "§r§bBreeze Leap §7(Use)";
 itemCooldownSet(nameTag, typeId, 20 * 3);
 
-export function itemBreezeLeap(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		if (itemCooldownCheck(event.source, event.itemStack)) {
@@ -26,3 +22,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemBreezeLeap(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}

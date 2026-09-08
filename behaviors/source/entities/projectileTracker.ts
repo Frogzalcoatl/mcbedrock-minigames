@@ -9,10 +9,6 @@ import {
 	world,
 } from "@minecraft/server";
 
-export interface ProjectileTrackerConfig {
-	typeIds: string[];
-}
-
 interface ProjectileTracker {
 	map: Map<string, string>; // [projectileId, playerId]
 	projectileTypeIds: string[];
@@ -20,46 +16,7 @@ interface ProjectileTracker {
 
 const trackers = new Map<string, ProjectileTracker>(); // key is dimensionId
 
-export function projectileTrackerAddDimension(
-	dimensionId: string,
-	projectileTypeIds: string[],
-): void {
-	trackers.set(dimensionId, {
-		map: new Map<string, string>(),
-		projectileTypeIds: projectileTypeIds,
-	});
-}
-
-export function projectileTrackerRemoveDimension(dimensionId: string): boolean {
-	return trackers.delete(dimensionId);
-}
-
-export function projectileTrackerHasDimension(dimensionId: string): boolean {
-	return trackers.has(dimensionId);
-}
-
-export function projectileTrackerClearDimensions(): void {
-	trackers.clear();
-}
-
 const trackedPojectilePropertyId: string = "tracked_projectile";
-
-// Removes player's projectiles from their current dimension
-export function projectileTrackerRemoveProjectiles(player: Player, dimensionId: string): void {
-	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
-	if (tracker === undefined) {
-		return;
-	}
-	for (const [projectileId, currentPlayerId] of tracker.map) {
-		if (player.id === currentPlayerId) {
-			const projectileEntity: Entity | undefined = world.getEntity(projectileId);
-			if (projectileEntity?.isValid) {
-				projectileEntity.remove();
-			}
-			tracker.map.delete(projectileId);
-		}
-	}
-}
 
 function entityRemove(event: EntityRemoveBeforeEvent): void {
 	const tracker: ProjectileTracker | undefined = trackers.get(event.removedEntity.dimension.id);
@@ -99,3 +56,46 @@ function entityLoad(event: EntityLoadAfterEvent): void {
 world.beforeEvents.entityRemove.subscribe(entityRemove);
 world.afterEvents.entitySpawn.subscribe(entitySpawn);
 world.afterEvents.entityLoad.subscribe(entityLoad);
+
+export interface ProjectileTrackerConfig {
+	typeIds: string[];
+}
+
+export function projectileTrackerAddDimension(
+	dimensionId: string,
+	projectileTypeIds: string[],
+): void {
+	trackers.set(dimensionId, {
+		map: new Map<string, string>(),
+		projectileTypeIds: projectileTypeIds,
+	});
+}
+
+export function projectileTrackerRemoveDimension(dimensionId: string): boolean {
+	return trackers.delete(dimensionId);
+}
+
+export function projectileTrackerHasDimension(dimensionId: string): boolean {
+	return trackers.has(dimensionId);
+}
+
+export function projectileTrackerClearDimensions(): void {
+	trackers.clear();
+}
+
+// Removes player's projectiles from their current dimension
+export function projectileTrackerRemoveProjectiles(player: Player, dimensionId: string): void {
+	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
+	if (tracker === undefined) {
+		return;
+	}
+	for (const [projectileId, currentPlayerId] of tracker.map) {
+		if (player.id === currentPlayerId) {
+			const projectileEntity: Entity | undefined = world.getEntity(projectileId);
+			if (projectileEntity?.isValid) {
+				projectileEntity.remove();
+			}
+			tracker.map.delete(projectileId);
+		}
+	}
+}

@@ -2,7 +2,6 @@ import { type Player, system, world } from "@minecraft/server";
 import {
 	ActionFormData,
 	type ActionFormResponse,
-	FormRejectError,
 	MessageFormData,
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
@@ -39,7 +38,9 @@ async function showLoadConfirmation(
 		return;
 	}
 	if (resp.selection === undefined || resp.selection === 1) {
-		system.run(() => showRoomStructures(player, room, roomType));
+		system.run(() => {
+			showRoomStructures(player, room, roomType);
+		});
 	} else if (resp.selection === 0) {
 		room.loadStructure(selectedStructureIndex);
 		world.sendMessage(
@@ -65,12 +66,18 @@ async function showRoomStructures(player: Player, room: Room, roomType: RoomType
 		return;
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
-		system.run(() => showRoomInfo(player, room, roomType));
+		system.run(() => {
+			showRoomInfo(player, room, roomType);
+		});
 	} else if (resp.selection === allButtonIndex) {
-		system.run(() => showLoadConfirmation(player, room, roomType, "all"));
+		system.run(() => {
+			showLoadConfirmation(player, room, roomType, "all");
+		});
 	} else {
 		const selectedStructureIndex: number = resp.selection - structureButtonsStartingIndex;
-		system.run(() => showLoadConfirmation(player, room, roomType, selectedStructureIndex));
+		system.run(() => {
+			showLoadConfirmation(player, room, roomType, selectedStructureIndex);
+		});
 	}
 }
 
@@ -92,14 +99,20 @@ async function showRoomInfo(player: Player, room: Room, roomType: RoomType): Pro
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		if (roomType.rooms.length === 1) {
-			system.run(() => showFormSettings(player));
+			system.run(() => {
+				showFormSettings(player);
+			});
 		} else {
-			system.run(() => showRoomType(player, roomType));
+			system.run(() => {
+				showRoomType(player, roomType);
+			});
 		}
 	} else if (resp.selection === joinButtonIndex) {
 		room.join(player);
 	} else if (resp.selection === structuresButtonIndex) {
-		system.run(() => showRoomStructures(player, room, roomType));
+		system.run(() => {
+			showRoomStructures(player, room, roomType);
+		});
 	}
 }
 
@@ -116,7 +129,9 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 		return;
 	}
 	if (resp.selection === undefined || resp.selection === 1) {
-		system.run(() => showGeneral(player));
+		system.run(() => {
+			showGeneral(player);
+		});
 	}
 	if (resp.selection === 0) {
 		for (const type of roomTypes) {
@@ -140,11 +155,15 @@ async function showGeneral(player: Player): Promise<void> {
 		return;
 	}
 	if (resp.selection === undefined || resp.selection === backButtonIndex) {
-		system.run(() => showFormSettings(player));
+		system.run(() => {
+			showFormSettings(player);
+		});
 		return;
 	}
 	if (resp.selection === loadAllIndex) {
-		system.run(() => loadAllStructuresConfirmation(player));
+		system.run(() => {
+			loadAllStructuresConfirmation(player);
+		});
 	}
 }
 
@@ -152,7 +171,9 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 	if (roomType.rooms.length === 1) {
 		const room: Room | undefined = roomType.rooms[0];
 		if (room !== undefined) {
-			system.run(() => showRoomInfo(player, room, roomType));
+			system.run(() => {
+				showRoomInfo(player, room, roomType);
+			});
 		}
 		return;
 	}
@@ -169,12 +190,16 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 		return;
 	}
 	if (resp.selection === backButtonIndex) {
-		system.run(() => showFormSettings(player));
+		system.run(() => {
+			showFormSettings(player);
+		});
 		return;
 	}
 	const room: Room | undefined = roomType.rooms[resp.selection - roomsStartingIndex];
 	if (room !== undefined) {
-		system.run(() => showRoomInfo(player, room, roomType));
+		system.run(() => {
+			showRoomInfo(player, room, roomType);
+		});
 	}
 }
 
@@ -192,11 +217,15 @@ export async function showFormSettings(player: Player): Promise<void> {
 		return;
 	}
 	if (resp.selection === generalButtonIndex) {
-		system.run(() => showGeneral(player));
+		system.run(() => {
+			showGeneral(player);
+		});
 		return;
 	}
 	const roomType: RoomType | undefined = roomTypes[resp.selection - roomTypesStartingIndex];
 	if (roomType !== undefined) {
-		system.run(() => showRoomType(player, roomType));
+		system.run(() => {
+			showRoomType(player, roomType);
+		});
 	}
 }

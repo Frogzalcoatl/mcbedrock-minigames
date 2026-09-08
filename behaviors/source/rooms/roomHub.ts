@@ -1,4 +1,11 @@
-import { type Dimension, type Player, type Vector3, world } from "@minecraft/server";
+import {
+	type Dimension,
+	type DimensionLocation,
+	type Entity,
+	Player,
+	type Vector3,
+	world,
+} from "@minecraft/server";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 
@@ -15,7 +22,7 @@ export class RoomHub {
 	private _onJoin: ((player: Player) => void) | null;
 	private _onLeave: ((player: Player) => void) | null;
 
-	constructor(
+	public constructor(
 		dimensionId: string,
 		spawn: Vector3,
 		onJoin?: (player: Player) => void,
@@ -38,6 +45,23 @@ export class RoomHub {
 			this._playerIds.clear();
 		}
 		this._isActive = val;
+	}
+
+	public get spawn(): Vector3 {
+		return this._spawn;
+	}
+
+	public set spawn(val: Vector3) {
+		this._spawn = val;
+		const dimension: Dimension = world.getDimension(this.dimensionId);
+		const location: DimensionLocation = { dimension: dimension, x: val.x, y: val.y, z: val.z };
+		for (const playerId of this._playerIds) {
+			const player: Entity | undefined = world.getEntity(playerId);
+			if (player === undefined || player instanceof Player === false) {
+				continue;
+			}
+			player.setSpawnPoint(location);
+		}
 	}
 
 	public has(player: Player): boolean {

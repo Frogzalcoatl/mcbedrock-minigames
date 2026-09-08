@@ -1,5 +1,5 @@
 import type { Player } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse, FormRejectError } from "@minecraft/server-ui";
+import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { type Kit, kits } from "../kits/kitManager";
 import { safeActionFormShow } from "./safeShow";
 

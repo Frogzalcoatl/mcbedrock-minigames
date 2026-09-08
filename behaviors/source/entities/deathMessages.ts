@@ -13,7 +13,7 @@ export function deathMessageFormat(
 	deadName: string,
 	killerName: string | null,
 	_cause: EntityDamageCause | null,
-	colorCode: string = "§f",
+	colorCode = "§f",
 ): string {
 	if (killerName === null) {
 		return `${colorCode}${deadName}§r${colorCode} died`;
@@ -22,10 +22,7 @@ export function deathMessageFormat(
 	}
 }
 
-export function deathMessageFromEvent(
-	event: EntityDieAfterEvent,
-	colorCode: string = "§f",
-): string | null {
+export function deathMessageFromEvent(event: EntityDieAfterEvent, colorCode = "§f"): string | null {
 	const deadName: string = getEntityName(event.deadEntity);
 	let killerName: string | null = null;
 	if (event.damageSource.damagingEntity?.isValid) {

@@ -13,8 +13,9 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.12",
 		"@felixarntz/biome": "^0.2.0",
-		"@minecraft/server": "2.10.0-rc.1.26.60-preview.21",
-		"@minecraft/server-ui": "2.2.0-rc.1.26.60-preview.21",
+		"@minecraft/server": "2.10.0-beta.1.26.44-stable",
+		"@minecraft/server-gametest": "1.0.0-beta.1.26.44-stable",
+		"@minecraft/server-ui": "2.2.0-beta.1.26.43-stable",
 		"@minecraft/vanilla-data": "^1.26.44",
 		"@total-typescript/ts-reset": "^0.6.1",
 		"archiver": "^8.0.0",

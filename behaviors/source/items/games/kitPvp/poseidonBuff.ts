@@ -9,10 +9,6 @@ const nameTag: string = "§r§bPoseidon Buff §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absoprtionDurationTicks: number = 20 * 120;
 
-export function itemPoseidonBuff(): ItemStack {
-	return defaultItemStackFunc(typeId, nameTag);
-}
-
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
 		if (event.source.getGameMode() !== GameMode.Creative) {
@@ -31,3 +27,7 @@ itemUseMap.set(nameTag, {
 	},
 	typeId: typeId,
 });
+
+export function itemPoseidonBuff(): ItemStack {
+	return defaultItemStackFunc(typeId, nameTag);
+}
