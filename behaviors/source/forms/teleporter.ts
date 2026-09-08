@@ -11,12 +11,12 @@ export async function showRoomTypesRoomSelect(
 	formOnCancel: boolean,
 ): Promise<void> {
 	if (selectedType.rooms.length === 0) {
-		player.sendMessage("§cNo valid rooms to join.");
+		player.sendMessage("§cNo valid rooms to join");
 		return;
 	} else if (selectedType.rooms.length === 1) {
 		const room: Room | undefined = selectedType.rooms[0];
 		if (room === undefined) {
-			player.sendMessage("§cNo valid rooms to join.");
+			player.sendMessage("§cNo valid rooms to join");
 		} else {
 			room.join(player);
 		}
@@ -39,7 +39,7 @@ export async function showRoomTypesRoomSelect(
 	}
 	const selectedRoom: Room | undefined = selectedType.rooms[resp.selection];
 	if (selectedRoom === undefined) {
-		player.sendMessage("§cIgnoring attempt to join invalid room.");
+		player.sendMessage("§cIgnoring attempt to join invalid room");
 		return;
 	}
 	selectedRoom.join(player);

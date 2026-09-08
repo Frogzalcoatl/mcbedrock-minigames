@@ -24,14 +24,11 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 			optionalParameters: [{ name: "id", type: CustomCommandParamType.Integer }],
 			permissionLevel: CommandPermissionLevel.Any,
 		},
-		(
-			origin: CustomCommandOrigin,
-			displayIndex: number = 1,
-		): CustomCommandResult | undefined => {
+		(origin: CustomCommandOrigin, displayIndex = 1): CustomCommandResult | undefined => {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player === null) {
 				return {
-					message: "No valid player for hub transfer.",
+					message: "No valid player for hub transfer",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -48,21 +45,21 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 			);
 			if (mainHubRoomType === undefined || mainHubRoomType.rooms.length === 0) {
 				return {
-					message: "No valid hubs found.",
+					message: "No valid hubs found",
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			const actualIndex: number = displayIndex - 1;
 			if (actualIndex >= mainHubRoomType.rooms.length || actualIndex < 0) {
 				return {
-					message: `Invalid hub id "${displayIndex}". Must be within range 1-${mainHubRoomType.rooms.length}.`,
+					message: `Invalid hub id "${displayIndex}". Must be within range 1-${mainHubRoomType.rooms.length}`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			const room: Room | undefined = mainHubRoomType.rooms[actualIndex];
 			if (room === undefined) {
 				return {
-					message: `Unable to join ${roomTypeIds.hub}-${displayIndex}.`,
+					message: `Unable to join ${roomTypeIds.hub}-${displayIndex}`,
 					status: CustomCommandStatus.Failure,
 				};
 			}

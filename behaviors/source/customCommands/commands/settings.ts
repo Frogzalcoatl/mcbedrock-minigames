@@ -22,13 +22,13 @@ export function registerCommandSettings(registry: CustomCommandRegistry): void {
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (player === null) {
 				return {
-					message: "No valid player for ui.",
+					message: "No valid player for ui",
 					status: CustomCommandStatus.Failure,
 				};
 			} else if (player.commandPermissionLevel === CommandPermissionLevel.Any) {
 				// No "/execute as <selector>" tomfoolery
 				return {
-					message: "Only operators can view this form.",
+					message: "Only operators can view this form",
 					status: CustomCommandStatus.Failure,
 				};
 			}

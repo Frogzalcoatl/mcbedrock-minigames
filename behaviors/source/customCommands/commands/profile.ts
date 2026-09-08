@@ -9,13 +9,13 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../../constants";
-import { showFormAllProfiles, showFormPlayerProfile } from "../../player/formProfiles";
+import { showFormAllProfiles, showFormPlayerProfile } from "../../forms/profiles";
 import { getPlayerFromOrigin } from "../origin";
 
 export function registerCommandProfile(registry: CustomCommandRegistry): void {
 	registry.registerCommand(
 		{
-			description: "View a player profile.",
+			description: "View a player profile",
 			name: `${PACK_NAMESPACE}:profile`,
 			optionalParameters: [{ name: "player", type: CustomCommandParamType.PlayerSelector }],
 			permissionLevel: CommandPermissionLevel.Any,
@@ -24,7 +24,7 @@ export function registerCommandProfile(registry: CustomCommandRegistry): void {
 			const viewer: Player | null = getPlayerFromOrigin(origin);
 			if (viewer === null) {
 				return {
-					message: "No valid player for form.",
+					message: "No valid player for form",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -35,14 +35,14 @@ export function registerCommandProfile(registry: CustomCommandRegistry): void {
 				};
 			} else if (players.length > 1) {
 				return {
-					message: "Cannot select more than one player.",
+					message: "Cannot select more than one player",
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			const player: Player | undefined = players[0];
 			if (player === undefined) {
 				return {
-					message: "No valid player selected.",
+					message: "No valid player selected",
 					status: CustomCommandStatus.Failure,
 				};
 			} else {

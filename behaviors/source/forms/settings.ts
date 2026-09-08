@@ -24,7 +24,7 @@ async function showLoadConfirmation(
 	} else {
 		const selectedStructure: RoomStructure | undefined = room.structures[selectedStructureIndex];
 		if (selectedStructure === undefined) {
-			player.sendMessage("§cInvalid Structure.");
+			player.sendMessage("§cInvalid Structure");
 			return;
 		}
 		selectedStructureName = selectedStructure.id;

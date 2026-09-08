@@ -41,7 +41,7 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
 			if (dimension === null) {
 				return {
-					message: "Unable to get valid dimension from command origin.",
+					message: "Unable to get valid dimension from command origin",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -49,7 +49,7 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 				const originLocation: Vector3 | null = getLocationFromOrigin(origin);
 				if (originLocation === null) {
 					return {
-						message: "Unable to get location from command origin.",
+						message: "Unable to get location from command origin",
 						status: CustomCommandStatus.Failure,
 					};
 				}
@@ -57,7 +57,7 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 			}
 			if (!structureIds.includes(id)) {
 				return {
-					message: `Invalid structure id "${id}".`,
+					message: `Invalid structure id "${id}"`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -66,13 +66,13 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 				!Object.values(StructureAnimationMode).includes(animationMode)
 			) {
 				return {
-					message: `Invalid animation mode "${animationMode}."`,
+					message: `Invalid animation mode "${animationMode}"`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
 			if (animationSeconds !== undefined && animationSeconds < 0) {
 				return {
-					message: `Animation seconds must be a non negative integer.`,
+					message: `Animation seconds must be a non negative integer`,
 					status: CustomCommandStatus.Failure,
 				};
 			}

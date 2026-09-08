@@ -33,7 +33,7 @@ export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
 			if (dimension === null) {
 				return {
-					message: "Unable to get dimension from command origin.",
+					message: "Unable to get dimension from command origin",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -44,7 +44,7 @@ export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 				to.y > dimension.heightRange.max
 			) {
 				return {
-					message: "Invalid y value.",
+					message: "Invalid y value",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -53,7 +53,7 @@ export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 				// Load structure blocks with y offset of 0 instead of the usual 1.
 				if (player) {
 					player.sendMessage(
-						"§6You should increase your min y value so that structure blocks are not included in your save.",
+						"§6You should increase your min y value so that structure blocks are not included in your save",
 					);
 				}
 			}

@@ -48,7 +48,7 @@ export async function showFormAllProfiles(player: Player): Promise<void> {
 	}
 	const selectedPlayer: Player | undefined = worldPlayers[resp.selection];
 	if (selectedPlayer === undefined || !selectedPlayer.isValid) {
-		player.sendMessage("§cPlayer not found.");
+		player.sendMessage("§cPlayer not found");
 		return;
 	} else {
 		system.run(() => showFormPlayerProfile(player, selectedPlayer, true));

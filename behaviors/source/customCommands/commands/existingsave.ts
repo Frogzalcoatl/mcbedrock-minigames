@@ -35,7 +35,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 			const dimension: Dimension | null = getDimensionFromOrigin(origin);
 			if (dimension === null) {
 				return {
-					message: "Unable to get dimension from command origin.",
+					message: "Unable to get dimension from command origin",
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -43,7 +43,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 				const originLocation: Vector3 | null = getLocationFromOrigin(origin);
 				if (originLocation === null) {
 					return {
-						message: "Unable to get location from command origin.",
+						message: "Unable to get location from command origin",
 						status: CustomCommandStatus.Failure,
 					};
 				}
@@ -51,7 +51,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 			}
 			if (!structureIds.includes(structureId)) {
 				return {
-					message: `Invalid structure id "${structureId}".`,
+					message: `Invalid structure id "${structureId}"`,
 					status: CustomCommandStatus.Failure,
 				};
 			}
@@ -60,7 +60,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 				placeStructureBlocksFor(structureId, at, dimension);
 				if (player?.isValid) {
 					player.sendMessage(
-						"§6You probably need to change the structure block sizes. There is no feasible way for me to edit them through scripting.",
+						"§6You probably need to change the structure block sizes. There is no feasible way for me to edit them through scripting",
 					);
 				}
 			});
