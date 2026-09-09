@@ -9,7 +9,7 @@ import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects } from "../../entities/effects";
 import { clearEntityInventory } from "../../entities/inventory";
-import type { PlayerEvent } from "../../eventSignal";
+import type { PlayerEvent } from "../../events";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { Room } from "../../rooms/room";
 import type { RoomCreationFunc } from "../../rooms/roomType";

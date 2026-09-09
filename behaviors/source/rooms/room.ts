@@ -7,13 +7,16 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { killTrackerHasDimension, killTrackerRemovePlayer } from "../entities/killTracker";
+import {
+	killTrackerHasDimension,
+	killTrackerRemovePlayer,
+} from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
 import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
-import { EventSignal, type PlayerEvent } from "../eventSignal";
+import { EventSignal, type PlayerEvent } from "../events";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
@@ -126,7 +129,10 @@ export class Room {
 				z: this._spawn.z,
 			});
 		}
-		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
+		if (
+			previousRoom === null ||
+			previousRoom.dimensionId !== this.dimensionId
+		) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
 		const event: PlayerEvent = {

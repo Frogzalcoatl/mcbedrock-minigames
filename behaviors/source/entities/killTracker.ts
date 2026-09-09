@@ -8,7 +8,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type PlayerEvent } from "../eventSignal";
+import { EventSignal, type PlayerEvent } from "../events";
 import { kitsEntityDieHandler } from "../kits/entityDie";
 
 const hitCooldownTicks: number = 20 * 7;
@@ -59,7 +59,9 @@ function clearShowTimeRunInterval(player: Player): void {
 
 function showCombatTime(player: Player): void {
 	clearShowTimeRunInterval(player);
-	const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
+	const config: KillTrackerConfig | undefined = configs.get(
+		player.dimension.id,
+	);
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
@@ -90,11 +92,16 @@ function entityHurt(event: EntityHurtAfterEvent): void {
 }
 
 function entityDie(event: EntityDieAfterEvent): void {
-	if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
+	if (
+		!event.deadEntity.isValid ||
+		event.deadEntity instanceof Player === false
+	) {
 		return;
 	}
 	const deadPlayer: Player = event.deadEntity;
-	const config: KillTrackerConfig | undefined = configs.get(deadPlayer.dimension.id);
+	const config: KillTrackerConfig | undefined = configs.get(
+		deadPlayer.dimension.id,
+	);
 	if (config === undefined) {
 		return;
 	}
@@ -119,7 +126,9 @@ export interface KillTrackerConfig {
 	showCombatTimeTickInterval: number;
 }
 
-export function killTrackerAddDimension(dimensionId: string): KillTrackerConfig {
+export function killTrackerAddDimension(
+	dimensionId: string,
+): KillTrackerConfig {
 	const config: KillTrackerConfig = {
 		onKill: new EventSignal<EntityDieAfterEvent>(),
 		showCombatTime: new EventSignal<PlayerEvent>(),
@@ -184,7 +193,9 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 
 export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
-		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
+		const config: KillTrackerConfig | undefined = configs.get(
+			player.dimension.id,
+		);
 		if (config !== undefined) {
 			const event: EntityDieAfterEvent = createDeathEvent(player);
 			config.onKill.triggerEvent(event);
@@ -194,7 +205,10 @@ export function killTrackerRemovePlayer(player: Player): void {
 	clearShowTimeRunInterval(player);
 }
 
-export function killTrackerSetCombat(hurtPlayer: Player, damagingEntity: Entity): void {
+export function killTrackerSetCombat(
+	hurtPlayer: Player,
+	damagingEntity: Entity,
+): void {
 	if (!configs.has(hurtPlayer.dimension.id)) {
 		return;
 	}

@@ -6,7 +6,7 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type PlayerEvent } from "../eventSignal";
+import { EventSignal, type PlayerEvent } from "../events";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 
@@ -45,7 +45,12 @@ export class RoomHub {
 	public set spawn(val: Vector3) {
 		this._spawn = val;
 		const dimension: Dimension = world.getDimension(this.dimensionId);
-		const location: DimensionLocation = { dimension: dimension, x: val.x, y: val.y, z: val.z };
+		const location: DimensionLocation = {
+			dimension: dimension,
+			x: val.x,
+			y: val.y,
+			z: val.z,
+		};
 		for (const playerId of this._playerIds) {
 			const player: Entity | undefined = world.getEntity(playerId);
 			if (player === undefined || player instanceof Player === false) {

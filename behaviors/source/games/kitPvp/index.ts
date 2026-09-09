@@ -8,7 +8,10 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import {
+	MinecraftEffectTypes,
+	MinecraftEntityTypes,
+} from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
@@ -23,7 +26,7 @@ import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../../entities/projectileTracker";
-import type { PlayerEvent } from "../../eventSignal";
+import type { PlayerEvent } from "../../events";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { kits } from "../../kits/kitManager";
@@ -96,16 +99,17 @@ export const getRoomKitPvp: RoomCreationFunc = (
 				amplifier: 255,
 				showParticles: false,
 			});
-			const inventory: EntityInventoryComponent | undefined = player.getComponent(
-				EntityComponentTypes.Inventory,
-			);
+			const inventory: EntityInventoryComponent | undefined =
+				player.getComponent(EntityComponentTypes.Inventory);
 			if (inventory !== undefined) {
 				inventory.container.setItem(3, itemKitPvpSelect());
 				inventory.container.setItem(5, itemTeleporter());
 			}
 		});
 	}
-	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
+	const killTracker: KillTrackerConfig = killTrackerAddDimension(
+		room.dimensionId,
+	);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
 		const message: string | null = deathMessageFromEvent(event);
 		if (message !== null) {
