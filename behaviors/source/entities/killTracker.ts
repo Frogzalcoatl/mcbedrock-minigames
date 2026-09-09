@@ -8,6 +8,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
+import { EventSignal, type PlayerEvent } from "../eventSignal";
 import { kitsEntityDieHandler } from "../kits/entityDie";
 
 const hitCooldownTicks: number = 20 * 7;
@@ -62,19 +63,18 @@ function showCombatTime(player: Player): void {
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
+	const event: PlayerEvent = {
+		player: player,
+	};
 	system.run(() => {
-		if (config.showCombatTime !== null) {
-			config.showCombatTime(player);
-		}
+		config.showCombatTime.triggerEvent(event);
 	});
 	const intervalId: number = system.runInterval(() => {
 		if (!(player.isValid && killTrackerInCombat(player))) {
 			clearShowTimeRunInterval(player);
 			return;
 		}
-		if (config.showCombatTime !== null) {
-			config.showCombatTime(player);
-		}
+		config.showCombatTime.triggerEvent(event);
 	}, config.showCombatTimeTickInterval ?? 0);
 	showTimeRunIntervalMap.set(player.id, intervalId);
 }
@@ -102,9 +102,7 @@ function entityDie(event: EntityDieAfterEvent): void {
 		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
 		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
 	}
-	if (config.onKill !== null) {
-		config.onKill(event);
-	}
+	config.onKill.triggerEvent(event);
 	kitsEntityDieHandler(event);
 	hitMap.delete(event.deadEntity.id);
 	if (event.damageSource.damagingEntity !== undefined) {
@@ -116,13 +114,19 @@ world.afterEvents.entityHurt.subscribe(entityHurt);
 world.afterEvents.entityDie.subscribe(entityDie);
 
 export interface KillTrackerConfig {
-	onKill: ((event: EntityDieAfterEvent) => void) | null;
-	showCombatTime: ((player: Player) => void) | null;
-	showCombatTimeTickInterval?: number;
+	onKill: EventSignal<EntityDieAfterEvent>;
+	showCombatTime: EventSignal<PlayerEvent>;
+	showCombatTimeTickInterval: number;
 }
 
-export function killTrackerAddDimension(dimensionId: string, config: KillTrackerConfig): void {
+export function killTrackerAddDimension(dimensionId: string): KillTrackerConfig {
+	const config: KillTrackerConfig = {
+		onKill: new EventSignal<EntityDieAfterEvent>(),
+		showCombatTime: new EventSignal<PlayerEvent>(),
+		showCombatTimeTickInterval: 0,
+	};
 	configs.set(dimensionId, config);
+	return config;
 }
 
 export function killTrackerRemoveDimension(dimensionId: string): boolean {
@@ -181,9 +185,9 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
 		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
-		if (config?.onKill) {
+		if (config !== undefined) {
 			const event: EntityDieAfterEvent = createDeathEvent(player);
-			config.onKill(event);
+			config.onKill.triggerEvent(event);
 		}
 	}
 	hitMap.delete(player.id);

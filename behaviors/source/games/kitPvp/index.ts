@@ -14,11 +14,16 @@ import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
 import { changeEntityHealth } from "../../entities/health";
 import { clearEntityInventory } from "../../entities/inventory";
-import { killTrackerAddDimension, killTrackerRemovePlayer } from "../../entities/killTracker";
+import {
+	type KillTrackerConfig,
+	killTrackerAddDimension,
+	killTrackerRemovePlayer,
+} from "../../entities/killTracker";
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../../entities/projectileTracker";
+import type { PlayerEvent } from "../../eventSignal";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { kits } from "../../kits/kitManager";
@@ -59,37 +64,8 @@ export const getRoomKitPvp: RoomCreationFunc = (
 	const room = new Room({
 		dimensionId: dimensionId,
 		displayName: displayName,
-		hub: {
-			onJoin: (player: Player): void => {
-				killTrackerRemovePlayer(player);
-				projectileTrackerRemoveProjectiles(player, room.dimensionId);
-				player.setGameMode(GameMode.Adventure);
-				const health: EntityHealthComponent | undefined = player.getComponent(
-					EntityComponentTypes.Health,
-				);
-				if (health !== undefined) {
-					health.resetToMaxValue();
-				}
-				clearEntityInventory(player);
-				clearEntityEffects(player);
-				player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
-					amplifier: 255,
-					showParticles: false,
-				});
-				player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
-					amplifier: 255,
-					showParticles: false,
-				});
-				const inventory: EntityInventoryComponent | undefined = player.getComponent(
-					EntityComponentTypes.Inventory,
-				);
-				if (inventory !== undefined) {
-					inventory.container.setItem(3, itemKitPvpSelect());
-					inventory.container.setItem(5, itemTeleporter());
-				}
-			},
-		},
 		icon: icon,
+		includeHub: true,
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
 		spawn: { x: 0.5, y: 0, z: 0.5 },
@@ -98,21 +74,50 @@ export const getRoomKitPvp: RoomCreationFunc = (
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
-	killTrackerAddDimension(room.dimensionId, {
-		onKill: (event: EntityDieAfterEvent): void => {
-			const message: string | null = deathMessageFromEvent(event);
-			if (message !== null) {
-				room.sendMessage(message);
+	if (room.hub !== null) {
+		room.hub.onJoin.subscribe((event: PlayerEvent): void => {
+			const player: Player = event.player;
+			killTrackerRemovePlayer(player);
+			projectileTrackerRemoveProjectiles(player, room.dimensionId);
+			player.setGameMode(GameMode.Adventure);
+			const health: EntityHealthComponent | undefined = player.getComponent(
+				EntityComponentTypes.Health,
+			);
+			if (health !== undefined) {
+				health.resetToMaxValue();
 			}
-			if (
-				event.damageSource.damagingEntity instanceof Player &&
-				event.damageSource.damagingEntity.isValid
-			) {
-				const killer: Player = event.damageSource.damagingEntity;
-				system.run(() => changeEntityHealth(killer, healthAddedOnKill));
+			clearEntityInventory(player);
+			clearEntityEffects(player);
+			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
+				amplifier: 255,
+				showParticles: false,
+			});
+			player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+				amplifier: 255,
+				showParticles: false,
+			});
+			const inventory: EntityInventoryComponent | undefined = player.getComponent(
+				EntityComponentTypes.Inventory,
+			);
+			if (inventory !== undefined) {
+				inventory.container.setItem(3, itemKitPvpSelect());
+				inventory.container.setItem(5, itemTeleporter());
 			}
-		},
-		showCombatTime: null,
+		});
+	}
+	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
+	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
+		const message: string | null = deathMessageFromEvent(event);
+		if (message !== null) {
+			room.sendMessage(message);
+		}
+		if (
+			event.damageSource.damagingEntity instanceof Player &&
+			event.damageSource.damagingEntity.isValid
+		) {
+			const killer: Player = event.damageSource.damagingEntity;
+			system.run(() => changeEntityHealth(killer, healthAddedOnKill));
+		}
 	});
 	projectileTrackerAddDimension(room.dimensionId, [
 		MinecraftEntityTypes.ThrownTrident,

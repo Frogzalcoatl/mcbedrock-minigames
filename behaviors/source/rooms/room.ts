@@ -13,10 +13,11 @@ import {
 	projectileTrackerHasDimension,
 	projectileTrackerRemoveProjectiles,
 } from "../entities/projectileTracker";
+import { EventSignal, type PlayerEvent } from "../eventSignal";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
-import { RoomHub, type RoomHubConfig } from "./roomHub";
+import { RoomHub } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
 
 export interface RoomStructure {
@@ -25,14 +26,10 @@ export interface RoomStructure {
 }
 
 export interface RoomConfig {
-	beforeJoin?: (player: Player) => Promise<boolean>; // Return true if player should join room, false if join attempt should be ignored
-	beforeLeave?: (player: Player) => Promise<boolean>; // Return true if player should leave room, false if leave attempt should be ignored
 	dimensionId: string;
 	displayName: string;
-	hub?: RoomHubConfig;
 	icon: string;
-	onJoin?: (player: Player) => void;
-	onLeave?: (player: Player) => void;
+	includeHub: boolean;
 	roomIndex: number;
 	roomTypeIndex: number;
 	spawn: Vector3;
@@ -46,13 +43,11 @@ export class Room {
 	public displayName: string;
 	public icon: string;
 	public readonly structures: RoomStructure[];
+	public onJoin: EventSignal<PlayerEvent>;
+	public onLeave: EventSignal<PlayerEvent>;
 	public hub: RoomHub | null;
 	private _spawn: Vector3;
 	private _dimension: Dimension | undefined;
-	private _beforeJoin: ((player: Player) => Promise<boolean>) | null;
-	private _onJoin: ((player: Player) => void) | null;
-	private _beforeLeave: ((player: Player) => Promise<boolean>) | null;
-	private _onLeave: ((player: Player) => void) | null;
 
 	public constructor(config: RoomConfig) {
 		this.dimensionId = config.dimensionId;
@@ -61,21 +56,14 @@ export class Room {
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
-		if (config.hub === undefined) {
-			this.hub = null;
+		if (config.includeHub) {
+			this.hub = new RoomHub(this.dimensionId, config.spawn);
 		} else {
-			this.hub = new RoomHub(
-				this.dimensionId,
-				config.spawn,
-				config.hub.onJoin,
-				config.hub.onLeave,
-			);
+			this.hub = null;
 		}
 		this._spawn = config.spawn;
-		this._beforeJoin = config.beforeJoin ?? null;
-		this._onJoin = config.onJoin ?? null;
-		this._beforeLeave = config.beforeLeave ?? null;
-		this._onLeave = config.onLeave ?? null;
+		this.onJoin = new EventSignal<PlayerEvent>();
+		this.onLeave = new EventSignal<PlayerEvent>();
 	}
 
 	public get dimension(): Dimension | undefined {
@@ -122,12 +110,6 @@ export class Room {
 		if (this._dimension === undefined) {
 			return;
 		}
-		if (this._beforeJoin !== null) {
-			const result: boolean = await this._beforeJoin(player);
-			if (!result) {
-				return;
-			}
-		}
 		const previousRoom: Room | null = getPlayerRoom(player);
 		if (previousRoom !== null) {
 			await previousRoom.leave(player);
@@ -147,21 +129,17 @@ export class Room {
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
-		if (this._onJoin !== null) {
-			this._onJoin(player);
-		}
+		const event: PlayerEvent = {
+			player: player,
+		};
+		this.onJoin.triggerEvent(event);
 	}
 
 	public async leave(player: Player): Promise<void> {
-		if (this._beforeLeave !== null) {
-			const result: boolean = await this._beforeLeave(player);
-			if (!result) {
-				return;
-			}
-		}
-		if (this._onLeave !== null) {
-			this._onLeave(player);
-		}
+		const event: PlayerEvent = {
+			player: player,
+		};
+		this.onLeave.triggerEvent(event);
 		if (this.hub?.isActive) {
 			this.hub.leave(player);
 		}

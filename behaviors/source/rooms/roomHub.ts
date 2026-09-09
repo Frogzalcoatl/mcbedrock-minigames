@@ -6,34 +6,25 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
+import { EventSignal, type PlayerEvent } from "../eventSignal";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 
-export interface RoomHubConfig {
-	onJoin?: (player: Player) => void;
-	onLeave?: (player: Player) => void;
-}
-
 export class RoomHub {
 	public readonly dimensionId: string;
+	public onJoin: EventSignal<PlayerEvent>;
+	public onLeave: EventSignal<PlayerEvent>;
 	private _spawn: Vector3;
 	private _isActive: boolean;
 	private _playerIds: Set<string>;
-	private _onJoin: ((player: Player) => void) | null;
-	private _onLeave: ((player: Player) => void) | null;
 
-	public constructor(
-		dimensionId: string,
-		spawn: Vector3,
-		onJoin?: (player: Player) => void,
-		onLeave?: (player: Player) => void,
-	) {
+	public constructor(dimensionId: string, spawn: Vector3) {
 		this.dimensionId = dimensionId;
 		this._spawn = spawn;
 		this._isActive = true;
 		this._playerIds = new Set<string>();
-		this._onJoin = onJoin ?? null;
-		this._onLeave = onLeave ?? null;
+		this.onJoin = new EventSignal<PlayerEvent>();
+		this.onLeave = new EventSignal<PlayerEvent>();
 	}
 
 	public get isActive(): boolean {
@@ -83,18 +74,20 @@ export class RoomHub {
 			z: this._spawn.z,
 		});
 		itemCooldownRemovePlayer(player);
-		if (this._onJoin !== null) {
-			this._onJoin(player);
-		}
+		const event: PlayerEvent = {
+			player: player,
+		};
+		this.onJoin.triggerEvent(event);
 	}
 
 	public leave(player: Player): void {
 		if (!this.isActive) {
 			return;
 		}
-		if (this._onLeave !== null) {
-			this._onLeave(player);
-		}
+		const event: PlayerEvent = {
+			player: player,
+		};
+		this.onLeave.triggerEvent(event);
 		this.removePlayer(player);
 	}
 
