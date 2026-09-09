@@ -93,10 +93,6 @@ export class RoomHub {
 			player: player,
 		};
 		this.onLeave.triggerEvent(event);
-		this.removePlayer(player);
-	}
-
-	public removePlayer(player: Player): void {
 		this._playerIds.delete(player.id);
 	}
 }

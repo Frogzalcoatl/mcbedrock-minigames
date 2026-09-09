@@ -8,7 +8,7 @@ import { safeActionFormShow } from "./safeShow";
 export async function showRoomTypesRoomSelect(
 	player: Player,
 	selectedType: RoomType,
-	formOnCancel: boolean,
+	teleporterOnClose: boolean,
 ): Promise<void> {
 	if (selectedType.rooms.length === 0) {
 		player.sendMessage("§cNo valid rooms to join");
@@ -32,7 +32,7 @@ export async function showRoomTypesRoomSelect(
 		return;
 	}
 	if (resp.selection === undefined) {
-		if (formOnCancel) {
+		if (teleporterOnClose) {
 			system.run(() => {
 				showFormTeleporter(player);
 			});
@@ -59,6 +59,7 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 	}
 	const selectedType: RoomType | undefined = roomTypes[resp.selection];
 	if (selectedType === undefined) {
+		player.sendMessage(`Unable to fetch selected room type at index ${resp.selection}`);
 		return;
 	}
 	showRoomTypesRoomSelect(player, selectedType, true);

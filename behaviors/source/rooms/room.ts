@@ -7,17 +7,10 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import {
-	killTrackerHasDimension,
-	killTrackerRemovePlayer,
-} from "../entities/killTracker";
+import { killTrackerHasDimension } from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
-import {
-	projectileTrackerHasDimension,
-	projectileTrackerRemoveProjectiles,
-} from "../entities/projectileTracker";
+import { projectileTrackerHasDimension } from "../entities/projectileTracker";
 import { EventSignal, type PlayerEvent } from "../events";
-import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
 import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub } from "./roomHub";
@@ -129,10 +122,7 @@ export class Room {
 				z: this._spawn.z,
 			});
 		}
-		if (
-			previousRoom === null ||
-			previousRoom.dimensionId !== this.dimensionId
-		) {
+		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
 		const event: PlayerEvent = {
@@ -150,19 +140,9 @@ export class Room {
 			this.hub.leave(player);
 		}
 		ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
-		this.removePlayer(player);
-	}
-
-	// doesnt run any leave callbacks or teleportation
-	public removePlayer(player: Player): void {
 		if (this.hub !== null) {
-			this.hub.removePlayer(player);
+			this.hub.leave(player);
 		}
-		killTrackerRemovePlayer(player);
-		itemCooldownRemovePlayer(player);
-		system.run(() => {
-			projectileTrackerRemoveProjectiles(player, this.dimensionId);
-		});
 	}
 
 	public loadStructure(index: number | "all"): void {

@@ -6,6 +6,8 @@ import {
 	type EntityRemoveBeforeEvent,
 	type EntitySpawnAfterEvent,
 	Player,
+	type PlayerLeaveBeforeEvent,
+	system,
 	world,
 } from "@minecraft/server";
 
@@ -18,16 +20,16 @@ const trackers = new Map<string, ProjectileTracker>(); // key is dimensionId
 
 const trackedPojectilePropertyId: string = "tracked_projectile";
 
-function entityRemove(event: EntityRemoveBeforeEvent): void {
+world.beforeEvents.entityRemove.subscribe((event: EntityRemoveBeforeEvent) => {
 	const tracker: ProjectileTracker | undefined = trackers.get(event.removedEntity.dimension.id);
 	if (tracker === undefined) {
 		return;
 	}
 	if (tracker.map.delete(event.removedEntity.id)) {
 	}
-}
+});
 
-function entitySpawn(event: EntitySpawnAfterEvent): void {
+world.afterEvents.entitySpawn.subscribe((event: EntitySpawnAfterEvent) => {
 	if (!event.entity.isValid) {
 		return;
 	}
@@ -45,21 +47,16 @@ function entitySpawn(event: EntitySpawnAfterEvent): void {
 		tracker.map.set(event.entity.id, projectile.owner.id);
 		event.entity.setDynamicProperty(trackedPojectilePropertyId, true);
 	}
-}
-
-function entityLoad(event: EntityLoadAfterEvent): void {
+});
+world.afterEvents.entityLoad.subscribe((event: EntityLoadAfterEvent) => {
 	if (event.entity.getDynamicProperty(trackedPojectilePropertyId) !== undefined) {
 		event.entity.remove();
 	}
-}
+});
 
-world.beforeEvents.entityRemove.subscribe(entityRemove);
-world.afterEvents.entitySpawn.subscribe(entitySpawn);
-world.afterEvents.entityLoad.subscribe(entityLoad);
-
-export interface ProjectileTrackerConfig {
-	typeIds: string[];
-}
+world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
+	system.run(() => projectileTrackerRemovePlayer(event.player, event.player.dimension.id));
+});
 
 export function projectileTrackerAddDimension(
 	dimensionId: string,
@@ -83,8 +80,7 @@ export function projectileTrackerClearDimensions(): void {
 	trackers.clear();
 }
 
-// Removes player's projectiles from their current dimension
-export function projectileTrackerRemoveProjectiles(player: Player, dimensionId: string): void {
+export function projectileTrackerRemovePlayer(player: Player, dimensionId: string): void {
 	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
 	if (tracker === undefined) {
 		return;

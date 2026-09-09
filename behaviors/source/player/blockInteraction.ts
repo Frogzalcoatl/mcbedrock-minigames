@@ -1,11 +1,7 @@
-import { GameMode, PlayerPermissionLevel, world } from "@minecraft/server";
+import { GameMode, world } from "@minecraft/server";
 
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
-	if (
-		event.player.playerPermissionLevel === PlayerPermissionLevel.Operator &&
-		event.player.getGameMode() === GameMode.Creative
-	) {
-		return;
+	if (event.player.getGameMode() !== GameMode.Creative) {
+		event.cancel = true;
 	}
-	event.cancel = true;
 });

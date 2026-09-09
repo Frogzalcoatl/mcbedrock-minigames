@@ -8,10 +8,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import {
-	MinecraftEffectTypes,
-	MinecraftEntityTypes,
-} from "@minecraft/vanilla-data";
+import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { deathMessageFromEvent } from "../../entities/deathMessages";
 import { clearEntityEffects } from "../../entities/effects";
@@ -24,11 +21,12 @@ import {
 } from "../../entities/killTracker";
 import {
 	projectileTrackerAddDimension,
-	projectileTrackerRemoveProjectiles,
+	projectileTrackerRemovePlayer,
 } from "../../entities/projectileTracker";
 import type { PlayerEvent } from "../../events";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
+import { itemCooldownRemovePlayer } from "../../items/utils/cooldown";
 import { kits } from "../../kits/kitManager";
 import { Room } from "../../rooms/room";
 import type { RoomCreationFunc } from "../../rooms/roomType";
@@ -81,7 +79,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		room.hub.onJoin.subscribe((event: PlayerEvent): void => {
 			const player: Player = event.player;
 			killTrackerRemovePlayer(player);
-			projectileTrackerRemoveProjectiles(player, room.dimensionId);
+			projectileTrackerRemovePlayer(player, room.dimensionId);
 			player.setGameMode(GameMode.Adventure);
 			const health: EntityHealthComponent | undefined = player.getComponent(
 				EntityComponentTypes.Health,
@@ -99,17 +97,21 @@ export const getRoomKitPvp: RoomCreationFunc = (
 				amplifier: 255,
 				showParticles: false,
 			});
-			const inventory: EntityInventoryComponent | undefined =
-				player.getComponent(EntityComponentTypes.Inventory);
+			const inventory: EntityInventoryComponent | undefined = player.getComponent(
+				EntityComponentTypes.Inventory,
+			);
 			if (inventory !== undefined) {
 				inventory.container.setItem(3, itemKitPvpSelect());
 				inventory.container.setItem(5, itemTeleporter());
 			}
 		});
 	}
-	const killTracker: KillTrackerConfig = killTrackerAddDimension(
-		room.dimensionId,
-	);
+	room.onLeave.subscribe((event) => {
+		killTrackerRemovePlayer(event.player);
+		itemCooldownRemovePlayer(event.player);
+		projectileTrackerRemovePlayer(event.player, room.dimensionId);
+	});
+	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
 		const message: string | null = deathMessageFromEvent(event);
 		if (message !== null) {
