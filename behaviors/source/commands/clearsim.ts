@@ -8,7 +8,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { SimulatedPlayer } from "@minecraft/server-gametest";
-import { PACK_NAMESPACE } from "../../constants";
+import { PACK_NAMESPACE } from "../constants";
 
 export function registerCommandClearSim(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

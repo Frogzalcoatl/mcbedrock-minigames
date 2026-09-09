@@ -10,11 +10,11 @@ import {
 	system,
 	type Vector3,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../../constants";
-import { structureIds } from "../../structures/data";
-import { placeStructureBlocksFor } from "../../structures/save";
-import { commandEnums } from "../enums";
-import { getDimensionFromOrigin, getLocationFromOrigin, getPlayerFromOrigin } from "../origin";
+import { PACK_NAMESPACE } from "../constants";
+import { structureIds } from "../structures/data";
+import { placeStructureBlocksFor } from "../structures/save";
+import { commandEnums } from "./utils/enums";
+import { getDimensionFromOrigin, getLocationFromOrigin, getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandExistingSave(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

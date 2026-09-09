@@ -8,13 +8,13 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../../constants";
-import type { Room } from "../../rooms/room";
-import type { RoomHub } from "../../rooms/roomHub";
-import { getPlayerRoom, roomTypes } from "../../rooms/roomManager";
-import type { RoomType } from "../../rooms/roomType";
-import roomTypeIds from "../../roomTypeIds";
-import { getPlayerFromOrigin } from "../origin";
+import { PACK_NAMESPACE } from "../constants";
+import type { Room } from "../rooms/room";
+import type { RoomHub } from "../rooms/roomHub";
+import { getPlayerRoom, roomTypes } from "../rooms/roomManager";
+import type { RoomType } from "../rooms/roomType";
+import roomTypeIds from "../roomTypeIds";
+import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandHub(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

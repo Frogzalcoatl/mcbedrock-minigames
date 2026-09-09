@@ -8,12 +8,12 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../../constants";
-import { showFormTeleporter, showRoomTypesRoomSelect } from "../../forms/teleporter";
-import { roomTypes } from "../../rooms/roomManager";
-import type { RoomType } from "../../rooms/roomType";
-import { commandEnums } from "../enums";
-import { getPlayerFromOrigin } from "../origin";
+import { PACK_NAMESPACE } from "../constants";
+import { showFormTeleporter, showRoomTypesRoomSelect } from "../forms/teleporter";
+import { roomTypes } from "../rooms/roomManager";
+import type { RoomType } from "../rooms/roomType";
+import { commandEnums } from "./utils/enums";
+import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandQ(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

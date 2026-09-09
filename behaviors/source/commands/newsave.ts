@@ -10,9 +10,9 @@ import {
 	system,
 	type Vector3,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../../constants";
-import { placeStructureBlocks } from "../../structures/save";
-import { getDimensionFromOrigin, getPlayerFromOrigin } from "../origin";
+import { PACK_NAMESPACE } from "../constants";
+import { placeStructureBlocks } from "../structures/save";
+import { getDimensionFromOrigin, getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

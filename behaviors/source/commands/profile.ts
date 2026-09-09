@@ -8,9 +8,9 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../../constants";
-import { showFormAllProfiles, showFormPlayerProfile } from "../../forms/profiles";
-import { getPlayerFromOrigin } from "../origin";
+import { PACK_NAMESPACE } from "../constants";
+import { showFormAllProfiles, showFormPlayerProfile } from "../forms/profiles";
+import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandProfile(registry: CustomCommandRegistry): void {
 	registry.registerCommand(
