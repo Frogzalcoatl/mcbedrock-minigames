@@ -69,7 +69,10 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		includeHub: true,
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
-		spawn: { x: 0.5, y: 0, z: 0.5 },
+		spawn: {
+			facing: { x: 0.5, y: 0, z: 1 },
+			pos: { x: 0.5, y: 0, z: 0.5 },
+		},
 		structures: [
 			{ id: "ghostly/shopNoChests", pos: { x: -33, y: -3, z: -41 } },
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
@@ -79,7 +82,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		room.hub.onJoin.subscribe((event: PlayerEvent): void => {
 			const player: Player = event.player;
 			killTrackerRemovePlayer(player);
-			projectileTrackerRemovePlayer(player, room.dimensionId);
+			projectileTrackerRemovePlayer(player.id, room.dimensionId);
 			player.setGameMode(GameMode.Adventure);
 			const health: EntityHealthComponent | undefined = player.getComponent(
 				EntityComponentTypes.Health,
@@ -109,7 +112,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 	room.onLeave.subscribe((event) => {
 		killTrackerRemovePlayer(event.player);
 		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(event.player, room.dimensionId);
+		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
 	});
 	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {

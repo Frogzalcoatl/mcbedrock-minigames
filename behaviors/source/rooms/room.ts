@@ -3,6 +3,7 @@ import {
 	type DimensionLocation,
 	type DimensionRegistry,
 	type Player,
+	type PlayerDimensionChangeAfterEvent,
 	system,
 	type Vector3,
 	world,
@@ -10,11 +11,29 @@ import {
 import { killTrackerHasDimension } from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
 import { projectileTrackerHasDimension } from "../entities/projectileTracker";
+import { type TeleportLocation, teleportLocationToString } from "../entities/teleportLocation";
 import { EventSignal, type PlayerEvent } from "../events";
-import { portalSoundRunInterval } from "../player/portalSound";
 import { loadStructure } from "../structures/load";
 import { RoomHub } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
+
+const dynamicPropertyDimTransfer: string = "transferring_dimension_on_join";
+
+// Both setRotation and facing parameter of teleport are ignored during dimension transfer
+// Wait until the player has finished transferring then teleport them again,
+// only if they transferred due to a room join.
+// (Don't teleport players who are simply using a nether portal or smth)
+world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
+	if (event.player.getDynamicProperty(dynamicPropertyDimTransfer) === undefined) {
+		return;
+	}
+	event.player.setDynamicProperty(dynamicPropertyDimTransfer);
+	const room: Room | null = getPlayerRoom(event.player);
+	if (room !== null) {
+		const spawn: TeleportLocation = room.hub !== null ? room.hub.spawn : room.spawn;
+		event.player.teleport(spawn.pos, { facingLocation: spawn.facing });
+	}
+});
 
 export interface RoomStructure {
 	id: string;
@@ -28,7 +47,7 @@ export interface RoomConfig {
 	includeHub: boolean;
 	roomIndex: number;
 	roomTypeIndex: number;
-	spawn: Vector3;
+	spawn: TeleportLocation;
 	structures?: RoomStructure[];
 }
 
@@ -40,9 +59,10 @@ export class Room {
 	public icon: string;
 	public readonly structures: RoomStructure[];
 	public onJoin: EventSignal<PlayerEvent>;
+	// Leave events still triggered when player.isValid is false
 	public onLeave: EventSignal<PlayerEvent>;
 	public hub: RoomHub | null;
-	private _spawn: Vector3;
+	private _spawn: TeleportLocation;
 	private _dimension: Dimension | undefined;
 
 	public constructor(config: RoomConfig) {
@@ -70,20 +90,20 @@ export class Room {
 		return this._dimension?.getPlayers().length ?? null;
 	}
 
-	public get spawn(): Vector3 {
+	public get spawn(): TeleportLocation {
 		return this._spawn;
 	}
 
-	public set spawn(val: Vector3) {
+	public set spawn(val: TeleportLocation) {
 		this._spawn = val;
 		if (this._dimension === undefined) {
 			return;
 		}
 		const location: DimensionLocation = {
 			dimension: this._dimension,
-			x: val.x,
-			y: val.y,
-			z: val.z,
+			x: val.pos.x,
+			y: val.pos.y,
+			z: val.pos.z,
 		};
 		for (const player of this._dimension.getPlayers()) {
 			if (this.hub?.has(player)) {
@@ -102,24 +122,29 @@ export class Room {
 		});
 	}
 
-	public async join(player: Player): Promise<void> {
+	public join(player: Player): void {
 		if (this._dimension === undefined) {
 			return;
 		}
 		const previousRoom: Room | null = getPlayerRoom(player);
 		if (previousRoom !== null) {
-			await previousRoom.leave(player);
+			previousRoom.leave(player);
+			if (previousRoom.dimensionId !== this.dimensionId) {
+				player.setDynamicProperty(dynamicPropertyDimTransfer, true);
+			}
 		}
 		if (this.hub?.isActive) {
 			this.hub.join(player);
 		} else {
-			player.teleport(this._spawn, { dimension: this._dimension });
-			portalSoundRunInterval(player);
+			player.teleport(this._spawn.pos, {
+				dimension: this._dimension,
+				facingLocation: this._spawn.facing,
+			});
 			player.setSpawnPoint({
 				dimension: this._dimension,
-				x: this._spawn.x,
-				y: this._spawn.y,
-				z: this._spawn.z,
+				x: this._spawn.pos.x,
+				y: this._spawn.pos.y,
+				z: this._spawn.pos.z,
 			});
 		}
 		if (previousRoom === null || previousRoom.dimensionId !== this.dimensionId) {
@@ -131,7 +156,7 @@ export class Room {
 		this.onJoin.triggerEvent(event);
 	}
 
-	public async leave(player: Player): Promise<void> {
+	public leave(player: Player): void {
 		const event: PlayerEvent = {
 			player: player,
 		};
@@ -139,7 +164,9 @@ export class Room {
 		if (this.hub?.isActive) {
 			this.hub.leave(player);
 		}
-		ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
+		if (player.isValid) {
+			ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
+		}
 		if (this.hub !== null) {
 			this.hub.leave(player);
 		}
@@ -176,7 +203,7 @@ Room Index: §e${this.roomIndex}§r
 Display Name: §e${this.displayName}§r
 Icon: §e${this.icon}§r
 Player Count: §e${this.playerCount}§r
-Spawn: §e${this._spawn.x} ${this._spawn.y} ${this._spawn.z}§r
+Spawn: §e${teleportLocationToString(this._spawn)}§r
 Saved Structures: §e${this.structures.length}§r
 Includes Hub: §e${this.hub !== null}§r
 Projectile Tracker: §e${projectileTrackerHasDimension(this.dimensionId)}§r

@@ -1,0 +1,25 @@
+import {
+	type Dimension,
+	type PlayerDimensionChangeAfterEvent,
+	type PlayerLeaveAfterEvent,
+	system,
+	world,
+} from "@minecraft/server";
+
+// Since player.dimension is not accessible during PlayerLeaveBeforeEvent
+
+const dimensions = new Map<string, Dimension>();
+
+world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
+	dimensions.set(event.player.id, event.player.dimension);
+});
+
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent) => {
+	system.runTimeout(() => {
+		dimensions.delete(event.playerId);
+	}, 3);
+});
+
+export function dimensionTracker(playerId: string): Dimension | null {
+	return dimensions.get(playerId) ?? null;
+}

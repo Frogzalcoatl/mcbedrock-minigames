@@ -27,8 +27,8 @@ function sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: nu
 	}, delayTicks);
 }
 
-world.beforeEvents.playerLeave.subscribe((event) => {
-	playerCooldownData.delete(event.player.id);
+world.afterEvents.playerLeave.subscribe((event) => {
+	playerCooldownData.delete(event.playerId);
 });
 
 // Item must have a nametag

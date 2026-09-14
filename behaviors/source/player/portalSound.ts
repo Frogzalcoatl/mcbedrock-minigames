@@ -1,29 +1,5 @@
-import { type Player, system, world } from "@minecraft/server";
+import { type PlayerDimensionChangeAfterEvent, world } from "@minecraft/server";
 
-const portalSoundMap = new Map<string, number>(); // [playerId, runIntervalId]
-
-function portalSoundRunIntervalClear(player: Player): void {
-	const oldIntervalId: number | undefined = portalSoundMap.get(player.id);
-	if (oldIntervalId !== undefined) {
-		system.clearRun(oldIntervalId);
-		portalSoundMap.delete(player.id);
-	}
-}
-
-world.beforeEvents.playerLeave.subscribe((event) => {
-	portalSoundRunIntervalClear(event.player);
+world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
+	event.player.stopSound("portal.travel");
 });
-
-export function portalSoundRunInterval(player: Player): void {
-	portalSoundRunIntervalClear(player);
-	player.clearVelocity();
-	const intervalId: number = system.runInterval(() => {
-		// player.stopSound("portal.travel"); Mojang removed stopSound for some reason?
-		player.runCommand("stopsound @s portal.travel");
-		if (Math.abs(player.getVelocity().x) >= 0.2 || Math.abs(player.getVelocity().z) >= 0.2) {
-			system.clearRun(intervalId);
-			portalSoundMap.delete(player.id);
-		}
-	});
-	portalSoundMap.set(player.id, intervalId);
-}

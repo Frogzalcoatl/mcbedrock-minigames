@@ -1,4 +1,5 @@
 import {
+	type Dimension,
 	type Entity,
 	EntityComponentTypes,
 	type EntityLoadAfterEvent,
@@ -6,10 +7,10 @@ import {
 	type EntityRemoveBeforeEvent,
 	type EntitySpawnAfterEvent,
 	Player,
-	type PlayerLeaveBeforeEvent,
-	system,
+	type PlayerLeaveAfterEvent,
 	world,
 } from "@minecraft/server";
+import { dimensionTracker } from "../player/dimensionTracker";
 
 interface ProjectileTracker {
 	map: Map<string, string>; // [projectileId, playerId]
@@ -54,8 +55,11 @@ world.afterEvents.entityLoad.subscribe((event: EntityLoadAfterEvent) => {
 	}
 });
 
-world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
-	system.run(() => projectileTrackerRemovePlayer(event.player, event.player.dimension.id));
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent) => {
+	const dimension: Dimension | null = dimensionTracker(event.playerId);
+	if (dimension !== null) {
+		projectileTrackerRemovePlayer(event.playerId, dimension.id);
+	}
 });
 
 export function projectileTrackerAddDimension(
@@ -80,13 +84,13 @@ export function projectileTrackerClearDimensions(): void {
 	trackers.clear();
 }
 
-export function projectileTrackerRemovePlayer(player: Player, dimensionId: string): void {
+export function projectileTrackerRemovePlayer(playerId: string, dimensionId: string): void {
 	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
 	if (tracker === undefined) {
 		return;
 	}
 	for (const [projectileId, currentPlayerId] of tracker.map) {
-		if (player.id === currentPlayerId) {
+		if (playerId === currentPlayerId) {
 			const projectileEntity: Entity | undefined = world.getEntity(projectileId);
 			if (projectileEntity?.isValid) {
 				projectileEntity.remove();

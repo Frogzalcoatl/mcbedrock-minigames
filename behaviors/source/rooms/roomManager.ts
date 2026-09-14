@@ -1,8 +1,16 @@
-import { GameMode, type Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
+import {
+	type Dimension,
+	GameMode,
+	type Player,
+	PlayerPermissionLevel,
+	system,
+	world,
+} from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "../constants";
 import { getRoomKitPvp } from "../games/kitPvp";
 import { getRoomHub } from "../games/mainHub";
+import { dimensionTracker } from "../player/dimensionTracker";
 import roomTypeIds from "../roomTypeIds";
 import type { Room } from "./room";
 import { initRoomType, type RoomType } from "./roomType";
@@ -59,10 +67,22 @@ world.afterEvents.worldLoad.subscribe(() => {
 	}
 });
 
+world.afterEvents.playerSpawn.subscribe((event) => {
+	if (event.initialSpawn) {
+		joinRoomType(event.player, roomTypeIds.hub);
+	}
+});
+
 world.beforeEvents.playerLeave.subscribe((event) => {
-	const room: Room | null = getPlayerRoom(event.player);
-	if (room !== null) {
-		room.leave(event.player);
+	const playerDimension: Dimension | null = dimensionTracker(event.player.id);
+	if (playerDimension === null) {
+		return;
+	}
+	const room: Room | undefined = rooms.get(playerDimension.id);
+	if (room !== undefined) {
+		system.run(() => {
+			room.leave(event.player);
+		});
 	}
 });
 

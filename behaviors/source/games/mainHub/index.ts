@@ -28,7 +28,10 @@ export const getRoomHub: RoomCreationFunc = (
 		includeHub: false,
 		roomIndex: roomIndex,
 		roomTypeIndex: roomTypeIndex,
-		spawn: { x: 0.5, y: 0, z: 0.5 },
+		spawn: {
+			facing: { x: 0.5, y: 0, z: -1 },
+			pos: { x: 0.5, y: 0, z: 0.5 },
+		},
 		structures: [{ id: "ghostly/spawn", pos: { x: -55, y: -11, z: -59 } }],
 	});
 	room.onJoin.subscribe((event: PlayerEvent): void => {
