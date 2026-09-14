@@ -74,11 +74,19 @@ const structureSchemas = new Map<string, unknown>([
 
 Use the **/load** command. Example:
 ```
-/load "frogzalcoatl/lobby/minersRealm"
+/load "username/myStructure"
 ```
-Loads structure with id "frogzalcoatl/lobby/minersRealm" at the user's current position.
+Loads structure with id "username/myStructure" at the user's current position.
 
 ## Custom Commands
+**All Players:**
+
+`/hub` - Transfer to hub.
+
+`/profile` - View a player profile.
+
+`/q` - Join a game queue.
+
 **Operators Only:**
 
 `/load` - Load structure from behavior pack.
@@ -92,14 +100,6 @@ Loads structure with id "frogzalcoatl/lobby/minersRealm" at the user's current p
 `/sim` - Spawn simulated players.
 
 `/clearsim` - Clear simulated players.
-
-**All Players:**
-
-`/hub` - Transfer to hub.
-
-`/profile` - View a player profile.
-
-`/q` - Join a game queue.
 
 ## Rooms
 Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
