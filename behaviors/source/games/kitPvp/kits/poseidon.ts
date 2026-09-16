@@ -9,16 +9,14 @@ import {
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemLightning } from "../../../items/games/kitPvp/lightning";
 import { itemPoseidonBuff } from "../../../items/games/kitPvp/poseidonBuff";
-import { setDurability } from "../../../items/utils/durability";
-import { applyEnchant } from "../../../items/utils/enchant";
-import { giveItem } from "../../../items/utils/give";
-import type { Kit } from "../../../kits/kitManager";
+import { applyEnchant, giveItem, setDurability } from "../../../tools/componentHelpers";
 import {
+	type Kit,
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../kits/utils";
+} from "../../../tools/kits";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(

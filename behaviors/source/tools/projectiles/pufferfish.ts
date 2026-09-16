@@ -7,8 +7,8 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../../particles/spread";
-import { killTrackerSetCombat } from "../killTracker";
+import { spreadParticles } from "../../tools/particles/spread";
+import { killTrackerSetCombat } from "../../tools/trackers/killTracker";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);
@@ -33,6 +33,7 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 	}
 }
 
+// Despawn pufferfish after this duration of time
 const maxTicks: number = 20 * 10;
 const pufferfishProjectilePropertyId: string = "pufferfish_projectile";
 

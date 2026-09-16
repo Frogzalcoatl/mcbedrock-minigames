@@ -10,7 +10,7 @@ import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import { getRoomKitPvp } from "../games/kitPvp";
 import { getRoomHub } from "../games/mainHub";
-import { dimensionTracker } from "../player/dimensionTracker";
+import { dimensionTracker } from "../tools/trackers/dimensionTracker";
 import type { Room } from "./room";
 import { initRoomType, type RoomType } from "./roomType";
 

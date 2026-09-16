@@ -8,10 +8,10 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { killTrackerHasDimension } from "../entities/killTracker";
-import { ejectFromMount } from "../entities/mount";
-import { projectileTrackerHasDimension } from "../entities/projectiles/projectileTracker";
 import { loadStructure } from "../structures/load";
+import { ejectFromMount } from "../tools/mount";
+import { killTrackerHasDimension } from "../tools/trackers/killTracker";
+import { projectileTrackerHasDimension } from "../tools/trackers/projectileTracker";
 import {
 	EventSignal,
 	type PlayerEvent,

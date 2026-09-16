@@ -10,12 +10,11 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { killTrackerSetCombat } from "../../../entities/killTracker";
-import { beamFrom } from "../../../entities/projectiles/beam";
-import { beamParticles } from "../../../particles/beam";
-import { itemUseMap } from "../../events/itemUse";
-import { defaultItemStackFunc } from "../../utils/default";
-import { decrementMainhandItem } from "../../utils/remove";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { beamParticles } from "../../../tools/particles/beam";
+import { beamFrom } from "../../../tools/projectiles/beam";
+import { killTrackerSetCombat } from "../../../tools/trackers/killTracker";
+import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.EndRod;
 const nameTag: string = "§r§bLightning§7 (Use)";

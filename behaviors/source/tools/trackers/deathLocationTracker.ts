@@ -6,6 +6,8 @@ import {
 	world,
 } from "@minecraft/server";
 
+// Tool used to teleport players to death location on respawn
+
 const locations = new Map<string, Vector3>();
 
 world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {

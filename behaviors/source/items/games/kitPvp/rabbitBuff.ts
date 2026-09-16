@@ -1,8 +1,7 @@
 import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemUseMap } from "../../events/itemUse";
-import { defaultItemStackFunc } from "../../utils/default";
-import { decrementMainhandItem } from "../../utils/remove";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.GoldenCarrot;
 const nameTag: string = "§r§eGolden Carrot §7(Use)";

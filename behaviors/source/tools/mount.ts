@@ -11,7 +11,7 @@ import {
 	world,
 } from "@minecraft/server";
 import type { MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../particles/spread";
+import { spreadParticles } from "../tools/particles/spread";
 
 const temporaryMountPropertyId: string = "is_temporary_mount";
 

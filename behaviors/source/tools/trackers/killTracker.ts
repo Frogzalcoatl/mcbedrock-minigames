@@ -8,8 +8,8 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { kitsEntityDieHandler } from "../kits/entityDie";
-import { EventSignal, type PlayerEvent } from "../types";
+import { EventSignal, type PlayerEvent } from "../../types";
+import { kitsEntityDieHandler } from "../kits";
 
 const hitCooldownTicks: number = 20 * 7;
 

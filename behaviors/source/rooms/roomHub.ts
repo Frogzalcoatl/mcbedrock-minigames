@@ -5,7 +5,7 @@ import {
 	Player,
 	world,
 } from "@minecraft/server";
-import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
+import { itemCooldownRemovePlayer } from "../items/cooldowns";
 import { EventSignal, type PlayerEvent, type TeleportLocation } from "../types";
 
 export class RoomHub {

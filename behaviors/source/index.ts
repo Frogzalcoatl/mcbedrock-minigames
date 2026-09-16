@@ -1,5 +1,4 @@
 import "./commands/index";
 import "./items/index";
 import "./games/index";
-import "./player/index";
-import "./entities/index";
+import "./tools/index";

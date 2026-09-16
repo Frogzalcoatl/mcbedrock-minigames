@@ -1,8 +1,7 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemUseMap } from "../../events/itemUse";
-import { defaultItemStackFunc } from "../../utils/default";
-import { decrementMainhandItem } from "../../utils/remove";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.HeartOfTheSea;
 const nameTag: string = "§r§bPoseidon Buff §7(Use)";

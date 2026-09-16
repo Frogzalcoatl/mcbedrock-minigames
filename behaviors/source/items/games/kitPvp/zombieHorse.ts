@@ -7,10 +7,10 @@ import {
 	system,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { spawnTemporaryMount } from "../../../entities/mount";
-import { itemUseMap } from "../../events/itemUse";
-import { itemCooldownCheck, itemCooldownSet } from "../../utils/cooldown";
-import { defaultItemStackFunc } from "../../utils/default";
+import { defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { spawnTemporaryMount } from "../../../tools/mount";
+import { itemCooldownCheck, itemCooldownSet } from "../../cooldowns";
+import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.ZombieHorseSpawnEgg;
 const nameTag: string = "§r§dZombie Horse §7(Use)";

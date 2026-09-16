@@ -1,7 +1,7 @@
 import type { Entity, ItemStack } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemEntityHitMap } from "../../events/entityHitEntity";
-import { defaultItemStackFunc } from "../../utils/default";
+import { defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { itemEntityHitMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;
 const nameTag: string = "§r§eFire Stick";

@@ -10,27 +10,27 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
+import { itemCooldownRemovePlayer } from "../../items/cooldowns";
+import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
+import { itemTeleporter } from "../../items/games/mainHub/teleporter";
+import { Room } from "../../rooms/room";
+import type { RoomCreationFunc } from "../../rooms/roomType";
 import {
 	changeEntityHealth,
 	clearEntityEffects,
 	clearEntityInventory,
-} from "../../entities/componentUtils";
-import { deathMessageFromEvent } from "../../entities/deathMessages";
+} from "../../tools/componentHelpers";
+import { deathMessageFromEvent } from "../../tools/deathMessages";
+import { kits } from "../../tools/kits";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
 	killTrackerRemovePlayer,
-} from "../../entities/killTracker";
+} from "../../tools/trackers/killTracker";
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemovePlayer,
-} from "../../entities/projectiles/projectileTracker";
-import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
-import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { itemCooldownRemovePlayer } from "../../items/utils/cooldown";
-import { kits } from "../../kits/kitManager";
-import { Room } from "../../rooms/room";
-import type { RoomCreationFunc } from "../../rooms/roomType";
+} from "../../tools/trackers/projectileTracker";
 import type { PlayerEvent } from "../../types";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";

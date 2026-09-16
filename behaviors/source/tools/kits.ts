@@ -2,12 +2,14 @@ import {
 	type Container,
 	type Entity,
 	EntityComponentTypes,
+	type EntityDieAfterEvent,
 	type EntityEquippableComponent,
 	type EntityInventoryComponent,
 	EquipmentSlot,
+	type ItemLockMode,
 	type ItemStack,
 } from "@minecraft/server";
-import "./entityDie";
+import { applyEnchant, setDurability } from "./componentHelpers";
 
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
 	for (const entry of kitInventory) {
@@ -33,6 +35,34 @@ interface EntityKitsMapValue {
 }
 
 const entityKits = new Map<string, EntityKitsMapValue>(); // key is entityId
+
+function handleDeath(event: EntityDieAfterEvent): void {
+	if (!event.deadEntity.isValid) {
+		return;
+	}
+	const kit: Kit | null = getEntityKit(event.deadEntity);
+	if (kit?.onDeath) {
+		kit.onDeath(event.deadEntity, event.damageSource.damagingEntity);
+	}
+}
+
+function handleKill(event: EntityDieAfterEvent): void {
+	if (
+		event.damageSource.damagingEntity === undefined ||
+		!event.damageSource.damagingEntity.isValid
+	) {
+		return;
+	}
+	const kit: Kit | null = getEntityKit(event.damageSource.damagingEntity);
+	if (kit?.onKill) {
+		kit.onKill(event.damageSource.damagingEntity, event.deadEntity);
+	}
+}
+
+export function kitsEntityDieHandler(event: EntityDieAfterEvent): void {
+	handleDeath(event);
+	handleKill(event);
+}
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -89,4 +119,55 @@ export function getEntityKit(entity: Entity): Kit | null {
 		return null;
 	}
 	return roomTypeKits[value.kitIndex] ?? null;
+}
+
+export function kitArmorEnchant(kit: Kit, id: string, level = 1): void {
+	if (kit.helmet) {
+		applyEnchant(kit.helmet, id, level);
+	}
+	if (kit.chestplate) {
+		applyEnchant(kit.chestplate, id, level);
+	}
+	if (kit.leggings) {
+		applyEnchant(kit.leggings, id, level);
+	}
+	if (kit.boots) {
+		applyEnchant(kit.boots, id, level);
+	}
+}
+
+export function kitArmorDurability(kit: Kit, value: number | "unbreakable"): void {
+	if (kit.helmet) {
+		setDurability(kit.helmet, value);
+	}
+	if (kit.chestplate) {
+		setDurability(kit.chestplate, value);
+	}
+	if (kit.leggings) {
+		setDurability(kit.leggings, value);
+	}
+	if (kit.boots) {
+		setDurability(kit.boots, value);
+	}
+}
+
+export function kitArmorLockMode(kit: Kit, mode: ItemLockMode): void {
+	if (kit.helmet) {
+		kit.helmet.lockMode = mode;
+	}
+	if (kit.chestplate) {
+		kit.chestplate.lockMode = mode;
+	}
+	if (kit.leggings) {
+		kit.leggings.lockMode = mode;
+	}
+	if (kit.boots) {
+		kit.boots.lockMode = mode;
+	}
+}
+
+export function kitInventoryLockMode(kit: Kit, mode: ItemLockMode): void {
+	for (const entry of kit.inventory) {
+		entry.item.lockMode = mode;
+	}
 }

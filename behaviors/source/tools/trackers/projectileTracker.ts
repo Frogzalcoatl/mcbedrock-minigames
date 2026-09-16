@@ -10,7 +10,7 @@ import {
 	type PlayerLeaveAfterEvent,
 	world,
 } from "@minecraft/server";
-import { dimensionTracker } from "../../player/dimensionTracker";
+import { dimensionTracker } from "./dimensionTracker";
 
 interface ProjectileTracker {
 	map: Map<string, string>; // [projectileId, playerId]
