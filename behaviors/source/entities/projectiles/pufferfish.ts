@@ -7,8 +7,8 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../particles/spread";
-import { killTrackerSetCombat } from "./killTracker";
+import { spreadParticles } from "../../particles/spread";
+import { killTrackerSetCombat } from "../killTracker";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);

@@ -10,7 +10,9 @@ import {
 	type ModalFormResponse,
 } from "@minecraft/server-ui";
 
-// When a user closes Minecraft without closing the form, FormRejectError is thrown for some reason
+// Minecraft throws FromRejectError when a player leaves while in a form
+// These functions catch that error and return a canceled response object
+// (as mojang should be doing imo)
 
 export async function safeActionFormShow(
 	form: ActionFormData,

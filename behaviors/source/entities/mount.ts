@@ -15,11 +15,6 @@ import { spreadParticles } from "../particles/spread";
 
 const temporaryMountPropertyId: string = "is_temporary_mount";
 
-function despawnEffects(pos: Vector3, dimension: Dimension): void {
-	dimension.playSound("random.fizz", pos);
-	spreadParticles("minecraft:dust_plume", dimension, pos, 1, 1, 20);
-}
-
 world.afterEvents.entityLoad.subscribe((event) => {
 	if (
 		event.entity.isValid &&
@@ -28,6 +23,11 @@ world.afterEvents.entityLoad.subscribe((event) => {
 		event.entity.remove();
 	}
 });
+
+function despawnEffects(pos: Vector3, dimension: Dimension): void {
+	dimension.playSound("random.fizz", pos);
+	spreadParticles("minecraft:dust_plume", dimension, pos, 1, 1, 20);
+}
 
 // Returns mount entity
 export function spawnTemporaryMount(

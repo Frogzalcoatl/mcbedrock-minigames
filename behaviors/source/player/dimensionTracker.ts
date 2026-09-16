@@ -6,7 +6,8 @@ import {
 	world,
 } from "@minecraft/server";
 
-// Since player.dimension is not accessible during PlayerLeaveBeforeEvent
+// Since player.dimension is no longer accessible during PlayerLeaveBeforeEvent
+// Use this to get player's dimension on leave and run onLeave callbacks
 
 const dimensions = new Map<string, Dimension>();
 

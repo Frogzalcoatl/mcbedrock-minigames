@@ -10,8 +10,8 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { beamFrom } from "../../../entities/beam";
 import { killTrackerSetCombat } from "../../../entities/killTracker";
+import { beamFrom } from "../../../entities/projectiles/beam";
 import { beamParticles } from "../../../particles/beam";
 import { itemUseMap } from "../../events/itemUse";
 import { defaultItemStackFunc } from "../../utils/default";

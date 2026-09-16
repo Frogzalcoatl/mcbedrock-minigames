@@ -9,7 +9,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../../constants";
+import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import {
 	changeEntityHealth,
 	clearEntityEffects,
@@ -24,15 +24,14 @@ import {
 import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemovePlayer,
-} from "../../entities/projectileTracker";
-import type { PlayerEvent } from "../../events";
+} from "../../entities/projectiles/projectileTracker";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { itemCooldownRemovePlayer } from "../../items/utils/cooldown";
 import { kits } from "../../kits/kitManager";
 import { Room } from "../../rooms/room";
 import type { RoomCreationFunc } from "../../rooms/roomType";
-import roomTypeIds from "../../roomTypeIds";
+import type { PlayerEvent } from "../../types";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
@@ -84,6 +83,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 		room.hub.onJoin.subscribe((event: PlayerEvent): void => {
 			const player: Player = event.player;
 			killTrackerRemovePlayer(player);
+			itemCooldownRemovePlayer(event.player);
 			projectileTrackerRemovePlayer(player.id, room.dimensionId);
 			player.setGameMode(GameMode.Adventure);
 			const health: EntityHealthComponent | undefined = player.getComponent(

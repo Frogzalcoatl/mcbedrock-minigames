@@ -10,7 +10,6 @@ import { roomTypes } from "../rooms/roomManager";
 import type { RoomType } from "../rooms/roomType";
 import { safeActionFormShow, safeMessageFormShow } from "./safeShow";
 
-// if structureId undefined, assumes
 async function showLoadConfirmation(
 	player: Player,
 	room: Room,

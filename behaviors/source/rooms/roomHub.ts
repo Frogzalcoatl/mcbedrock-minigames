@@ -5,9 +5,8 @@ import {
 	Player,
 	world,
 } from "@minecraft/server";
-import type { TeleportLocation } from "../entities/teleportLocation";
-import { EventSignal, type PlayerEvent } from "../events";
 import { itemCooldownRemovePlayer } from "../items/utils/cooldown";
+import { EventSignal, type PlayerEvent, type TeleportLocation } from "../types";
 
 export class RoomHub {
 	public readonly dimensionId: string;

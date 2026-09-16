@@ -10,10 +10,14 @@ import {
 } from "@minecraft/server";
 import { killTrackerHasDimension } from "../entities/killTracker";
 import { ejectFromMount } from "../entities/mount";
-import { projectileTrackerHasDimension } from "../entities/projectileTracker";
-import { type TeleportLocation, teleportLocationToString } from "../entities/teleportLocation";
-import { EventSignal, type PlayerEvent } from "../events";
+import { projectileTrackerHasDimension } from "../entities/projectiles/projectileTracker";
 import { loadStructure } from "../structures/load";
+import {
+	EventSignal,
+	type PlayerEvent,
+	type TeleportLocation,
+	teleportLocationToString,
+} from "../types";
 import { RoomHub } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
 
@@ -24,6 +28,7 @@ const dynamicPropertyDimTransfer: string = "transferring_dimension_on_join";
 // only if they transferred due to a room join.
 // (Don't teleport players who are simply using a nether portal or smth)
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
+	event.player.stopSound("portal.travel");
 	if (event.player.getDynamicProperty(dynamicPropertyDimTransfer) === undefined) {
 		return;
 	}

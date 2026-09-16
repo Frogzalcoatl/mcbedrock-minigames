@@ -8,10 +8,10 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { clearEntityEffects, clearEntityInventory } from "../../entities/componentUtils";
-import type { PlayerEvent } from "../../events";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { Room } from "../../rooms/room";
 import type { RoomCreationFunc } from "../../rooms/roomType";
+import type { PlayerEvent } from "../../types";
 
 export const getRoomHub: RoomCreationFunc = (
 	roomTypeIndex: number,

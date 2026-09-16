@@ -6,7 +6,11 @@ import {
 } from "@minecraft/server";
 
 export function getEntityName(entity: Entity): string {
-	return entity.nameTag ? entity.nameTag : entity instanceof Player ? entity.name : entity.typeId;
+	if (entity instanceof Player) {
+		return `${entity.chatNamePrefix ?? ""}${entity.name}${entity.chatNameSuffix ?? ""}`;
+	} else {
+		return entity.nameTag ? entity.nameTag : entity.typeId;
+	}
 }
 
 export function deathMessageFormat(

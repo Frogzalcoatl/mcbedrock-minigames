@@ -7,7 +7,7 @@ import { safeActionFormShow } from "./safeShow";
 export async function showFormPlayerProfile(
 	viewer: Player,
 	playerToView: Player,
-	showPlayersFormOnCancel: boolean,
+	allProfilesOnCancel: boolean,
 ): Promise<void> {
 	const form = new ActionFormData();
 	form.title(`§0${playerToView.name}`);
@@ -24,7 +24,7 @@ export async function showFormPlayerProfile(
 		return;
 	}
 	if (resp.selection === undefined) {
-		if (showPlayersFormOnCancel) {
+		if (allProfilesOnCancel) {
 			system.run(() => {
 				showFormAllProfiles(viewer);
 			});

@@ -7,9 +7,8 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import type { TeleportLocation } from "../../entities/teleportLocation";
-import { EventSignal, type PlayerEvent } from "../../events";
 import { deathLocationTracker } from "../../player/deathLocationTracker";
+import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../types";
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
 	const team: Team | null = Team.find(event.player);

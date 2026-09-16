@@ -9,7 +9,7 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { showFormTeleporter, showRoomTypesRoomSelect } from "../forms/teleporter";
+import { showFormTeleporter, showRoomsOfType } from "../forms/teleporter";
 import { roomTypes } from "../rooms/roomManager";
 import type { RoomType } from "../rooms/roomType";
 import { commandEnums } from "./utils/enums";
@@ -38,7 +38,7 @@ export function registerCommandQ(registry: CustomCommandRegistry): void {
 				}
 				const roomType: RoomType | undefined = roomTypes.find((t) => t.typeId === roomTypeId);
 				if (roomType !== undefined) {
-					showRoomTypesRoomSelect(player, roomType, false);
+					showRoomsOfType(player, roomType, false);
 				}
 			});
 			return {

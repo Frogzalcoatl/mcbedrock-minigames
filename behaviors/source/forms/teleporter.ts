@@ -5,7 +5,7 @@ import { roomTypes } from "../rooms/roomManager";
 import type { RoomType } from "../rooms/roomType";
 import { safeActionFormShow } from "./safeShow";
 
-export async function showRoomTypesRoomSelect(
+export async function showRoomsOfType(
 	player: Player,
 	selectedType: RoomType,
 	teleporterOnClose: boolean,
@@ -62,5 +62,5 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 		player.sendMessage(`Unable to fetch selected room type at index ${resp.selection}`);
 		return;
 	}
-	showRoomTypesRoomSelect(player, selectedType, true);
+	showRoomsOfType(player, selectedType, true);
 }
