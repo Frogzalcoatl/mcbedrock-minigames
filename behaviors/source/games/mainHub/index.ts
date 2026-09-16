@@ -8,9 +8,9 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { Room } from "../../rooms/room";
-import type { RoomCreationFunc } from "../../rooms/roomType";
 import { clearEntityEffects, clearEntityInventory } from "../../tools/componentHelpers";
+import { Room } from "../../tools/rooms/room";
+import type { RoomCreationFunc } from "../../tools/rooms/roomType";
 import type { PlayerEvent } from "../../types";
 
 export const getRoomHub: RoomCreationFunc = (

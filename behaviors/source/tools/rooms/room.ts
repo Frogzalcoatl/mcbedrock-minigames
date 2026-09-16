@@ -8,16 +8,16 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { loadStructure } from "../structures/load";
-import { ejectFromMount } from "../tools/mount";
-import { killTrackerHasDimension } from "../tools/trackers/killTracker";
-import { projectileTrackerHasDimension } from "../tools/trackers/projectileTracker";
+import { loadStructure } from "../../structures/load";
 import {
 	EventSignal,
 	type PlayerEvent,
 	type TeleportLocation,
 	teleportLocationToString,
-} from "../types";
+} from "../../types";
+import { ejectFromMount } from "../mount";
+import { killTrackerHasDimension } from "../trackers/killTracker";
+import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
 import { RoomHub } from "./roomHub";
 import { getPlayerRoom } from "./roomManager";
 
@@ -63,6 +63,8 @@ export class Room {
 	public displayName: string;
 	public icon: string;
 	public readonly structures: RoomStructure[];
+	// Return true if join attempt should be ignored
+	public beforeJoin: ((player: Player) => boolean) | null;
 	public onJoin: EventSignal<PlayerEvent>;
 	// Leave events still triggered when player.isValid is false
 	public onLeave: EventSignal<PlayerEvent>;
@@ -83,6 +85,7 @@ export class Room {
 			this.hub = null;
 		}
 		this._spawn = config.spawn;
+		this.beforeJoin = null;
 		this.onJoin = new EventSignal<PlayerEvent>();
 		this.onLeave = new EventSignal<PlayerEvent>();
 	}
@@ -128,7 +131,7 @@ export class Room {
 	}
 
 	public join(player: Player): void {
-		if (this._dimension === undefined) {
+		if (this._dimension === undefined || (this.beforeJoin !== null && !this.beforeJoin(player))) {
 			return;
 		}
 		const previousRoom: Room | null = getPlayerRoom(player);

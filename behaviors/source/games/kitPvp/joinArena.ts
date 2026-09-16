@@ -6,10 +6,10 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
-import type { Room } from "../../rooms/room";
-import { getPlayerRoom } from "../../rooms/roomManager";
 import { clearEntityEffects, clearEntityInventory } from "../../tools/componentHelpers";
 import { giveKit, type Kit } from "../../tools/kits";
+import type { Room } from "../../tools/rooms/room";
+import { getPlayerRoom } from "../../tools/rooms/roomManager";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
 	player.setGameMode(GameMode.Adventure);

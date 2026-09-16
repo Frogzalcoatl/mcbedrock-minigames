@@ -1,8 +1,8 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { Room } from "../rooms/room";
-import { roomTypes } from "../rooms/roomManager";
-import type { RoomType } from "../rooms/roomType";
+import type { Room } from "../tools/rooms/room";
+import { roomTypes } from "../tools/rooms/roomManager";
+import type { RoomType } from "../tools/rooms/roomType";
 import { safeActionFormShow } from "./safeShow";
 
 export async function showRoomsOfType(

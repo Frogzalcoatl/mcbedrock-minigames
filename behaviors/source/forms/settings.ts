@@ -5,9 +5,9 @@ import {
 	MessageFormData,
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
-import type { Room, RoomStructure } from "../rooms/room";
-import { roomTypes } from "../rooms/roomManager";
-import type { RoomType } from "../rooms/roomType";
+import type { Room, RoomStructure } from "../tools/rooms/room";
+import { roomTypes } from "../tools/rooms/roomManager";
+import type { RoomType } from "../tools/rooms/roomType";
 import { safeActionFormShow, safeMessageFormShow } from "./safeShow";
 
 async function showLoadConfirmation(

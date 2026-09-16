@@ -10,8 +10,8 @@ import {
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
 import { showFormTeleporter, showRoomsOfType } from "../forms/teleporter";
-import { roomTypes } from "../rooms/roomManager";
-import type { RoomType } from "../rooms/roomType";
+import { roomTypes } from "../tools/rooms/roomManager";
+import type { RoomType } from "../tools/rooms/roomType";
 import { commandEnums } from "./utils/enums";
 import { getPlayerFromOrigin } from "./utils/origin";
 

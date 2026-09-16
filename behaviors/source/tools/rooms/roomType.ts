@@ -1,4 +1,4 @@
-import { PACK_NAMESPACE } from "../constants";
+import { PACK_NAMESPACE } from "../../constants";
 import type { Room } from "./room";
 
 export interface RoomType {

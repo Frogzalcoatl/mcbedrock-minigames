@@ -13,8 +13,6 @@ import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { Room } from "../../rooms/room";
-import type { RoomCreationFunc } from "../../rooms/roomType";
 import {
 	changeEntityHealth,
 	clearEntityEffects,
@@ -22,6 +20,8 @@ import {
 } from "../../tools/componentHelpers";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { kits } from "../../tools/kits";
+import { Room } from "../../tools/rooms/room";
+import type { RoomCreationFunc } from "../../tools/rooms/roomType";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
