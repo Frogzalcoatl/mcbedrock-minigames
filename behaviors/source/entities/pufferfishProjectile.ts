@@ -37,7 +37,10 @@ const maxTicks: number = 20 * 10;
 const pufferfishProjectilePropertyId: string = "pufferfish_projectile";
 
 world.afterEvents.entityLoad.subscribe((event) => {
-	if (event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined) {
+	if (
+		event.entity.isValid &&
+		event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined
+	) {
 		event.entity.remove();
 	}
 });

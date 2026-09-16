@@ -50,7 +50,10 @@ world.afterEvents.entitySpawn.subscribe((event: EntitySpawnAfterEvent) => {
 	}
 });
 world.afterEvents.entityLoad.subscribe((event: EntityLoadAfterEvent) => {
-	if (event.entity.getDynamicProperty(trackedPojectilePropertyId) !== undefined) {
+	if (
+		event.entity.isValid &&
+		event.entity.getDynamicProperty(trackedPojectilePropertyId) !== undefined
+	) {
 		event.entity.remove();
 	}
 });

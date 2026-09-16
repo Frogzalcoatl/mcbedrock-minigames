@@ -2,17 +2,15 @@ import {
 	type Dimension,
 	type Entity,
 	EntityComponentTypes,
-	type EntityInventoryComponent,
 	type EntityRideableComponent,
 	type EntityRidingComponent,
 	type EntityTameMountComponent,
-	ItemStack,
 	type Player,
 	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import type { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { spreadParticles } from "../particles/spread";
 
 const temporaryMountPropertyId: string = "is_temporary_mount";
@@ -28,12 +26,11 @@ world.afterEvents.entityLoad.subscribe((event) => {
 	}
 });
 
-// Returns horse entity
+// Returns mount entity
 export function spawnTemporaryMount(
 	mountType: MinecraftEntityTypes,
 	player: Player,
 	durationTicks: number,
-	armorTypeId?: string,
 ): Entity | null {
 	const mountEntity: Entity = player.dimension.spawnEntity(mountType, player.location, {
 		spawnEvent: "minecraft:spawn_adult",
@@ -55,25 +52,6 @@ export function spawnTemporaryMount(
 		return null;
 	}
 	rideable.addRider(player);
-	system.runTimeout(() => {
-		// Must wait one tick after being tamed for inventory to exist
-		if (!mountEntity.isValid) {
-			return;
-		}
-		const inventory: EntityInventoryComponent | undefined = mountEntity.getComponent(
-			EntityComponentTypes.Inventory,
-		);
-		if (inventory === undefined) {
-			return;
-		}
-		inventory.container.setItem(0, new ItemStack(MinecraftItemTypes.Saddle));
-		if (armorTypeId !== undefined) {
-			if (mountType === MinecraftEntityTypes.ZombieHorse) {
-				mountEntity.extinguishFire();
-			}
-			inventory.container.setItem(1, new ItemStack(armorTypeId));
-		}
-	}, 1);
 	let tickCount = 0;
 	const intervalId: number = system.runInterval(() => {
 		tickCount++;
