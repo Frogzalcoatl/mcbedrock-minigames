@@ -7,7 +7,7 @@ import {
 	type ItemStack,
 } from "@minecraft/server";
 
-export function applyEnchant(item: ItemStack, id: string, level: number = 1): void {
+export function applyEnchant(item: ItemStack, id: string, level = 1): void {
 	const enchantable: ItemEnchantableComponent | undefined = item.getComponent(
 		ItemComponentTypes.Enchantable,
 	);

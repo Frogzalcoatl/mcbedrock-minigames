@@ -1,6 +1,6 @@
 import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/inventory";
+import { giveItemToEntity } from "../../../entities/componentUtils";
 import { setDurability } from "../../../items/utils/durability";
 import { applyEnchant } from "../../../items/utils/enchant";
 import type { Kit } from "../../../kits/kitManager";

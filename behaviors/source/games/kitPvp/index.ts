@@ -10,10 +10,12 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../../constants";
+import {
+	changeEntityHealth,
+	clearEntityEffects,
+	clearEntityInventory,
+} from "../../entities/componentUtils";
 import { deathMessageFromEvent } from "../../entities/deathMessages";
-import { clearEntityEffects } from "../../entities/effects";
-import { changeEntityHealth } from "../../entities/health";
-import { clearEntityInventory } from "../../entities/inventory";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,

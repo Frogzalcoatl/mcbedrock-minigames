@@ -1,6 +1,6 @@
 import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { giveItemToEntity } from "../../../entities/inventory";
+import { giveItemToEntity } from "../../../entities/componentUtils";
 import { itemRabbitGoldenCarrot } from "../../../items/games/kitPvp/rabbitBuff";
 import { itemRabbitLeap } from "../../../items/games/kitPvp/rabbitLeap";
 import { setDurability } from "../../../items/utils/durability";

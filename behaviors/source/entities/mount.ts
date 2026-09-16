@@ -21,7 +21,10 @@ function despawnEffects(pos: Vector3, dimension: Dimension): void {
 }
 
 world.afterEvents.entityLoad.subscribe((event) => {
-	if (event.entity.getDynamicProperty(temporaryMountPropertyId) !== undefined) {
+	if (
+		event.entity.isValid &&
+		event.entity.getDynamicProperty(temporaryMountPropertyId) !== undefined
+	) {
 		event.entity.remove();
 	}
 });
