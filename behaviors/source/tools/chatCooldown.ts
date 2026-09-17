@@ -1,4 +1,5 @@
 import { type ChatSendBeforeEvent, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
+import { getPlayerName } from "./deathMessages";
 
 const timestamps = new Map<string, number>();
 const cooldownMs: number = 500;
@@ -10,9 +11,7 @@ world.beforeEvents.chatSend.subscribe((event: ChatSendBeforeEvent) => {
 		event.sender.sendMessage("§cYou are sending messages too fast!");
 		return;
 	}
-	world.sendMessage(
-		`${event.sender.chatNamePrefix ?? "§7"}${event.sender.name}${event.sender.chatNameSuffix ?? ""} §r§l§7»§r ${event.message}`,
-	);
+	world.sendMessage(`${getPlayerName(event.sender)} §r§l§7»§r ${event.message}`);
 	timestamps.set(event.sender.id, Date.now());
 });
 
