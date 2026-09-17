@@ -52,15 +52,11 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			const room: Room | undefined = mainHubRoomType.rooms[actualIndex];
-			if (room === undefined) {
-				return {
-					message: `Unable to join ${roomTypeIds.hub}-${displayIndex}`,
-					status: CustomCommandStatus.Failure,
-				};
-			}
 			system.run(() => {
-				room.join(player);
+				const joinResult: boolean = mainHubRoomType.join(player, actualIndex);
+				if (!joinResult) {
+					player.sendMessage("§cUnable to join hub");
+				}
 			});
 			return {
 				status: CustomCommandStatus.Success,
