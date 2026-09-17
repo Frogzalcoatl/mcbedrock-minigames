@@ -20,9 +20,14 @@ world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
 });
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
-	const team: Team | null = Team.find(event.player);
-	if (team !== null) {
-		team.respawn(event.player);
+	if (event.initialSpawn) {
+		event.player.nameTag = event.player.name;
+		event.player.chatNamePrefix = "";
+	} else {
+		const team: Team | null = Team.find(event.player);
+		if (team !== null) {
+			team.respawn(event.player);
+		}
 	}
 });
 
