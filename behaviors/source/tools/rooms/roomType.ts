@@ -76,7 +76,7 @@ export class RoomType {
 
 	public static registerAll(dimensionRegistry: DimensionRegistry): void {
 		for (const type of RoomType._types) {
-			for (const room of type._rooms) {
+			for (const room of type.rooms) {
 				room.registerDimension(dimensionRegistry);
 			}
 		}
@@ -85,13 +85,13 @@ export class RoomType {
 	public typeId: string;
 	public displayName: string;
 	public icon: string;
-	private _rooms: Room[];
+	public readonly rooms: Room[];
 
 	public constructor(config: RoomTypeConfig) {
 		this.typeId = config.typeId;
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
-		this._rooms = [];
+		this.rooms = [];
 		RoomType._types.push(this);
 		if (config.roomCount < 1) {
 			return;
@@ -104,7 +104,7 @@ export class RoomType {
 					this.icon,
 				);
 				RoomType._dimensionMap.set(room.dimensionId, this);
-				this._rooms.push(room);
+				this.rooms.push(room);
 			}
 			return;
 		}
@@ -114,7 +114,7 @@ export class RoomType {
 			this.icon,
 		);
 		RoomType._dimensionMap.set(firstRoom.dimensionId, this);
-		this._rooms.push(firstRoom);
+		this.rooms.push(firstRoom);
 		if (config.roomCount === 1) {
 			return;
 		}
@@ -127,16 +127,12 @@ export class RoomType {
 				this.icon,
 			);
 			RoomType._dimensionMap.set(room.dimensionId, this);
-			this._rooms.push(room);
+			this.rooms.push(room);
 		}
 	}
 
-	public get rooms(): Room[] {
-		return this._rooms;
-	}
-
 	public join(player: Player, roomIndex = 0): boolean {
-		const room: Room | undefined = this._rooms[roomIndex];
+		const room: Room | undefined = this.rooms[roomIndex];
 		return room?.join(player) ?? false;
 	}
 
@@ -144,14 +140,14 @@ export class RoomType {
 	public async form(player: Player): Promise<boolean> {
 		const form = new ActionFormData();
 		form.title(`§0${this.displayName} Rooms`);
-		for (const room of this._rooms) {
+		for (const room of this.rooms) {
 			form.button(room.displayName, room.icon);
 		}
 		const resp: ActionFormResponse = await safeActionFormShow(form, player);
 		if (!player.isValid || resp.selection === undefined) {
 			return false;
 		}
-		const selectedRoom: Room | undefined = this._rooms[resp.selection];
+		const selectedRoom: Room | undefined = this.rooms[resp.selection];
 		if (selectedRoom === undefined) {
 			player.sendMessage("§cUnable to find selected room");
 			return false;
