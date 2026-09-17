@@ -1,7 +1,6 @@
 import { type Player, system, world } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { Room } from "../tools/rooms/room";
-import { getPlayerRoom } from "../tools/rooms/roomManager";
+import { Room } from "../tools/rooms/room";
 import { safeActionFormShow } from "./safeShow";
 
 export async function showFormPlayerProfile(
@@ -11,10 +10,10 @@ export async function showFormPlayerProfile(
 ): Promise<void> {
 	const form = new ActionFormData();
 	form.title(`§0${playerToView.name}`);
-	const room: Room | null = getPlayerRoom(playerToView);
+	let room: Room | undefined = Room.findPlayer(playerToView);
 	let currentButtonIndex = 0;
 	let joinButtonIndex: number | undefined;
-	if (viewer.id !== playerToView.id && room !== null) {
+	if (viewer.id !== playerToView.id && room !== undefined) {
 		form.button(`>> Join <<\nPlaying: ${room.displayName}`);
 		joinButtonIndex = currentButtonIndex;
 		currentButtonIndex++;
@@ -30,8 +29,8 @@ export async function showFormPlayerProfile(
 			});
 		}
 	} else if (resp.selection === joinButtonIndex) {
-		const room: Room | null = getPlayerRoom(playerToView);
-		if (room !== null) {
+		room = Room.findPlayer(playerToView);
+		if (room !== undefined) {
 			room.join(viewer);
 		}
 	}

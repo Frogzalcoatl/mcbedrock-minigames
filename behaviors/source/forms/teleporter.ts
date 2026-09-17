@@ -1,55 +1,12 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { Room } from "../tools/rooms/room";
-import { roomTypes } from "../tools/rooms/roomManager";
-import type { RoomType } from "../tools/rooms/roomType";
+import { RoomType } from "../tools/rooms/roomType";
 import { safeActionFormShow } from "./safeShow";
-
-export async function showRoomsOfType(
-	player: Player,
-	selectedType: RoomType,
-	teleporterOnClose: boolean,
-): Promise<void> {
-	if (selectedType.rooms.length === 0) {
-		player.sendMessage("§cNo valid rooms to join");
-		return;
-	} else if (selectedType.rooms.length === 1) {
-		const room: Room | undefined = selectedType.rooms[0];
-		if (room === undefined) {
-			player.sendMessage("§cNo valid rooms to join");
-		} else {
-			room.join(player);
-		}
-		return;
-	}
-	const form = new ActionFormData();
-	form.title(`§0${selectedType.displayName} Rooms`);
-	for (const room of selectedType.rooms) {
-		form.button(room.displayName, room.icon);
-	}
-	const resp: ActionFormResponse = await safeActionFormShow(form, player);
-	if (!player.isValid) {
-		return;
-	}
-	if (resp.selection === undefined) {
-		if (teleporterOnClose) {
-			system.run(() => {
-				showFormTeleporter(player);
-			});
-		}
-		return;
-	}
-	const selectedRoom: Room | undefined = selectedType.rooms[resp.selection];
-	if (selectedRoom === undefined) {
-		player.sendMessage("§cIgnoring attempt to join invalid room");
-		return;
-	}
-	selectedRoom.join(player);
-}
 
 export async function showFormTeleporter(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Teleporter");
+	const roomTypes: RoomType[] = RoomType.getAll();
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
@@ -59,8 +16,17 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 	}
 	const selectedType: RoomType | undefined = roomTypes[resp.selection];
 	if (selectedType === undefined) {
-		player.sendMessage(`Unable to fetch selected room type at index ${resp.selection}`);
+		player.sendMessage(`§cUnable to get selected room type at index ${resp.selection}`);
 		return;
 	}
-	showRoomsOfType(player, selectedType, true);
+	if (selectedType.rooms.length === 1) {
+		selectedType.join(player);
+		return;
+	}
+	const joinedRoom: boolean = await selectedType.form(player);
+	if (!joinedRoom && player.isValid) {
+		system.run(() => {
+			showFormTeleporter(player);
+		});
+	}
 }

@@ -5,28 +5,20 @@ import {
 	GameMode,
 	type Player,
 } from "@minecraft/server";
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../../constants";
+import { MinecraftDimensionTypes, MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { clearEntityEffects, clearEntityInventory } from "../../tools/componentHelpers";
 import { Room } from "../../tools/rooms/room";
-import type { RoomCreationFunc } from "../../tools/rooms/roomType";
+import { type RoomCreatorFunc, RoomType } from "../../tools/rooms/roomType";
 import type { PlayerEvent } from "../../types";
 
-export const getRoomHub: RoomCreationFunc = (
-	roomTypeIndex: number,
-	roomIndex: number,
-	dimensionId: string,
-	displayName: string,
-	icon: string,
-): Room => {
+const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,
 		includeHub: false,
-		roomIndex: roomIndex,
-		roomTypeIndex: roomTypeIndex,
 		spawn: {
 			facing: { x: 0.5, y: 0, z: -1 },
 			pos: { x: 0.5, y: 0, z: 0.5 },
@@ -61,3 +53,12 @@ export const getRoomHub: RoomCreationFunc = (
 	});
 	return room;
 };
+
+new RoomType({
+	defaultDimensionId: MinecraftDimensionTypes.Overworld,
+	displayName: "Hub",
+	icon: "textures/items/ender_eye.png",
+	roomCount: 2,
+	roomCreatorFunc: creator,
+	typeId: roomTypeIds.hub,
+});

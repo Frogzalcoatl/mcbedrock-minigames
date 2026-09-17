@@ -9,9 +9,8 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { showFormTeleporter, showRoomsOfType } from "../forms/teleporter";
-import { roomTypes } from "../tools/rooms/roomManager";
-import type { RoomType } from "../tools/rooms/roomType";
+import { showFormTeleporter } from "../forms/teleporter";
+import { RoomType } from "../tools/rooms/roomType";
 import { commandEnums } from "./utils/enums";
 import { getPlayerFromOrigin } from "./utils/origin";
 
@@ -36,9 +35,15 @@ export function registerCommandQ(registry: CustomCommandRegistry): void {
 					showFormTeleporter(player);
 					return;
 				}
-				const roomType: RoomType | undefined = roomTypes.find((t) => t.typeId === roomTypeId);
-				if (roomType !== undefined) {
-					showRoomsOfType(player, roomType, false);
+				const roomType: RoomType | undefined = RoomType.get(roomTypeId);
+				if (roomType === undefined) {
+					player.sendMessage(`§cUnable to find "${roomTypeId}"`);
+					return;
+				}
+				if (roomType.rooms.length === 1) {
+					roomType.join(player);
+				} else {
+					roomType.form(player);
 				}
 			});
 			return {

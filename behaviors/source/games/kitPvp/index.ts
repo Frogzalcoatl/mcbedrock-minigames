@@ -9,7 +9,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
+import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
@@ -21,7 +21,7 @@ import {
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { kits } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
-import type { RoomCreationFunc } from "../../tools/rooms/roomType";
+import { type RoomCreatorFunc, RoomType } from "../../tools/rooms/roomType";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
@@ -56,20 +56,12 @@ world.afterEvents.worldLoad.subscribe(() => {
 
 const healthAddedOnKill: number = 10;
 
-export const getRoomKitPvp: RoomCreationFunc = (
-	roomTypeIndex: number,
-	roomIndex: number,
-	dimensionId: string,
-	displayName: string,
-	icon: string,
-): Room => {
+const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,
 		includeHub: true,
-		roomIndex: roomIndex,
-		roomTypeIndex: roomTypeIndex,
 		spawn: {
 			facing: { x: 0.5, y: 0, z: 1 },
 			pos: { x: 0.5, y: 0, z: 0.5 },
@@ -134,3 +126,12 @@ export const getRoomKitPvp: RoomCreationFunc = (
 	]);
 	return room;
 };
+
+new RoomType({
+	defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
+	displayName: "Kit Pvp",
+	icon: "textures/items/diamond_sword.png",
+	roomCount: 1,
+	roomCreatorFunc: creator,
+	typeId: roomTypeIds.kitPvp,
+});

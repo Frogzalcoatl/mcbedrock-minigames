@@ -9,10 +9,9 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
-import type { Room } from "../tools/rooms/room";
+import { Room } from "../tools/rooms/room";
 import type { RoomHub } from "../tools/rooms/roomHub";
-import { getPlayerRoom, roomTypes } from "../tools/rooms/roomManager";
-import type { RoomType } from "../tools/rooms/roomType";
+import { RoomType } from "../tools/rooms/roomType";
 import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandHub(registry: CustomCommandRegistry): void {
@@ -31,7 +30,7 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			const playerRoom: Room | null = getPlayerRoom(player);
+			const playerRoom: Room | undefined = Room.findPlayer(player);
 			if (playerRoom?.hub?.isActive && !playerRoom.hub.has(player)) {
 				const hub: RoomHub = playerRoom.hub;
 				system.run(() => {
@@ -39,10 +38,8 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 				});
 				return;
 			}
-			const mainHubRoomType: RoomType | undefined = roomTypes.find(
-				(r) => r.typeId === roomTypeIds.hub,
-			);
-			if (mainHubRoomType === undefined || mainHubRoomType.rooms.length === 0) {
+			const mainHubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
+			if (mainHubRoomType === undefined) {
 				return {
 					message: "No valid hubs found",
 					status: CustomCommandStatus.Failure,
