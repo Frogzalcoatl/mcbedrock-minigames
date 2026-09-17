@@ -16,6 +16,7 @@ export const GameState = {
 	Preparing: 0,
 	Starting: 1,
 	Active: 2,
+	Ending: 3,
 } as const;
 export type GameState = (typeof GameState)[keyof typeof GameState];
 
