@@ -21,7 +21,7 @@ import {
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { kits } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
-import { type RoomCreatorFunc, RoomType } from "../../tools/rooms/roomType";
+import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
@@ -127,7 +127,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	return room;
 };
 
-new RoomType({
+roomTypeInit({
 	defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
 	displayName: "Kit Pvp",
 	icon: "textures/items/diamond_sword.png",

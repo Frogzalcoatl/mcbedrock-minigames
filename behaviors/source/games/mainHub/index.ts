@@ -10,7 +10,7 @@ import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { clearEntityEffects, clearEntityInventory } from "../../tools/componentHelpers";
 import { Room } from "../../tools/rooms/room";
-import { type RoomCreatorFunc, RoomType } from "../../tools/rooms/roomType";
+import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
 import type { PlayerEvent } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
@@ -54,7 +54,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	return room;
 };
 
-new RoomType({
+roomTypeInit({
 	defaultDimensionId: MinecraftDimensionTypes.Overworld,
 	displayName: "Hub",
 	icon: "textures/items/ender_eye.png",

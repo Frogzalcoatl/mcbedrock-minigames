@@ -21,7 +21,6 @@ import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
 import { RoomHub } from "./roomHub";
-import { RoomType } from "./roomType";
 
 const dynamicPropertyRoomTransfer: string = "transferring_room";
 
@@ -238,7 +237,6 @@ export class Room {
 	public info(): string {
 		return `
 Dimension ID: §e${this.dimensionId}§r
-Room Type: §e${RoomType.findDimension(this.dimensionId)?.displayName}§r
 Display Name: §e${this.displayName}§r
 Icon: §e${this.icon}§r
 Player Count: §e${this.playerCount}§r

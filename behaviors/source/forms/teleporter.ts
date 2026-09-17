@@ -1,12 +1,12 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { RoomType } from "../tools/rooms/roomType";
+import { type RoomType, roomTypeJoin, roomTypes } from "../tools/rooms/roomType";
+import { formRoomType } from "./roomType";
 import { safeActionFormShow } from "./safeShow";
 
 export async function showFormTeleporter(player: Player): Promise<void> {
 	const form = new ActionFormData();
 	form.title("§0Teleporter");
-	const roomTypes: RoomType[] = RoomType.getAll();
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}
@@ -20,10 +20,10 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 		return;
 	}
 	if (selectedType.rooms.length === 1) {
-		selectedType.join(player);
+		roomTypeJoin(player, selectedType);
 		return;
 	}
-	const joinedRoom: boolean = await selectedType.form(player);
+	const joinedRoom: boolean = await formRoomType(player, selectedType);
 	if (!joinedRoom && player.isValid) {
 		system.run(() => {
 			showFormTeleporter(player);

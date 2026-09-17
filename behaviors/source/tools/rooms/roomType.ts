@@ -1,5 +1,4 @@
 import {
-	type DimensionRegistry,
 	GameMode,
 	type Player,
 	PlayerPermissionLevel,
@@ -8,17 +7,19 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
-import { safeActionFormShow } from "../../forms/safeShow";
 import type { Room } from "./room";
 
 system.beforeEvents.startup.subscribe((event: StartupEvent) => {
-	RoomType.registerAll(event.dimensionRegistry);
+	for (const type of roomTypes) {
+		for (const room of type.rooms) {
+			room.registerDimension(event.dimensionRegistry);
+		}
+	}
 });
 
 world.afterEvents.worldLoad.subscribe(() => {
-	const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
+	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
 	if (hubRoomType === undefined) {
 		return;
 	}
@@ -29,7 +30,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 		) {
 			continue;
 		}
-		hubRoomType.join(p);
+		roomTypeJoin(p, hubRoomType);
 	}
 });
 
@@ -37,9 +38,9 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (!event.initialSpawn) {
 		return;
 	}
-	const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
+	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
 	if (hubRoomType !== undefined) {
-		hubRoomType.join(event.player);
+		roomTypeJoin(event.player, hubRoomType);
 	}
 });
 
@@ -54,105 +55,63 @@ export interface RoomTypeConfig {
 	typeId: string;
 }
 
-export class RoomType {
-	private static _types: RoomType[] = [];
-	private static _dimensionMap = new Map<string, RoomType>(); // key is dimensionId
+export interface RoomType {
+	displayName: string;
+	icon: string;
+	readonly rooms: Room[];
+	typeId: string;
+}
 
-	public static get(typeId: string): RoomType | undefined {
-		return RoomType._types.find((t) => t.typeId === typeId);
+export const roomTypes: RoomType[] = [];
+
+export function roomTypeGet(typeId: string): RoomType | undefined {
+	return roomTypes.find((t) => t.typeId === typeId);
+}
+
+export function roomTypeInit(config: RoomTypeConfig): RoomType {
+	const type: RoomType = {
+		displayName: config.displayName,
+		icon: config.icon ?? "",
+		rooms: [],
+		typeId: config.typeId,
+	};
+	roomTypes.push(type);
+	if (config.roomCount < 1) {
+		return type;
 	}
-
-	public static getAll(): RoomType[] {
-		return RoomType._types;
-	}
-
-	public static findPlayer(player: Player): RoomType | undefined {
-		return RoomType._dimensionMap.get(player.dimension.id);
-	}
-
-	public static findDimension(dimensionId: string): RoomType | undefined {
-		return RoomType._dimensionMap.get(dimensionId);
-	}
-
-	public static registerAll(dimensionRegistry: DimensionRegistry): void {
-		for (const type of RoomType._types) {
-			for (const room of type.rooms) {
-				room.registerDimension(dimensionRegistry);
-			}
-		}
-	}
-
-	public typeId: string;
-	public displayName: string;
-	public icon: string;
-	public readonly rooms: Room[];
-
-	public constructor(config: RoomTypeConfig) {
-		this.typeId = config.typeId;
-		this.displayName = config.displayName;
-		this.icon = config.icon ?? "";
-		this.rooms = [];
-		RoomType._types.push(this);
-		if (config.roomCount < 1) {
-			return;
-		}
-		if (!config.defaultDimensionId.startsWith("minecraft:")) {
-			for (let i = 0; i < config.roomCount; i++) {
-				const room: Room = config.roomCreatorFunc(
+	if (!config.defaultDimensionId.startsWith("minecraft:")) {
+		for (let i = 0; i < config.roomCount; i++) {
+			type.rooms.push(
+				config.roomCreatorFunc(
 					`${config.defaultDimensionId}-${i + 1}`,
-					`${this.displayName} ${i + 1}`,
-					this.icon,
-				);
-				RoomType._dimensionMap.set(room.dimensionId, this);
-				this.rooms.push(room);
-			}
-			return;
-		}
-		const firstRoom: Room = config.roomCreatorFunc(
-			config.defaultDimensionId,
-			`${this.displayName} 1`,
-			this.icon,
-		);
-		RoomType._dimensionMap.set(firstRoom.dimensionId, this);
-		this.rooms.push(firstRoom);
-		if (config.roomCount === 1) {
-			return;
-		}
-		const colonIndex: number = config.defaultDimensionId.indexOf(":");
-		const customDimensionId: string = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(colonIndex + 1)}`;
-		for (let i = 1; i < config.roomCount; i++) {
-			const room: Room = config.roomCreatorFunc(
-				`${customDimensionId}-${i + 1}`,
-				`${this.displayName} ${i + 1}`,
-				this.icon,
+					`${type.displayName} ${i + 1}`,
+					type.icon,
+				),
 			);
-			RoomType._dimensionMap.set(room.dimensionId, this);
-			this.rooms.push(room);
 		}
+		return type;
 	}
+	type.rooms.push(
+		config.roomCreatorFunc(config.defaultDimensionId, `${type.displayName} 1`, type.icon),
+	);
+	if (config.roomCount === 1) {
+		return type;
+	}
+	const colonIndex: number = config.defaultDimensionId.indexOf(":");
+	const customDimensionId: string = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(colonIndex + 1)}`;
+	for (let i = 1; i < config.roomCount; i++) {
+		type.rooms.push(
+			config.roomCreatorFunc(
+				`${customDimensionId}-${i + 1}`,
+				`${type.displayName} ${i + 1}`,
+				type.icon,
+			),
+		);
+	}
+	return type;
+}
 
-	public join(player: Player, roomIndex = 0): boolean {
-		const room: Room | undefined = this.rooms[roomIndex];
-		return room?.join(player) ?? false;
-	}
-
-	// Returns true if player selected a room
-	public async form(player: Player): Promise<boolean> {
-		const form = new ActionFormData();
-		form.title(`§0${this.displayName} Rooms`);
-		for (const room of this.rooms) {
-			form.button(room.displayName, room.icon);
-		}
-		const resp: ActionFormResponse = await safeActionFormShow(form, player);
-		if (!player.isValid || resp.selection === undefined) {
-			return false;
-		}
-		const selectedRoom: Room | undefined = this.rooms[resp.selection];
-		if (selectedRoom === undefined) {
-			player.sendMessage("§cUnable to find selected room");
-			return false;
-		}
-		selectedRoom.join(player);
-		return true;
-	}
+export function roomTypeJoin(player: Player, type: RoomType, roomIndex = 0): boolean {
+	const room: Room | undefined = type.rooms[roomIndex];
+	return room?.join(player) ?? false;
 }
