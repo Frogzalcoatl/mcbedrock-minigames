@@ -2,12 +2,10 @@ import type { EntityDieAfterEvent } from "@minecraft/server";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { GameStateManager } from "../../tools/games/states";
 import { Room } from "../../tools/rooms/room";
-import type { RoomCreationFunc } from "../../tools/rooms/roomType";
+import type { RoomCreatorFunc } from "../../tools/rooms/roomType";
 import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";
 
-export const getRoomDuels: RoomCreationFunc = (
-	roomTypeIndex: number,
-	roomIndex: number,
+export const getRoomDuels: RoomCreatorFunc = (
 	dimensionId: string,
 	displayName: string,
 	icon: string,
@@ -17,8 +15,6 @@ export const getRoomDuels: RoomCreationFunc = (
 		displayName: displayName,
 		icon: icon,
 		includeHub: false,
-		roomIndex: roomIndex,
-		roomTypeIndex: roomTypeIndex,
 		spawn: {
 			facing: { x: 0.5, y: 0, z: 1 },
 			pos: { x: 0.5, y: 0, z: 0.5 },

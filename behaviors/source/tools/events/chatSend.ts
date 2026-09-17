@@ -1,5 +1,5 @@
 import { type ChatSendBeforeEvent, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import { getPlayerName } from "./deathMessages";
+import { getPlayerName } from "../deathMessages";
 
 const timestamps = new Map<string, number>();
 const cooldownMs: number = 500;
