@@ -1,6 +1,6 @@
 import type { EntityDieAfterEvent } from "@minecraft/server";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
-import { GameStateManager } from "../../tools/gameStates";
+import { GameStateManager } from "../../tools/games/states";
 import { Room } from "../../tools/rooms/room";
 import type { RoomCreationFunc } from "../../tools/rooms/roomType";
 import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";

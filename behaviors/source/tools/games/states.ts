@@ -1,7 +1,7 @@
 import { type Dimension, GameMode, type Player, type Vector3 } from "@minecraft/server";
-import { GameState, type PlayerEvent } from "../types";
-import { getPlayerName } from "./deathMessages";
-import type { Room } from "./rooms/room";
+import { GameState, type PlayerEvent } from "../../types";
+import { getPlayerName } from "../deathMessages";
+import type { Room } from "../rooms/room";
 import { Team } from "./team";
 
 interface TeamOrdersValue {

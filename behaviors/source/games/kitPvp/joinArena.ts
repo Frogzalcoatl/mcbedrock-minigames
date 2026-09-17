@@ -7,7 +7,7 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import { clearEntityEffects, clearEntityInventory } from "../../tools/componentHelpers";
-import { giveKit, type Kit } from "../../tools/kits";
+import { giveKit, type Kit } from "../../tools/games/kits";
 import type { Room } from "../../tools/rooms/room";
 import { getPlayerRoom } from "../../tools/rooms/roomManager";
 

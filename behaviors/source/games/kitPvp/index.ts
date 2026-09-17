@@ -19,7 +19,7 @@ import {
 	clearEntityInventory,
 } from "../../tools/componentHelpers";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
-import { kits } from "../../tools/kits";
+import { kits } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
 import type { RoomCreationFunc } from "../../tools/rooms/roomType";
 import {

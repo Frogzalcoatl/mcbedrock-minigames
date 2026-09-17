@@ -9,7 +9,7 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/kits";
+} from "../../../tools/games/kits";
 
 export function getKitLancer(): Kit {
 	const kit: Kit = {

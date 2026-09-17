@@ -8,7 +8,7 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/kits";
+} from "../../../tools/games/kits";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const pufferFish: ItemStack = itemPufferfishProjectile();
