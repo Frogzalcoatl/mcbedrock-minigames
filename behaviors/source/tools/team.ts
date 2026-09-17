@@ -88,17 +88,26 @@ export class Team {
 		return true;
 	}
 
-	public remove(player: Player): boolean {
-		this.onElimination.triggerEvent({ player: player });
+	public remove(player: Player, triggerEvent = true): boolean {
+		if (triggerEvent) {
+			this.onElimination.triggerEvent({ player: player });
+		}
 		if (player.isValid) {
 			player.nameTag = player.name;
 			player.chatNamePrefix = "";
 		}
 		if (this._players.delete(player)) {
+			this._isRespawning.delete(player);
 			Team._globalPlayers.delete(player.id);
 			return true;
 		}
 		return false;
+	}
+
+	public resetPlayers(triggerEvents = false): void {
+		for (const p of this._players) {
+			this.remove(p, triggerEvents);
+		}
 	}
 
 	public respawn(player: Player): void {
