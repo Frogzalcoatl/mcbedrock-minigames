@@ -119,9 +119,7 @@ export const getRoomKitPvp: RoomCreationFunc = (
 	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
 		const message: string | null = deathMessageFromEvent(event);
-		if (message !== null) {
-			room.sendMessage(message);
-		}
+		room.sendMessage(message);
 		if (
 			event.damageSource.damagingEntity instanceof Player &&
 			event.damageSource.damagingEntity.isValid

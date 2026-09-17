@@ -26,7 +26,7 @@ export function deathMessageFormat(
 	}
 }
 
-export function deathMessageFromEvent(event: EntityDieAfterEvent, colorCode = "§f"): string | null {
+export function deathMessageFromEvent(event: EntityDieAfterEvent, colorCode = "§f"): string {
 	const deadName: string = getEntityName(event.deadEntity);
 	let killerName: string | null = null;
 	if (event.damageSource.damagingEntity?.isValid) {
