@@ -200,10 +200,10 @@ export function clearEntityInventory(entity: Entity): void {
 		EntityComponentTypes.Equippable,
 	);
 	if (equippable !== undefined) {
-		equippable.setEquipment(EquipmentSlot.Head);
-		equippable.setEquipment(EquipmentSlot.Chest);
-		equippable.setEquipment(EquipmentSlot.Legs);
-		equippable.setEquipment(EquipmentSlot.Feet);
-		equippable.setEquipment(EquipmentSlot.Offhand);
+		equippable.setEquipment(EquipmentSlot.Head, undefined);
+		equippable.setEquipment(EquipmentSlot.Chest, undefined);
+		equippable.setEquipment(EquipmentSlot.Legs, undefined);
+		equippable.setEquipment(EquipmentSlot.Feet, undefined);
+		equippable.setEquipment(EquipmentSlot.Offhand, undefined);
 	}
 }
