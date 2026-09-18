@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/style/useNamingConvention: Using objects as an enums */
 /** biome-ignore-all assist/source/useSortedKeys: Using objects as an enums */
 
-import type { Player, Vector3 } from "@minecraft/server";
+import { type Player, type Vector3, world } from "@minecraft/server";
 
 export interface TeleportLocation {
 	facing: Vector3;
@@ -37,7 +37,13 @@ export class EventSignal<T> {
 
 	public triggerEvent(event: T): void {
 		for (const callback of this._callbacks) {
-			callback(event);
+			try {
+				callback(event);
+			} catch (error) {
+				if (error instanceof Error) {
+					world.sendMessage(`§cError occured during event: ${error.message}`);
+				}
+			}
 		}
 	}
 }
