@@ -3,6 +3,7 @@ export const PACK_NAMESPACE: string = "mg"; // MiniGames (mg)
 
 // biome-ignore lint/nursery/useExplicitType: Using stisfies so ide still auto completes properties
 export const roomTypeIds = {
+	duels: "duels",
 	hub: "hub",
 	kitPvp: "kit",
 } as const satisfies Record<string, string>;

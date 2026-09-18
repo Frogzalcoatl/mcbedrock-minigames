@@ -21,6 +21,7 @@ import {
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { kits } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
+import { RoomHub } from "../../tools/rooms/roomHub";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
 import {
 	type KillTrackerConfig,
@@ -61,7 +62,6 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		dimensionId: dimensionId,
 		displayName: displayName,
 		icon: icon,
-		includeHub: true,
 		spawn: {
 			facing: { x: 0.5, y: 0, z: 1 },
 			pos: { x: 0.5, y: 0, z: 0.5 },
@@ -71,42 +71,41 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
-	if (room.hub !== null) {
-		room.hub.onJoin.subscribe((event: PlayerEvent): void => {
-			const player: Player = event.player;
-			killTrackerRemovePlayer(player);
-			itemCooldownRemovePlayer(event.player);
-			projectileTrackerRemovePlayer(player.id, room.dimensionId);
-			player.setGameMode(GameMode.Adventure);
-			const health: EntityHealthComponent | undefined = player.getComponent(
-				EntityComponentTypes.Health,
-			);
-			if (health !== undefined) {
-				health.resetToMaxValue();
-			}
-			clearEntityInventory(player);
-			clearEntityEffects(player);
-			player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
-				amplifier: 255,
-				showParticles: false,
-			});
-			player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
-				amplifier: 255,
-				showParticles: false,
-			});
-			const inventory: EntityInventoryComponent | undefined = player.getComponent(
-				EntityComponentTypes.Inventory,
-			);
-			if (inventory !== undefined) {
-				inventory.container.setItem(3, itemKitPvpSelect());
-				inventory.container.setItem(5, itemTeleporter());
-			}
-		});
-	}
 	room.onLeave.subscribe((event) => {
 		killTrackerRemovePlayer(event.player);
 		itemCooldownRemovePlayer(event.player);
 		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
+	});
+	room.hub = new RoomHub(room.dimensionId, room.spawn);
+	room.hub.onJoin.subscribe((event: PlayerEvent): void => {
+		const player: Player = event.player;
+		killTrackerRemovePlayer(player);
+		itemCooldownRemovePlayer(event.player);
+		projectileTrackerRemovePlayer(player.id, room.dimensionId);
+		player.setGameMode(GameMode.Adventure);
+		const health: EntityHealthComponent | undefined = player.getComponent(
+			EntityComponentTypes.Health,
+		);
+		if (health !== undefined) {
+			health.resetToMaxValue();
+		}
+		clearEntityInventory(player);
+		clearEntityEffects(player);
+		player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
+			amplifier: 255,
+			showParticles: false,
+		});
+		player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+			amplifier: 255,
+			showParticles: false,
+		});
+		const inventory: EntityInventoryComponent | undefined = player.getComponent(
+			EntityComponentTypes.Inventory,
+		);
+		if (inventory !== undefined) {
+			inventory.container.setItem(3, itemKitPvpSelect());
+			inventory.container.setItem(5, itemTeleporter());
+		}
 	});
 	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {

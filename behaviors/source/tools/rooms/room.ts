@@ -20,7 +20,7 @@ import { ejectFromMount } from "../mount";
 import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
-import { RoomHub } from "./roomHub";
+import type { RoomHub } from "./roomHub";
 
 const dynamicPropertyRoomTransfer: string = "transferring_room";
 
@@ -31,7 +31,7 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 	if (event.player.getDynamicProperty(dynamicPropertyRoomTransfer) === undefined) {
 		return;
 	}
-	event.player.setDynamicProperty(dynamicPropertyRoomTransfer);
+	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
 	const room: Room | undefined = Room.findPlayer(event.player);
 	if (room === undefined) {
 		return;
@@ -66,7 +66,6 @@ export interface RoomConfig {
 	dimensionId: string;
 	displayName: string;
 	icon: string;
-	includeHub: boolean;
 	spawn: TeleportLocation;
 	structures?: RoomStructure[];
 }
@@ -107,11 +106,7 @@ export class Room {
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
-		if (config.includeHub) {
-			this.hub = new RoomHub(this.dimensionId, config.spawn);
-		} else {
-			this.hub = null;
-		}
+		this.hub = null;
 		this._spawn = config.spawn;
 		this.beforeJoin = null;
 		this.onJoin = new EventSignal<PlayerEvent>();

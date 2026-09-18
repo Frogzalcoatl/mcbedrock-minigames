@@ -1,4 +1,4 @@
-import { type Dimension, GameMode, type Player, type Vector3 } from "@minecraft/server";
+import { GameMode, type Player, type Vector3 } from "@minecraft/server";
 import { GameState, type PlayerEvent } from "../../types";
 import { getPlayerName } from "../deathMessages";
 import type { Room } from "../rooms/room";
@@ -14,7 +14,7 @@ const teamOrders: TeamOrdersValue[] = [
 	{ colorCode: "§1", name: "Blue" },
 ];
 
-export interface GameStateManagerConfig {
+export interface GameConfig {
 	maxPlayers: number;
 	playersPerTeam: number;
 	playersToStart: number;
@@ -23,26 +23,26 @@ export interface GameStateManagerConfig {
 	teamCount: number;
 }
 
-export class GameStateManager {
+export class Game {
 	public teams: Team[];
 	public readonly playersToStart: number;
 	public readonly maxPlayers: number;
 	public readonly playersPerTeam: number;
-	private _spectatorPos: Vector3;
+	public readonly room: Room;
+	public spectatorPos: Vector3;
 	private _state: GameState;
-	private _room: Room;
 
-	public constructor(config: GameStateManagerConfig) {
+	public constructor(config: GameConfig) {
 		this.teams = [];
 		this.playersToStart = config.playersToStart;
 		this.maxPlayers = config.maxPlayers;
 		this.playersPerTeam = config.playersPerTeam;
-		this._spectatorPos = config.spectatorPos;
+		this.room = config.room;
+		this.spectatorPos = config.spectatorPos;
 		this._state = GameState.Preparing;
-		this._room = config.room;
-		this._room.beforeJoin = this.beforeJoin;
-		this._room.onJoin.subscribe(this.onJoin);
-		this._room.onLeave.subscribe(this.onLeave);
+		this.room.beforeJoin = this.beforeJoin;
+		this.room.onJoin.subscribe(this.onJoin);
+		this.room.onLeave.subscribe(this.onLeave);
 		let teamsAdded = 0;
 		for (let i = 0; i < Math.min(config.teamCount, teamOrders.length); i++) {
 			const current: TeamOrdersValue | undefined = teamOrders[i];
@@ -77,11 +77,12 @@ export class GameStateManager {
 	}
 
 	public get players(): Player[] {
-		const dimension: Dimension | undefined = this._room.dimension;
-		return dimension?.getPlayers() ?? [];
+		return this.room.dimension?.getPlayers() ?? [];
 	}
 
-	private beforeJoin(player: Player): boolean {
+	// Arrow functions because they seem to maintain context of "this"
+
+	private beforeJoin = (player: Player): boolean => {
 		if (this._state === GameState.Preparing) {
 			player.sendMessage("§cGame is resetting");
 			return false;
@@ -96,30 +97,30 @@ export class GameStateManager {
 			return false;
 		}
 		return true;
-	}
+	};
 
-	private onJoin(event: PlayerEvent): void {
+	private onJoin = (event: PlayerEvent): void => {
 		if (this._state === GameState.Starting) {
-			this._room.sendMessage(
+			this.room.sendMessage(
 				`${getPlayerName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
 			);
-		} else if (this.state === GameState.Active) {
-			this._room.sendMessage(`${getPlayerName(event.player)}§r§7 is spectating`);
+		} else if (this._state === GameState.Active) {
+			this.room.sendMessage(`${getPlayerName(event.player)}§r§7 is spectating`);
 			event.player.setGameMode(GameMode.Spectator);
-			event.player.teleport(this._spectatorPos);
+			event.player.teleport(this.spectatorPos);
 		}
-	}
+	};
 
-	private onLeave(event: PlayerEvent): void {
+	private onLeave = (event: PlayerEvent): void => {
 		if (this._state === GameState.Starting) {
-			this._room.sendMessage(
+			this.room.sendMessage(
 				`${getPlayerName(event.player)}§r§7 left the game §8[${this.players.length}/${this.maxPlayers}]`,
 			);
-		} else if (this.state === GameState.Active) {
+		} else if (this._state === GameState.Active) {
 			const team: Team | null = Team.find(event.player);
 			if (team !== null) {
 				team.remove(event.player, true);
 			}
 		}
-	}
+	};
 }
