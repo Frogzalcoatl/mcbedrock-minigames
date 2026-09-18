@@ -11,7 +11,7 @@ import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../type
 import { deathLocationTracker } from "../trackers/deathLocationTracker";
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
-	const team: Team | null = Team.find(event.player);
+	const team: Team | null = Team.findPlayer(event.player);
 	if (team !== null) {
 		system.run(() => {
 			team.remove(event.player);
@@ -24,7 +24,7 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 		event.player.nameTag = event.player.name;
 		event.player.chatNamePrefix = "";
 	} else {
-		const team: Team | null = Team.find(event.player);
+		const team: Team | null = Team.findPlayer(event.player);
 		if (team !== null) {
 			team.respawn(event.player);
 		}
@@ -41,7 +41,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 export class Team {
 	private static _globalPlayers = new Map<string, Team>();
 
-	public static find(player: Player): Team | null {
+	public static findPlayer(player: Player): Team | null {
 		return Team._globalPlayers.get(player.id) ?? null;
 	}
 
@@ -81,7 +81,7 @@ export class Team {
 		if (this._players.size >= this.maxPlayers) {
 			return false;
 		}
-		const oldTeam: Team | null = Team.find(player);
+		const oldTeam: Team | null = Team.findPlayer(player);
 		if (oldTeam !== null) {
 			oldTeam.remove(player);
 		}
@@ -109,7 +109,7 @@ export class Team {
 		return false;
 	}
 
-	public resetPlayers(triggerEvents = false): void {
+	public clearPlayers(triggerEvents = false): void {
 		for (const p of this._players) {
 			this.remove(p, triggerEvents);
 		}

@@ -1,4 +1,4 @@
-import { GameMode, type Player, type Vector3 } from "@minecraft/server";
+import { GameMode, type Player, system, type Vector3 } from "@minecraft/server";
 import { GameState, type PlayerEvent } from "../../types";
 import { getPlayerName } from "../deathMessages";
 import type { Room } from "../rooms/room";
@@ -12,6 +12,12 @@ interface TeamOrdersValue {
 const teamOrders: TeamOrdersValue[] = [
 	{ colorCode: "§c", name: "Red" },
 	{ colorCode: "§1", name: "Blue" },
+	{ colorCode: "§a", name: "Green" },
+	{ colorCode: "§e", name: "Yellow" },
+	{ colorCode: "§3", name: "Aqua" },
+	{ colorCode: "§f", name: "White" },
+	{ colorCode: "§d", name: "Pink" },
+	{ colorCode: "§8", name: "Gray" },
 ];
 
 export interface GameConfig {
@@ -30,7 +36,11 @@ export class Game {
 	public readonly playersPerTeam: number;
 	public readonly room: Room;
 	public spectatorPos: Vector3;
+	public prepareGame: ((game: Game) => void) | null;
+
+	private _players: Set<Player>;
 	private _state: GameState;
+	private _startingIntervalId: number | null;
 
 	public constructor(config: GameConfig) {
 		this.teams = [];
@@ -39,7 +49,10 @@ export class Game {
 		this.playersPerTeam = config.playersPerTeam;
 		this.room = config.room;
 		this.spectatorPos = config.spectatorPos;
+		this.prepareGame = null;
+		this._players = new Set<Player>();
 		this._state = GameState.Preparing;
+		this._startingIntervalId = null;
 		this.room.beforeJoin = this.beforeJoin;
 		this.room.onJoin.subscribe(this.onJoin);
 		this.room.onLeave.subscribe(this.onLeave);
@@ -68,16 +81,36 @@ export class Game {
 	}
 
 	public set state(val: GameState) {
+		if (this._state === GameState.Starting && this._startingIntervalId !== null) {
+			system.clearRun(this._startingIntervalId);
+		}
 		if (val === GameState.Preparing) {
 			for (const t of this.teams) {
-				t.resetPlayers();
+				t.clearPlayers();
 			}
 		}
 		this._state = val;
 	}
 
-	public get players(): Player[] {
-		return this.room.dimension?.getPlayers() ?? [];
+	public get playerCount(): number {
+		return this._players.size;
+	}
+
+	public sendMessage(message: string): void {
+		for (const p of this._players) {
+			p.sendMessage(message);
+		}
+	}
+
+	private whileStarting(): void {
+		if (this._startingIntervalId !== null) {
+			system.clearRun(this._startingIntervalId);
+		}
+		this._startingIntervalId = system.runInterval(() => {
+			for (const p of this._players) {
+				p.onScreenDisplay.setActionBar(``);
+			}
+		});
 	}
 
 	// Arrow functions because they seem to maintain context of "this"
@@ -87,9 +120,8 @@ export class Game {
 			player.sendMessage("§cGame is resetting");
 			return false;
 		} else if (this._state === GameState.Starting) {
-			const players: Player[] = this.players;
-			if (players.length >= this.maxPlayers) {
-				player.sendMessage("§cGame is full");
+			if (this.playerCount >= this.maxPlayers) {
+				player.sendMessage("§cGame is full.");
 				return false;
 			}
 		} else if (this.state === GameState.Ending) {
@@ -100,24 +132,42 @@ export class Game {
 	};
 
 	private onJoin = (event: PlayerEvent): void => {
-		if (this._state === GameState.Starting) {
-			this.room.sendMessage(
-				`${getPlayerName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
-			);
-		} else if (this._state === GameState.Active) {
-			this.room.sendMessage(`${getPlayerName(event.player)}§r§7 is spectating`);
-			event.player.setGameMode(GameMode.Spectator);
-			event.player.teleport(this.spectatorPos);
+		this._players.add(event.player);
+		switch (this._state) {
+			case GameState.Starting: {
+				const playerCount: number = this.playerCount;
+				if (playerCount === 1) {
+					this.whileStarting();
+				}
+				this.room.sendMessage(
+					`${getPlayerName(event.player)}§r§7 joined the game §8[${playerCount}/${this.maxPlayers}]`,
+				);
+				break;
+			}
+			case GameState.Active: {
+				this.room.sendMessage(`${getPlayerName(event.player)}§r§7 is spectating`);
+				event.player.setGameMode(GameMode.Spectator);
+				event.player.teleport(this.spectatorPos);
+				break;
+			}
+			default:
+				break;
 		}
 	};
 
 	private onLeave = (event: PlayerEvent): void => {
+		this._players.delete(event.player);
 		if (this._state === GameState.Starting) {
-			this.room.sendMessage(
-				`${getPlayerName(event.player)}§r§7 left the game §8[${this.players.length}/${this.maxPlayers}]`,
-			);
+			const playerCount: number = this.playerCount;
+			if (playerCount !== 0) {
+				this.room.sendMessage(
+					`${getPlayerName(event.player)}§r§7 left the game §8[${playerCount}/${this.maxPlayers}]`,
+				);
+			} else if (this._startingIntervalId !== null) {
+				system.clearRun(this._startingIntervalId);
+			}
 		} else if (this._state === GameState.Active) {
-			const team: Team | null = Team.find(event.player);
+			const team: Team | null = Team.findPlayer(event.player);
 			if (team !== null) {
 				team.remove(event.player, true);
 			}

@@ -1,4 +1,4 @@
-import { type TickingAreaOptions, world } from "@minecraft/server";
+import type { TickingAreaOptions } from "@minecraft/server";
 
 export interface TickingAreaJob {
 	callback: () => void;
@@ -13,6 +13,11 @@ export class TickingAreaQueue {
 		this._queue = [];
 	}
 
-	public queueJob(job: TickingAreaJob): void {}
+	public queueJob(job: TickingAreaJob): void {
+		this._queue.push(job);
+		this.update();
+	}
+
+	private update(): void {}
 }
 export const tickingAreaQueue = new TickingAreaQueue();
