@@ -6,7 +6,7 @@ import {
 } from "@minecraft/server";
 
 export function getPlayerName(player: Player): string {
-	return `${player.chatMessagePrefix ?? "§7"}${player.name}${player.chatNameSuffix ?? ""}`;
+	return `${player.chatNamePrefix ?? "§7"}${player.name}${player.chatNameSuffix ?? ""}`;
 }
 
 export function getEntityName(entity: Entity): string {
