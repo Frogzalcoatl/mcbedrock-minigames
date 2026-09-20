@@ -5,6 +5,7 @@ import {
 	type Player,
 	type PlayerDimensionChangeAfterEvent,
 	type PlayerLeaveBeforeEvent,
+	type PlayerSpawnAfterEvent,
 	system,
 	type Vector3,
 	world,
@@ -22,22 +23,40 @@ import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
 import type { RoomHub } from "./roomHub";
 
-const dynamicPropertyRoomTransfer: string = "transferring_room";
+// Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.
+// If a player is teleported using /tp, Room.join is run and their teleported position is maintained.
+// A room transfer is triggered on initialSpawn in roomType.ts.
+// With my implementation, this would be incorrectly recognized as a /tp dimension change and trigger a leave event in the dimension the player was on before last leaving the world.
+// To avoid this, we detect it using the playerSpawn event.
 
-// setRotation and facing parameter of teleport are ignored during dimension transfer
-// rotate players after they finish transferring dimensions instead
-// Additionally trigger room.join for players who transferred dimensions through /tp
+const dynamicPropertyRoomTransfer: string = "transferring_room";
+const dynamicPropertyRoomInitialSpawn: string = "room_initial_spawn";
+
+world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
+	if (!event.initialSpawn) {
+		return;
+	}
+	event.player.setDynamicProperty(dynamicPropertyRoomInitialSpawn, true);
+});
+
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
 	event.player.stopSound("portal.travel");
+
 	const triggeredByRoomTransfer: boolean =
 		event.player.getDynamicProperty(dynamicPropertyRoomTransfer) !== undefined;
 	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
+
+	const isInitialSpawn: boolean =
+		event.player.getDynamicProperty(dynamicPropertyRoomInitialSpawn) !== undefined;
+	event.player.setDynamicProperty(dynamicPropertyRoomInitialSpawn, undefined);
+
 	const newRoom: Room | undefined = Room.get(event.toDimension.id);
 	if (newRoom === undefined) {
 		return;
 	}
-	if (triggeredByRoomTransfer) {
-		// Set rotation after player has transferred dimensions
+
+	if (triggeredByRoomTransfer || isInitialSpawn) {
+		// Set rotation after player has changed dimensions
 		let spawn: TeleportLocation;
 		if (newRoom.hub?.isActive) {
 			spawn = newRoom.hub.spawn;
@@ -45,13 +64,15 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 			spawn = newRoom.spawn;
 		}
 		event.player.teleport(spawn.pos, { facingLocation: spawn.facing });
-	} else {
-		// Joined through /tp, maintain position teleported to
-		const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
-		const teleportLocation: Vector3 = Object.create(event.player.location);
-		newRoom.join(event.player, previousRoom);
-		event.player.teleport(teleportLocation);
+		return;
 	}
+
+	// Joined from /tp. Maintain teleported position and run join/leave callbacks
+	const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
+	const teleportLocation: Vector3 = Object.create(event.player.location);
+	newRoom.join(event.player, previousRoom, true);
+	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
+	event.player.teleport(teleportLocation);
 });
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
@@ -163,8 +184,11 @@ export class Room {
 		});
 	}
 
-	public join(player: Player, previousRoom?: Room): boolean {
-		if (this._dimension === undefined || (this.beforeJoin !== null && !this.beforeJoin(player))) {
+	public join(player: Player, previousRoom?: Room, ignoreBeforeJoin = false): boolean {
+		if (
+			this._dimension === undefined ||
+			(!ignoreBeforeJoin && this.beforeJoin !== null && !this.beforeJoin(player))
+		) {
 			return false;
 		}
 		if (previousRoom === undefined) {
