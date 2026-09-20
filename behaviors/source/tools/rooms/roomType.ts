@@ -122,6 +122,12 @@ export function roomTypeInit(config: RoomTypeConfig): RoomType {
 }
 
 export function roomTypeJoin(player: Player, type: RoomType, roomIndex = 0): boolean {
-	const room: Room | undefined = type.rooms[roomIndex];
+	const room: Room | undefined = type?.rooms[roomIndex];
+	return room?.join(player) ?? false;
+}
+
+export function roomTypeIdJoin(player: Player, typeId: string, roomIndex = 0): boolean {
+	const type: RoomType | undefined = roomTypeGet(typeId);
+	const room: Room | undefined = type?.rooms[roomIndex];
 	return room?.join(player) ?? false;
 }
