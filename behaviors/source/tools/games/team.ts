@@ -7,7 +7,8 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../types";
+import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
+import { EventSignal, TeamDistributionMode, type TeleportLocation } from "../../types";
 import { deathLocationTracker } from "../trackers/deathLocationTracker";
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
@@ -22,7 +23,7 @@ world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {
 		event.player.nameTag = event.player.name;
-		event.player.chatNamePrefix = "";
+		event.player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
 	} else {
 		const team: Team | null = Team.findPlayer(event.player);
 		if (team !== null) {
@@ -34,9 +35,14 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 world.afterEvents.worldLoad.subscribe(() => {
 	for (const p of world.getAllPlayers()) {
 		p.nameTag = p.name;
-		p.chatNamePrefix = "";
+		p.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
 	}
 });
+
+export interface TeamPlayerEliminationEvent {
+	oldTeam: Team;
+	player: Player;
+}
 
 export class Team {
 	private static _globalPlayers = new Map<string, Team>();
@@ -45,15 +51,52 @@ export class Team {
 		return Team._globalPlayers.get(player.id) ?? null;
 	}
 
+	public static distribute(
+		teams: Team[],
+		players: Player[],
+		mode: TeamDistributionMode = TeamDistributionMode.Balanced,
+	): void {
+		if (teams.length < 1) {
+			return;
+		}
+		switch (mode) {
+			case TeamDistributionMode.Balanced: {
+				break;
+			}
+			case TeamDistributionMode.InOrder: {
+				let i = 0;
+				let currentTeam: Team | undefined = teams[i];
+				if (currentTeam === undefined) {
+					return;
+				}
+				for (const p of players) {
+					if (Team._globalPlayers.has(p.id)) {
+						continue;
+					}
+					while (currentTeam.playerCount >= currentTeam.maxPlayers) {
+						currentTeam = teams[++i];
+						if (currentTeam === undefined) {
+							return;
+						}
+					}
+					currentTeam.add(p);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
 	public canRespawn: boolean;
 	public colorCode: string;
 	public maxPlayers: number;
 	public name: string;
 	public respawnTimeTicks: number;
 	public spawnPoint: TeleportLocation;
-	public onRespawn: EventSignal<PlayerEvent>;
+	public onSpawn: EventSignal<PlayerSpawnAfterEvent>;
 	// Elimination events are still triggered when player.isValid is false
-	public onElimination: EventSignal<PlayerEvent>;
+	public onElimination: EventSignal<TeamPlayerEliminationEvent>;
 	private _players: Set<Player>;
 	private _isRespawning: Set<Player>;
 
@@ -71,10 +114,28 @@ export class Team {
 			},
 			pos: spawnPoint,
 		};
-		this.onRespawn = new EventSignal<PlayerEvent>();
-		this.onElimination = new EventSignal<PlayerEvent>();
+		this.onSpawn = new EventSignal<PlayerSpawnAfterEvent>();
+		this.onElimination = new EventSignal<TeamPlayerEliminationEvent>();
 		this._players = new Set<Player>();
 		this._isRespawning = new Set<Player>();
+	}
+
+	public get playerCount(): number {
+		return this._players.size;
+	}
+
+	public get players(): Player[] {
+		return [...this._players];
+	}
+
+	public get displayName(): string {
+		if (this._players.size === 1) {
+			const player: Player | undefined = this._players.values().next().value;
+			if (player !== undefined) {
+				return `${this.colorCode}${player.name}§r`;
+			}
+		}
+		return `${this.colorCode}${this.name} Team§r`;
 	}
 
 	public add(player: Player): boolean {
@@ -94,19 +155,19 @@ export class Team {
 	}
 
 	public remove(player: Player, triggerEvent = true): boolean {
-		if (triggerEvent) {
-			this.onElimination.triggerEvent({ player: player });
-		}
 		if (player.isValid) {
 			player.nameTag = player.name;
-			player.chatNamePrefix = "";
+			player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
 		}
-		if (this._players.delete(player)) {
-			this._isRespawning.delete(player);
-			Team._globalPlayers.delete(player.id);
-			return true;
+		if (!this._players.delete(player)) {
+			return false;
 		}
-		return false;
+		this._isRespawning.delete(player);
+		Team._globalPlayers.delete(player.id);
+		if (triggerEvent) {
+			this.onElimination.triggerEvent({ oldTeam: this, player: player });
+		}
+		return true;
 	}
 
 	public clearPlayers(triggerEvents = false): void {
@@ -115,26 +176,33 @@ export class Team {
 		}
 	}
 
+	public spawnPlayers(): void {
+		for (const p of this._players) {
+			p.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
+			this.onSpawn.triggerEvent({ initialSpawn: true, player: p });
+		}
+	}
+
 	public respawn(player: Player): void {
-		if (!this.canRespawn) {
-			this.remove(player);
-			return;
-		}
-		if (this.respawnTimeTicks === 0) {
-			player.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
-			this.onRespawn.triggerEvent({ player: player });
-			return;
-		}
 		if (this._isRespawning.has(player)) {
 			return;
 		}
+		player.onScreenDisplay.setTitle("§cYOU DIED!");
+		if (this.canRespawn && this.respawnTimeTicks === 0) {
+			player.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
+			this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
+			return;
+		}
+		const oldGameMode: GameMode = player.getGameMode();
+		player.setGameMode(GameMode.Spectator);
 		const deathLocation: Vector3 | null = deathLocationTracker(player);
 		if (deathLocation !== null) {
 			player.teleport(deathLocation);
 		}
-		player.onScreenDisplay.setTitle("§cYOU DIED!");
-		const oldGameMode: GameMode = player.getGameMode();
-		player.setGameMode(GameMode.Spectator);
+		if (!this.canRespawn) {
+			this.remove(player);
+			return;
+		}
 		const respawnTimeTicks: number = this.respawnTimeTicks;
 		let secondsRemaining: number = respawnTimeTicks / 20;
 		let ticks = 0;
@@ -145,7 +213,7 @@ export class Team {
 					player.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
 					player.onScreenDisplay.setActionBar("§eYou will respawn in §c0§e seconds!");
 					player.onScreenDisplay.setTitle("§aRESPAWNED!");
-					this.onRespawn.triggerEvent({ player: player });
+					this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 				}
 				system.clearRun(intervalId);
 				this._isRespawning.delete(player);

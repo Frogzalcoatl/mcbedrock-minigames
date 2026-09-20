@@ -13,12 +13,18 @@ export function teleportLocationToString(spawn: TeleportLocation): string {
 }
 
 export const GameState = {
-	Preparing: 0,
+	Resetting: 0,
 	Starting: 1,
 	Active: 2,
 	Ending: 3,
 } as const;
 export type GameState = (typeof GameState)[keyof typeof GameState];
+
+export const TeamDistributionMode = {
+	Balanced: 0,
+	InOrder: 1,
+} as const;
+export type TeamDistributionMode = (typeof TeamDistributionMode)[keyof typeof TeamDistributionMode];
 
 export class EventSignal<T> {
 	private _callbacks: Set<(event: T) => void>;
