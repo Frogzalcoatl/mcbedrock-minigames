@@ -109,7 +109,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 roomTypeInit({
 	defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
 	displayName: "Kit Pvp",
-	icon: "textures/items/diamond_sword.png",
+	icon: "textures/items/blaze_powder.png",
 	roomCount: 1,
 	roomCreatorFunc: creator,
 	typeId: roomTypeIds.kitPvp,
