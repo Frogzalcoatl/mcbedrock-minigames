@@ -1,3 +1,19 @@
 * Add duels and the tools necessary to recreate similar gamemodes
 
 * Spawnpoint needs to be reset after leaving hub. Determine whether you need to refactor RoomHub class.
+
+* getters for players on Team and Game classes probably shouldnt be arrays. 
+	- The idea behind doing it that way was to not give the user direct access to adding/removing values from set, but rather use the add/remove class funcs.
+	- Perhaps you could return an iterator instead? But idk if thats weird to do
+
+* Distinguish between alive/dead players on a team.
+	- Use this to better handle team names
+
+* Just look through all the new code from the past few days in general
+	- Its all stress code meaning its likely illogical but redeemable. Figure out your mental stuf then come back to this.
+
+* Determine whether you should be using the Game.state setter inside Game class funcs at all.
+	- My intiution tells me this makes things more confusing, but theres probably a lot of confusing stuff going on rn.
+	- I have a headache and its late i need to stop.
+
+* Come up with a better way to handle spectator teleports

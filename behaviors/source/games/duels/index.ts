@@ -4,16 +4,20 @@ import {
 	type EntityInventoryComponent,
 	GameMode,
 	ItemStack,
+	type Player,
+	system,
 } from "@minecraft/server";
-import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
+import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
+import { itemLeaveGame } from "../../items/games/leaveGame";
+import { clearEntityEquippable } from "../../tools/componentHelpers";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { Game, type GameJoinEvent } from "../../tools/games/game";
+import type { Team } from "../../tools/games/team";
 import { Room } from "../../tools/rooms/room";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
 import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";
-import { GameState } from "../../types";
-import { hubEffectHelper } from "../helpers";
+import { GameState, type TeleportLocation } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
@@ -36,28 +40,91 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		playersPerTeam: 1,
 		playersToStart: 2,
 		room: room,
-		spectatorPos: { x: 0.5, y: 0, z: 0.5 },
+		spectatorPos: { x: -60, y: 0, z: 2 },
 		teamCount: 2,
 	});
+	const spawnPoints: TeleportLocation[] = [
+		{
+			facing: {
+				x: -59.5,
+				y: -1,
+				z: 29.5,
+			},
+			pos: {
+				x: -60.5,
+				y: -1,
+				z: 30.5,
+			},
+		},
+		{
+			facing: {
+				x: -59.5,
+				y: -1,
+				z: -21.5,
+			},
+			pos: {
+				x: -59.5,
+				y: -1,
+				z: -22.5,
+			},
+		},
+	];
+	for (let i = 0; i < spawnPoints.length; i++) {
+		const spawnPoint: TeleportLocation | undefined = spawnPoints[i];
+		if (spawnPoint === undefined) {
+			break;
+		}
+		const team: Team | undefined = game.teams[i];
+		if (team === undefined) {
+			break;
+		}
+		team.spawnPoint = spawnPoint;
+	}
 	game.onJoin.subscribe((event: GameJoinEvent): void => {
-		hubEffectHelper(event.player);
 		if (event.game.state !== GameState.Active) {
 			event.player.setGameMode(GameMode.Adventure);
+			event.player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+				amplifier: 255,
+				showParticles: false,
+			});
 		}
 		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
 			if (event.game.state === GameState.Starting) {
-				inventory.container.setItem(8, new ItemStack(MinecraftItemTypes.RedDye));
+				inventory.container.setItem(8, itemLeaveGame());
+			}
+		}
+	});
+	game.onStart.subscribe((gameEvent: Game) => {
+		const players: Player[] = gameEvent.players;
+		const woodenSword = new ItemStack(MinecraftItemTypes.WoodenSword);
+		for (const p of players) {
+			p.removeEffect(MinecraftEffectTypes.Weakness);
+			clearEntityEquippable(p);
+			const inventory: EntityInventoryComponent | undefined = p.getComponent(
+				EntityComponentTypes.Inventory,
+			);
+			if (inventory !== undefined) {
+				inventory.container.clearAll();
+				inventory.container.setItem(0, woodenSword);
 			}
 		}
 	});
 	game.whileActive.subscribe((game: Game): void => {
 		game.setActionBar(`Seconds Remaining: ${game.secondsRemaining}`);
 	});
+	game.endGame = (game: Game): void => {
+		for (const p of game.players) {
+			p.setGameMode(GameMode.Spectator);
+		}
+		system.runTimeout(() => {
+			game.state = GameState.Resetting;
+		}, 100);
+	};
+	game.startTimeSeconds = 10;
 	game.state = GameState.Starting;
-	game.gameDurationSeconds = 10;
 	return room;
 };
 
@@ -65,7 +132,7 @@ roomTypeInit({
 	defaultDimensionId: `${PACK_NAMESPACE}:duels`,
 	displayName: "Duels",
 	icon: "textures/items/iron_sword.png",
-	roomCount: 1,
+	roomCount: 3,
 	roomCreatorFunc: creator,
 	typeId: roomTypeIds.duels,
 });
