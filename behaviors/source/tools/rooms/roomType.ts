@@ -7,8 +7,9 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
+import { SimulatedPlayer } from "@minecraft/server-gametest";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
-import type { Room } from "./room";
+import { Room } from "./room";
 
 system.beforeEvents.startup.subscribe((event: StartupEvent) => {
 	for (const type of roomTypes) {
@@ -39,9 +40,18 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 		return;
 	}
 	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
-	if (hubRoomType !== undefined) {
-		roomTypeJoin(event.player, hubRoomType);
+	if (hubRoomType === undefined) {
+		return;
 	}
+	const hub: Room | undefined = hubRoomType.rooms[0];
+	if (event.player instanceof SimulatedPlayer) {
+		// Spawn sim players in same room as origin and run room.join as if they joined from hub
+		const room: Room | undefined = Room.get(event.player.dimension.id);
+		if (room?.join(event.player, hub)) {
+			return;
+		}
+	}
+	hub?.join(event.player, hub);
 });
 
 export type RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string) => Room;

@@ -1,1 +1,3 @@
 * Add duels and the tools necessary to recreate similar gamemodes
+
+* Spawnpoint needs to be reset after leaving hub. Determine whether you need to refactor RoomHub class.

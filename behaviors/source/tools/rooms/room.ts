@@ -26,23 +26,32 @@ const dynamicPropertyRoomTransfer: string = "transferring_room";
 
 // setRotation and facing parameter of teleport are ignored during dimension transfer
 // rotate players after they finish transferring dimensions instead
+// Additionally trigger room.join for players who transferred dimensions through /tp
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
 	event.player.stopSound("portal.travel");
-	if (event.player.getDynamicProperty(dynamicPropertyRoomTransfer) === undefined) {
-		return;
-	}
+	const triggeredByRoomTransfer: boolean =
+		event.player.getDynamicProperty(dynamicPropertyRoomTransfer) !== undefined;
 	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
-	const room: Room | undefined = Room.findPlayer(event.player);
-	if (room === undefined) {
+	const newRoom: Room | undefined = Room.get(event.toDimension.id);
+	if (newRoom === undefined) {
 		return;
 	}
-	let spawn: TeleportLocation;
-	if (room.hub?.isActive) {
-		spawn = room.hub.spawn;
+	if (triggeredByRoomTransfer) {
+		// Set rotation after player has transferred dimensions
+		let spawn: TeleportLocation;
+		if (newRoom.hub?.isActive) {
+			spawn = newRoom.hub.spawn;
+		} else {
+			spawn = newRoom.spawn;
+		}
+		event.player.teleport(spawn.pos, { facingLocation: spawn.facing });
 	} else {
-		spawn = room.spawn;
+		// Joined through /tp, maintain position teleported to
+		const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
+		const teleportLocation: Vector3 = Object.create(event.player.location);
+		newRoom.join(event.player, previousRoom);
+		event.player.teleport(teleportLocation);
 	}
-	event.player.teleport(spawn.pos, { facingLocation: spawn.facing });
 });
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
@@ -154,11 +163,13 @@ export class Room {
 		});
 	}
 
-	public join(player: Player): boolean {
+	public join(player: Player, previousRoom?: Room): boolean {
 		if (this._dimension === undefined || (this.beforeJoin !== null && !this.beforeJoin(player))) {
 			return false;
 		}
-		const previousRoom: Room | undefined = Room.findPlayer(player);
+		if (previousRoom === undefined) {
+			previousRoom = Room.findPlayer(player);
+		}
 		if (previousRoom !== undefined) {
 			previousRoom.leave(player);
 			if (previousRoom.dimensionId !== this.dimensionId) {

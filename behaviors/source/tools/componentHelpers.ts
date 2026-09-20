@@ -189,13 +189,7 @@ export function giveItemToEntity(
 	giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
 }
 
-export function clearEntityInventory(entity: Entity): void {
-	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
-		EntityComponentTypes.Inventory,
-	);
-	if (inventory !== undefined) {
-		inventory.container.clearAll();
-	}
+export function clearEntityEquippable(entity: Entity): void {
 	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Equippable,
 	);
@@ -205,5 +199,14 @@ export function clearEntityInventory(entity: Entity): void {
 		equippable.setEquipment(EquipmentSlot.Legs, undefined);
 		equippable.setEquipment(EquipmentSlot.Feet, undefined);
 		equippable.setEquipment(EquipmentSlot.Offhand, undefined);
+	}
+}
+
+export function clearEntityInventory(entity: Entity): void {
+	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
+		EntityComponentTypes.Inventory,
+	);
+	if (inventory !== undefined) {
+		inventory.container.clearAll();
 	}
 }

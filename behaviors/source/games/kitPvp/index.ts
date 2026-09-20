@@ -1,23 +1,18 @@
 import {
 	EntityComponentTypes,
 	type EntityDieAfterEvent,
-	type EntityHealthComponent,
 	type EntityInventoryComponent,
 	GameMode,
 	Player,
 	system,
 	world,
 } from "@minecraft/server";
-import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
+import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import {
-	changeEntityHealth,
-	clearEntityEffects,
-	clearEntityInventory,
-} from "../../tools/componentHelpers";
+import { changeEntityHealth } from "../../tools/componentHelpers";
 import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { kits } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
@@ -33,6 +28,7 @@ import {
 	projectileTrackerRemovePlayer,
 } from "../../tools/trackers/projectileTracker";
 import type { PlayerEvent } from "../../types";
+import { hubEffectHelper } from "../helpers";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
@@ -78,28 +74,12 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	});
 	room.hub = new RoomHub(room.dimensionId, room.spawn);
 	room.hub.onJoin.subscribe((event: PlayerEvent): void => {
-		const player: Player = event.player;
-		killTrackerRemovePlayer(player);
+		killTrackerRemovePlayer(event.player);
 		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(player.id, room.dimensionId);
-		player.setGameMode(GameMode.Adventure);
-		const health: EntityHealthComponent | undefined = player.getComponent(
-			EntityComponentTypes.Health,
-		);
-		if (health !== undefined) {
-			health.resetToMaxValue();
-		}
-		clearEntityInventory(player);
-		clearEntityEffects(player);
-		player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
-			amplifier: 255,
-			showParticles: false,
-		});
-		player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
-			amplifier: 255,
-			showParticles: false,
-		});
-		const inventory: EntityInventoryComponent | undefined = player.getComponent(
+		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
+		event.player.setGameMode(GameMode.Adventure);
+		hubEffectHelper(event.player);
+		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
