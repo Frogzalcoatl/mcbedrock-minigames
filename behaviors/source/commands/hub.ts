@@ -9,8 +9,8 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
+import type { LocalHub } from "../tools/rooms/localHub";
 import { Room } from "../tools/rooms/room";
-import type { RoomHub } from "../tools/rooms/roomHub";
 import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/rooms/roomType";
 import { getPlayerFromOrigin } from "./utils/origin";
 
@@ -31,8 +31,8 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 				};
 			}
 			const playerRoom: Room | undefined = Room.findPlayer(player);
-			if (playerRoom?.hub?.isActive && !playerRoom.hub.has(player)) {
-				const hub: RoomHub = playerRoom.hub;
+			if (playerRoom?.localHub?.isActive && !playerRoom.localHub.has(player)) {
+				const hub: LocalHub = playerRoom.localHub;
 				system.run(() => {
 					hub.join(player);
 				});

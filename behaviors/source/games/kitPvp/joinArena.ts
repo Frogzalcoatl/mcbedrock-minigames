@@ -35,5 +35,5 @@ export function joinKitPvpArena(player: Player, selectedKitIndex: number): void 
 	}
 	player.teleport({ x: 323, y: 9, z: 204 });
 	const room: Room | undefined = Room.findPlayer(player);
-	room?.hub?.leave(player);
+	room?.localHub?.leave(player);
 }

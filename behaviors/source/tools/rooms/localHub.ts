@@ -8,7 +8,7 @@ import {
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../types";
 
-export class RoomHub {
+export class LocalHub {
 	public readonly dimensionId: string;
 	public onJoin: EventSignal<PlayerEvent>;
 	public onLeave: EventSignal<PlayerEvent>;

@@ -1,6 +1,6 @@
 * Add duels and the tools necessary to recreate similar gamemodes
 
-* Spawnpoint needs to be reset after leaving hub. Determine whether you need to refactor RoomHub class.
+* Spawnpoint needs to be reset after leaving hub. Determine whether you need to refactor LocalHub class.
 
 * getters for players on Team and Game classes probably shouldnt be arrays. 
 	- The idea behind doing it that way was to not give the user direct access to adding/removing values from set, but rather use the add/remove class funcs.

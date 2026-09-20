@@ -21,7 +21,7 @@ import { ejectFromMount } from "../mount";
 import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
-import type { RoomHub } from "./roomHub";
+import type { LocalHub } from "./localHub";
 
 // Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.
 // If a player is teleported using /tp, Room.join is run and their teleported position is maintained.
@@ -58,8 +58,8 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 	if (triggeredByRoomTransfer || isInitialSpawn) {
 		// Set rotation after player has changed dimensions
 		let spawn: TeleportLocation;
-		if (newRoom.hub?.isActive) {
-			spawn = newRoom.hub.spawn;
+		if (newRoom.localHub?.isActive) {
+			spawn = newRoom.localHub.spawn;
 		} else {
 			spawn = newRoom.spawn;
 		}
@@ -127,7 +127,7 @@ export class Room {
 	public onJoin: EventSignal<PlayerEvent>;
 	// Leave events still triggered when player.isValid is false
 	public onLeave: EventSignal<PlayerEvent>;
-	public hub: RoomHub | null;
+	public localHub: LocalHub | null;
 	private _spawn: TeleportLocation;
 	private _dimension: Dimension | undefined;
 
@@ -136,7 +136,7 @@ export class Room {
 		this.displayName = config.displayName;
 		this.icon = config.icon ?? "";
 		this.structures = config.structures ?? [];
-		this.hub = null;
+		this.localHub = null;
 		this._spawn = config.spawn;
 		this.beforeJoin = null;
 		this.onJoin = new EventSignal<PlayerEvent>();
@@ -168,7 +168,7 @@ export class Room {
 			z: val.pos.z,
 		};
 		for (const player of this._dimension.getPlayers()) {
-			if (this.hub?.has(player)) {
+			if (this.localHub?.has(player)) {
 				continue;
 			}
 			player.setSpawnPoint(location);
@@ -200,8 +200,8 @@ export class Room {
 				player.setDynamicProperty(dynamicPropertyRoomTransfer, true);
 			}
 		}
-		if (this.hub?.isActive) {
-			this.hub.join(player);
+		if (this.localHub?.isActive) {
+			this.localHub.join(player);
 		} else {
 			player.teleport(this._spawn.pos, {
 				dimension: this._dimension,
@@ -229,14 +229,14 @@ export class Room {
 			player: player,
 		};
 		this.onLeave.triggerEvent(event);
-		if (this.hub?.isActive) {
-			this.hub.leave(player);
+		if (this.localHub?.isActive) {
+			this.localHub.leave(player);
 		}
 		if (player.isValid) {
 			ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
 		}
-		if (this.hub !== null) {
-			this.hub.leave(player);
+		if (this.localHub !== null) {
+			this.localHub.leave(player);
 		}
 	}
 
@@ -272,7 +272,7 @@ Icon: §e${this.icon}§r
 Player Count: §e${this.playerCount}§r
 Spawn: §e${teleportLocationToString(this._spawn)}§r
 Saved Structures: §e${this.structures.length}§r
-Includes Hub: §e${this.hub !== null}§r
+Includes Hub: §e${this.localHub !== null}§r
 Projectile Tracker: §e${projectileTrackerHasDimension(this.dimensionId)}§r
 Kill Tracker: §e${killTrackerHasDimension(this.dimensionId)}§r
 `.trim();
