@@ -1,5 +1,6 @@
 import {
 	EntitySwingSource,
+	HeldItemOption,
 	ItemLockMode,
 	ItemStack,
 	type ItemUseAfterEvent,
@@ -41,7 +42,7 @@ world.afterEvents.playerSwingStart.subscribe(
 			callback(event.player);
 		}
 	},
-	{ swingSource: EntitySwingSource.Attack },
+	{ heldItemOption: HeldItemOption.AnyItem, swingSource: EntitySwingSource.Attack },
 );
 
 export function itemKitPvpSelect(): ItemStack {

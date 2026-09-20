@@ -1,5 +1,6 @@
 import {
 	EntitySwingSource,
+	HeldItemOption,
 	ItemLockMode,
 	ItemStack,
 	type ItemUseAfterEvent,
@@ -30,7 +31,7 @@ world.afterEvents.playerSwingStart.subscribe(
 			showFormTeleporter(event.player);
 		}
 	},
-	{ swingSource: EntitySwingSource.Attack },
+	{ heldItemOption: HeldItemOption.AnyItem, swingSource: EntitySwingSource.Attack },
 );
 
 export function itemTeleporter(): ItemStack {
