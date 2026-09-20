@@ -17,3 +17,5 @@
 	- I have a headache and its late i need to stop.
 
 * Come up with a better way to handle spectator teleports
+
+* Investigate why running /tp @a @s changes the user's head rotation
