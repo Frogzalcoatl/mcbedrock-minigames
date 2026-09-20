@@ -4,9 +4,14 @@ import {
 	type EntityDieAfterEvent,
 	Player,
 } from "@minecraft/server";
+import { DEFAULT_CHATNAME_PREFIX } from "../constants";
+import { playerNameTracker } from "./trackers/playerNameTracker";
 
 export function getPlayerName(player: Player): string {
-	return `${player.chatNamePrefix ?? "§7"}${player.name}${player.chatNameSuffix ?? ""}`;
+	if (!player.isValid) {
+		return `§7${playerNameTracker(player.id)}`;
+	}
+	return `${player.chatNamePrefix ?? DEFAULT_CHATNAME_PREFIX}${player.name}${player.chatNameSuffix ?? ""}`;
 }
 
 export function getEntityName(entity: Entity): string {

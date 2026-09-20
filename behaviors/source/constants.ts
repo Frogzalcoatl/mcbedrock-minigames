@@ -10,3 +10,4 @@ export const roomTypeIds = {
 
 export const MAX_EFFECT_DURATION: number = 2e7;
 export const ICE_BOMB_ID: string = "minecraft:ice_bomb";
+export const DEFAULT_CHATNAME_PREFIX = "§7";
