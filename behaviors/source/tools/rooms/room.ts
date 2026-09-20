@@ -5,7 +5,6 @@ import {
 	type Player,
 	type PlayerDimensionChangeAfterEvent,
 	type PlayerLeaveBeforeEvent,
-	type PlayerSpawnAfterEvent,
 	system,
 	type Vector3,
 	world,
@@ -22,33 +21,23 @@ import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
 import type { LocalHub } from "./localHub";
+import { isInitialSpawnTransfer } from "./roomType";
 
 // Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.
 // If a player is teleported using /tp, Room.join is run and their teleported position is maintained.
 // A room transfer is triggered on initialSpawn in roomType.ts.
 // With my implementation, this would be incorrectly recognized as a /tp dimension change and trigger a leave event in the dimension the player was on before last leaving the world.
-// To avoid this, we detect it using the playerSpawn event.
+// To avoid this, we detect it using a dynamic property set on initial spawn.
 
-const dynamicPropertyRoomTransfer: string = "transferring_room";
-const dynamicPropertyRoomInitialSpawn: string = "room_initial_spawn";
-
-world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
-	if (!event.initialSpawn) {
-		return;
-	}
-	event.player.setDynamicProperty(dynamicPropertyRoomInitialSpawn, true);
-});
+const propertyRoomTransfer: string = "transferring_room";
 
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
 	event.player.stopSound("portal.travel");
 
 	const triggeredByRoomTransfer: boolean =
-		event.player.getDynamicProperty(dynamicPropertyRoomTransfer) !== undefined;
-	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
-
-	const isInitialSpawn: boolean =
-		event.player.getDynamicProperty(dynamicPropertyRoomInitialSpawn) !== undefined;
-	event.player.setDynamicProperty(dynamicPropertyRoomInitialSpawn, undefined);
+		event.player.getDynamicProperty(propertyRoomTransfer) !== undefined;
+	event.player.setDynamicProperty(propertyRoomTransfer, undefined);
+	const isInitialSpawn: boolean = isInitialSpawnTransfer(event.player);
 
 	const newRoom: Room | undefined = Room.get(event.toDimension.id);
 	if (newRoom === undefined) {
@@ -71,7 +60,7 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 	const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
 	const teleportLocation: Vector3 = Object.create(event.player.location);
 	newRoom.join(event.player, previousRoom, true);
-	event.player.setDynamicProperty(dynamicPropertyRoomTransfer, undefined);
+	event.player.setDynamicProperty(propertyRoomTransfer, undefined);
 	event.player.teleport(teleportLocation);
 });
 
@@ -197,7 +186,7 @@ export class Room {
 		if (previousRoom !== undefined) {
 			previousRoom.leave(player);
 			if (previousRoom.dimensionId !== this.dimensionId) {
-				player.setDynamicProperty(dynamicPropertyRoomTransfer, true);
+				player.setDynamicProperty(propertyRoomTransfer, true);
 			}
 		}
 		if (this.localHub?.isActive) {
@@ -233,7 +222,7 @@ export class Room {
 			this.localHub.leave(player);
 		}
 		if (player.isValid) {
-			ejectFromMount(player); // If i dont do this, player is teleported to the mount location in the new dimension for some reason
+			ejectFromMount(player); // If i dont do this, player is teleported to their mount's location in the new dimension for some reason
 		}
 		if (this.localHub !== null) {
 			this.localHub.leave(player);

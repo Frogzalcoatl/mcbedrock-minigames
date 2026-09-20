@@ -35,10 +35,13 @@ world.afterEvents.worldLoad.subscribe(() => {
 	}
 });
 
+const propertyInitialSpawnTransfer: string = "initial_spawn_room_transfer";
+
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (!event.initialSpawn) {
 		return;
 	}
+	event.player.setDynamicProperty(propertyInitialSpawnTransfer, true);
 	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
 	if (hubRoomType === undefined) {
 		return;
@@ -53,6 +56,15 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	}
 	hub?.join(event.player, hub);
 });
+
+export function isInitialSpawnTransfer(player: Player): boolean {
+	if (player.getDynamicProperty(propertyInitialSpawnTransfer) !== undefined) {
+		player.setDynamicProperty(propertyInitialSpawnTransfer, undefined);
+		return true;
+	} else {
+		return false;
+	}
+}
 
 export type RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string) => Room;
 
