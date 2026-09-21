@@ -40,7 +40,7 @@ function handleDeath(event: EntityDieAfterEvent): void {
 	if (!event.deadEntity.isValid) {
 		return;
 	}
-	const kit: Kit | null = getEntityKit(event.deadEntity);
+	const kit: Kit | null = kitGet(event.deadEntity);
 	if (kit?.onDeath) {
 		kit.onDeath(event.deadEntity, event.damageSource.damagingEntity);
 	}
@@ -53,13 +53,13 @@ function handleKill(event: EntityDieAfterEvent): void {
 	) {
 		return;
 	}
-	const kit: Kit | null = getEntityKit(event.damageSource.damagingEntity);
+	const kit: Kit | null = kitGet(event.damageSource.damagingEntity);
 	if (kit?.onKill) {
 		kit.onKill(event.damageSource.damagingEntity, event.deadEntity);
 	}
 }
 
-export function kitsEntityDieHandler(event: EntityDieAfterEvent): void {
+export function kitEntityDieHandler(event: EntityDieAfterEvent): void {
 	handleDeath(event);
 	handleKill(event);
 }
@@ -81,7 +81,7 @@ export interface Kit {
 
 export const kits = new Map<string, Kit[]>(); // key is roomTypeId
 
-export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): Kit | undefined {
+export function kitGive(entity: Entity, roomTypeId: string, kitIndex: number): Kit | undefined {
 	const roomTypeKits: Kit[] | undefined = kits.get(roomTypeId);
 	if (roomTypeKits === undefined) {
 		return undefined;
@@ -109,7 +109,7 @@ export function giveKit(entity: Entity, roomTypeId: string, kitIndex: number): K
 	return kit;
 }
 
-export function getEntityKit(entity: Entity): Kit | null {
+export function kitGet(entity: Entity): Kit | null {
 	const value: EntityKitsMapValue | undefined = entityKits.get(entity.id);
 	if (value === undefined) {
 		return null;
@@ -119,6 +119,10 @@ export function getEntityKit(entity: Entity): Kit | null {
 		return null;
 	}
 	return roomTypeKits[value.kitIndex] ?? null;
+}
+
+export function kitReset(entity: Entity): boolean {
+	return entityKits.delete(entity.id);
 }
 
 export function kitArmorEnchant(kit: Kit, id: string, level = 1): void {

@@ -13,11 +13,11 @@ import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { changeEntityHealth } from "../../tools/componentHelpers";
-import { deathMessageFromEvent } from "../../tools/deathMessages";
-import { kits } from "../../tools/games/kits";
+import { kitReset, kits } from "../../tools/games/kits";
 import { LocalHub } from "../../tools/rooms/localHub";
 import { Room } from "../../tools/rooms/room";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
+import { deathMessageFromEvent } from "../../tools/textFormatting";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
@@ -71,6 +71,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		killTrackerRemovePlayer(event.player);
 		itemCooldownRemovePlayer(event.player);
 		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
+		kitReset(event.player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
 	room.localHub.onJoin.subscribe((event: PlayerEvent): void => {

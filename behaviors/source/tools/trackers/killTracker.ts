@@ -9,7 +9,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { EventSignal, type PlayerEvent } from "../../types";
-import { kitsEntityDieHandler } from "../games/kits";
+import { kitEntityDieHandler } from "../games/kits";
 
 const hitCooldownTicks: number = 20 * 7;
 
@@ -98,7 +98,7 @@ world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
 		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
 	}
 	config.onKill.triggerEvent(event);
-	kitsEntityDieHandler(event);
+	kitEntityDieHandler(event);
 	hitMap.delete(event.deadEntity.id);
 	if (event.damageSource.damagingEntity !== undefined) {
 		hitMap.delete(event.damageSource.damagingEntity.id);

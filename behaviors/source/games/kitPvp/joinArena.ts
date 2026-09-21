@@ -11,7 +11,7 @@ import {
 	clearEntityEquippable,
 	clearEntityInventory,
 } from "../../tools/componentHelpers";
-import { giveKit, type Kit } from "../../tools/games/kits";
+import { type Kit, kitGive } from "../../tools/games/kits";
 import { Room } from "../../tools/rooms/room";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
@@ -29,7 +29,7 @@ export function joinKitPvpArena(player: Player, selectedKitIndex: number): void 
 	});
 	clearEntityEquippable(player);
 	clearEntityInventory(player);
-	const givenKit: Kit | undefined = giveKit(player, roomTypeIds.kitPvp, selectedKitIndex);
+	const givenKit: Kit | undefined = kitGive(player, roomTypeIds.kitPvp, selectedKitIndex);
 	if (givenKit !== undefined) {
 		player.sendMessage(`§7Selected Kit: ${givenKit.name}`);
 	}
