@@ -11,11 +11,11 @@ import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-dat
 import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemLeaveGame } from "../../items/games/leaveGame";
 import { clearEntityEquippable } from "../../tools/componentHelpers";
-import { deathMessageFromEvent } from "../../tools/deathMessages";
 import { Game, type GameJoinEvent } from "../../tools/games/game";
 import type { Team } from "../../tools/games/team";
 import { Room } from "../../tools/rooms/room";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
+import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/textFormatting";
 import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";
 import { GameState, type TeleportLocation } from "../../types";
 
@@ -51,7 +51,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 				z: 29.5,
 			},
 			pos: {
-				x: -60.5,
+				x: -59.5,
 				y: -1,
 				z: 30.5,
 			},
@@ -113,7 +113,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		}
 	});
 	game.whileActive.subscribe((game: Game): void => {
-		game.setActionBar(`Seconds Remaining: ${game.secondsRemaining}`);
+		game.setActionBar(`Time Remaining: §e${formatTimeSeconds(game.secondsRemaining)}`);
 	});
 	game.endGame = (game: Game): void => {
 		for (const p of game.players) {

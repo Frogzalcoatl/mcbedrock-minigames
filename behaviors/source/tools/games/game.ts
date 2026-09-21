@@ -16,9 +16,9 @@ import {
 	clearEntityEquippable,
 	clearEntityInventory,
 } from "../componentHelpers";
-import { getPlayerName } from "../deathMessages";
 import type { Room } from "../rooms/room";
 import { type RoomType, roomTypeGet, roomTypeJoin } from "../rooms/roomType";
+import { getPlayerName } from "../textFormatting";
 import { Team, type TeamPlayerEliminationEvent } from "./team";
 
 interface TeamOrdersValue {
@@ -306,13 +306,15 @@ export class Game {
 		for (const t of this.teams) {
 			t.spawnPlayers();
 		}
-		for (const p of this._players) {
-			p.playSound("random.orb");
-		}
-		for (const s of this._spectators) {
-			s.teleport(this.spectatorPos);
-			s.playSound("random.orb");
-		}
+		system.runTimeout(() => {
+			for (const p of this._players) {
+				p.playSound("random.orb");
+			}
+			for (const s of this._spectators) {
+				s.teleport(this.spectatorPos);
+				s.playSound("random.orb");
+			}
+		}, 1);
 		this.secondsRemaining = this.gameDurationSeconds;
 		this.onStart.triggerEvent(this);
 		if (this._activeIntervalId !== null) {
@@ -338,7 +340,7 @@ export class Game {
 			if (t.playerCount === 0) {
 				continue;
 			}
-			this.sendMessage(`${t.displayName} §7has won the game!`);
+			this.sendMessage(`${t.displayName} §ahas won the game!`);
 			for (const p of t.players) {
 				p.playSound("random.levelup");
 				p.onScreenDisplay.setTitle("§6VICTORY!");

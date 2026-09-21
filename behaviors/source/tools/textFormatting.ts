@@ -22,6 +22,12 @@ export function getEntityName(entity: Entity): string {
 	}
 }
 
+export function formatTimeSeconds(seconds: number): string {
+	const minutes: number = Math.floor(seconds / 60);
+	const remainingSeconds: number = seconds % 60;
+	return `${minutes < 10 ? "0" : ""}${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+}
+
 export function deathMessageFormat(
 	deadName: string,
 	killerName: string | null,
