@@ -9,7 +9,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
-import { defaultItemStackFunc } from "../../tools/componentHelpers";
+import { defaultItemStackFunc } from "../../tools/helpers";
 import { roomTypeIdJoin } from "../../tools/rooms/roomType";
 import { itemUseMap } from "../events";
 

@@ -9,7 +9,7 @@ import {
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
 import { EventSignal, TeamDistributionMode, type TeleportLocation } from "../../types";
-import { arrRemoveSwap } from "../componentHelpers";
+import { arrRemoveSwap } from "../helpers";
 import { deathLocationTracker } from "../trackers/deathLocationTracker";
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {

@@ -2,7 +2,7 @@
 /** biome-ignore-all assist/source/useSortedKeys: Using objects as an enums */
 
 import { type Player, type Vector3, world } from "@minecraft/server";
-import { arrRemoveSwap } from "./tools/componentHelpers";
+import { arrRemoveSwap } from "./tools/helpers";
 
 export interface TeleportLocation {
 	facing: Vector3;

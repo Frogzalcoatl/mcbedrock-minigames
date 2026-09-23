@@ -10,7 +10,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/helpers";
 import { beamParticles } from "../../../tools/particles/beam";
 import { beamFrom } from "../../../tools/projectiles/beam";
 import { killTrackerSetCombat } from "../../../tools/trackers/killTracker";

@@ -1,6 +1,6 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/helpers";
 import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.HeartOfTheSea;

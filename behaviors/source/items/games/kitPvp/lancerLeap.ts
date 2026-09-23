@@ -1,6 +1,6 @@
 import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { defaultItemStackFunc } from "../../../tools/helpers";
 import { entityLeap } from "../../../tools/leap";
 import { itemCooldownCheck, itemCooldownSet } from "../../cooldowns";
 import { itemUseMap } from "../../events";

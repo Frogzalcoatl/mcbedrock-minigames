@@ -1,6 +1,6 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/helpers";
 import { throwFireballFromEntity } from "../../../tools/projectiles/fireball";
 import { itemUseMap } from "../../events";
 

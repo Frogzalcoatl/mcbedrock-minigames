@@ -2,7 +2,6 @@ import { ItemLockMode, ItemStack } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemLancerLeap } from "../../../items/games/kitPvp/lancerLeap";
 import { itemZombieHorse } from "../../../items/games/kitPvp/zombieHorse";
-import { applyEnchant, setDurability } from "../../../tools/componentHelpers";
 import {
 	type Kit,
 	kitArmorDurability,
@@ -10,6 +9,7 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../tools/games/kits";
+import { applyEnchant, setDurability } from "../../../tools/helpers";
 
 export function getKitLancer(): Kit {
 	const kit: Kit = {

@@ -1,6 +1,6 @@
 import type { Entity, ItemStack } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "../../../tools/componentHelpers";
+import { defaultItemStackFunc } from "../../../tools/helpers";
 import { itemEntityHitMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;

@@ -11,11 +11,7 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
 import { EventSignal, GameState, type PlayerEvent, TeamDistributionMode } from "../../types";
-import {
-	clearEntityEffects,
-	clearEntityEquippable,
-	clearEntityInventory,
-} from "../componentHelpers";
+import { clearEntityEffects, clearEntityEquippable, clearEntityInventory } from "../helpers";
 import type { Room } from "../rooms/room";
 import { type RoomType, roomTypeGet, roomTypeJoin } from "../rooms/roomType";
 import { getPlayerName } from "../textFormatting";

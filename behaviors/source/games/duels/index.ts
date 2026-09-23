@@ -10,9 +10,9 @@ import {
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemLeaveGame } from "../../items/games/leaveGame";
-import { clearEntityEquippable } from "../../tools/componentHelpers";
 import { Game, type GameJoinEvent } from "../../tools/games/game";
 import type { Team } from "../../tools/games/team";
+import { clearEntityEquippable } from "../../tools/helpers";
 import { Room } from "../../tools/rooms/room";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/textFormatting";

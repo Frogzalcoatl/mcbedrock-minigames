@@ -6,12 +6,12 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
+import { type Kit, kitGive } from "../../tools/games/kits";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
 	clearEntityInventory,
-} from "../../tools/componentHelpers";
-import { type Kit, kitGive } from "../../tools/games/kits";
+} from "../../tools/helpers";
 import { Room } from "../../tools/rooms/room";
 
 export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
