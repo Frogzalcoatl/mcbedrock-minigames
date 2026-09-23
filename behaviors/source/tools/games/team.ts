@@ -9,6 +9,7 @@ import {
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
 import { EventSignal, TeamDistributionMode, type TeleportLocation } from "../../types";
+import { arrRemoveSwap } from "../componentHelpers";
 import { deathLocationTracker } from "../trackers/deathLocationTracker";
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
@@ -39,9 +40,9 @@ world.afterEvents.worldLoad.subscribe(() => {
 	}
 });
 
-export interface TeamPlayerEliminationEvent {
-	oldTeam: Team;
+export interface PlayerEliminationEvent {
 	player: Player;
+	team: Team;
 }
 
 export class Team {
@@ -73,7 +74,7 @@ export class Team {
 					if (Team._globalPlayers.has(p.id)) {
 						continue;
 					}
-					while (currentTeam.playerCount >= currentTeam.maxPlayers) {
+					while (currentTeam.activePlayers.length >= currentTeam.maxPlayers) {
 						currentTeam = teams[++i];
 						if (currentTeam === undefined) {
 							return;
@@ -96,9 +97,10 @@ export class Team {
 	public spawnPoint: TeleportLocation;
 	public onSpawn: EventSignal<PlayerSpawnAfterEvent>;
 	// Elimination events are still triggered when player.isValid is false
-	public onElimination: EventSignal<TeamPlayerEliminationEvent>;
-	private _players: Set<Player>;
-	private _isRespawning: Set<Player>;
+	public onElimination: EventSignal<PlayerEliminationEvent>;
+	public activePlayers: Player[];
+	public eliminatedPlayers: Player[];
+	private _isRespawning: Player[];
 
 	public constructor(name: string, spawnPoint: Vector3, maxPlayers: number) {
 		this.canRespawn = false;
@@ -115,38 +117,33 @@ export class Team {
 			pos: spawnPoint,
 		};
 		this.onSpawn = new EventSignal<PlayerSpawnAfterEvent>();
-		this.onElimination = new EventSignal<TeamPlayerEliminationEvent>();
-		this._players = new Set<Player>();
-		this._isRespawning = new Set<Player>();
-	}
-
-	public get playerCount(): number {
-		return this._players.size;
-	}
-
-	public get players(): Player[] {
-		return [...this._players];
+		this.onElimination = new EventSignal<PlayerEliminationEvent>();
+		this.activePlayers = [];
+		this.eliminatedPlayers = [];
+		this._isRespawning = [];
 	}
 
 	public get displayName(): string {
-		if (this._players.size === 1) {
-			const player: Player | undefined = this._players.values().next().value;
+		if (this.maxPlayers === 1) {
+			const player: Player | undefined = this.activePlayers[0];
 			if (player !== undefined) {
 				return `${this.colorCode}${player.name}§r`;
 			}
 		}
-		return `${this.colorCode}${this.name} Team§r`;
+		return `${this.colorCode}${this.name}§r`;
 	}
 
 	public add(player: Player): boolean {
-		if (this._players.size >= this.maxPlayers) {
+		if (this.activePlayers.length >= this.maxPlayers) {
 			return false;
 		}
 		const oldTeam: Team | null = Team.findPlayer(player);
 		if (oldTeam !== null) {
 			oldTeam.remove(player);
 		}
-		this._players.add(player);
+		if (!this.activePlayers.includes(player)) {
+			this.activePlayers.push(player);
+		}
 		Team._globalPlayers.set(player.id, this);
 		player.nameTag = `${this.colorCode}${player.name}§r`;
 		player.chatNamePrefix = this.colorCode;
@@ -154,37 +151,52 @@ export class Team {
 		return true;
 	}
 
-	public remove(player: Player, triggerEvent = true): boolean {
+	public eliminate(player: Player): void {
+		if (!arrRemoveSwap(this.activePlayers, player)) {
+			return;
+		}
+		if (!this.eliminatedPlayers.includes(player)) {
+			this.eliminatedPlayers.push(player);
+			this.onElimination.triggerEvent({ player: player, team: this });
+		}
+	}
+
+	public remove(player: Player, triggerEliminationEvent = true): boolean {
 		if (player.isValid) {
 			player.nameTag = player.name;
 			player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
 		}
-		if (!this._players.delete(player)) {
+		if (
+			!(
+				arrRemoveSwap(this.activePlayers, player) ||
+				arrRemoveSwap(this.eliminatedPlayers, player) ||
+				arrRemoveSwap(this._isRespawning, player)
+			)
+		) {
 			return false;
 		}
-		this._isRespawning.delete(player);
 		Team._globalPlayers.delete(player.id);
-		if (triggerEvent) {
-			this.onElimination.triggerEvent({ oldTeam: this, player: player });
+		if (triggerEliminationEvent) {
+			this.onElimination.triggerEvent({ player: player, team: this });
 		}
 		return true;
 	}
 
 	public clearPlayers(triggerEvents = false): void {
-		for (const p of this._players) {
+		for (const p of this.activePlayers) {
 			this.remove(p, triggerEvents);
 		}
 	}
 
 	public spawnPlayers(): void {
-		for (const p of this._players) {
+		for (const p of this.activePlayers) {
 			p.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
 			this.onSpawn.triggerEvent({ initialSpawn: true, player: p });
 		}
 	}
 
 	public respawn(player: Player): void {
-		if (this._isRespawning.has(player)) {
+		if (this._isRespawning.includes(player)) {
 			return;
 		}
 		player.onScreenDisplay.setTitle("§cYOU DIED!");
@@ -203,6 +215,7 @@ export class Team {
 			this.remove(player);
 			return;
 		}
+		this._isRespawning.push(player);
 		const respawnTimeTicks: number = this.respawnTimeTicks;
 		let secondsRemaining: number = respawnTimeTicks / 20;
 		let ticks = 0;
@@ -216,7 +229,7 @@ export class Team {
 					this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 				}
 				system.clearRun(intervalId);
-				this._isRespawning.delete(player);
+				arrRemoveSwap(this._isRespawning, player);
 				return;
 			}
 			if (player.isValid) {
@@ -227,6 +240,5 @@ export class Team {
 			}
 			ticks++;
 		});
-		this._isRespawning.add(player);
 	}
 }

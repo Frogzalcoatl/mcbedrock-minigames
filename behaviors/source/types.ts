@@ -2,6 +2,7 @@
 /** biome-ignore-all assist/source/useSortedKeys: Using objects as an enums */
 
 import { type Player, type Vector3, world } from "@minecraft/server";
+import { arrRemoveSwap } from "./tools/componentHelpers";
 
 export interface TeleportLocation {
 	facing: Vector3;
@@ -27,18 +28,20 @@ export const TeamDistributionMode = {
 export type TeamDistributionMode = (typeof TeamDistributionMode)[keyof typeof TeamDistributionMode];
 
 export class EventSignal<T> {
-	private _callbacks: Set<(event: T) => void>;
+	private _callbacks: ((event: T) => void)[];
 
 	public constructor() {
-		this._callbacks = new Set<(event: T) => void>();
+		this._callbacks = [];
 	}
 
 	public subscribe(callback: (event: T) => void): void {
-		this._callbacks.add(callback);
+		if (!this._callbacks.includes(callback)) {
+			this._callbacks.push(callback);
+		}
 	}
 
 	public unsubscribe(callback: (event: T) => void): void {
-		this._callbacks.delete(callback);
+		arrRemoveSwap(this._callbacks, callback);
 	}
 
 	public triggerEvent(event: T): void {

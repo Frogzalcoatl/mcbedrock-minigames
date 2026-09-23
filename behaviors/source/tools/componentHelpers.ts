@@ -45,6 +45,19 @@ export function getDataValueItem(
 	return dataValueItem;
 }
 
+export function arrRemoveSwap<T>(arr: T[], val: T): boolean {
+	const i = arr.indexOf(val);
+	if (i === -1) {
+		return false;
+	}
+	const lastValue: T | undefined = arr[arr.length - 1];
+	if (lastValue !== undefined) {
+		arr[i] = lastValue;
+		arr.pop();
+	}
+	return true;
+}
+
 // was typing this everywhere so just created a func for it.
 export function defaultItemStackFunc(typeId: string, nameTag: string): ItemStack {
 	const item = new ItemStack(typeId);

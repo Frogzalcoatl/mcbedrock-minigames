@@ -19,7 +19,7 @@ import {
 import type { Room } from "../rooms/room";
 import { type RoomType, roomTypeGet, roomTypeJoin } from "../rooms/roomType";
 import { getPlayerName } from "../textFormatting";
-import { Team, type TeamPlayerEliminationEvent } from "./team";
+import { type PlayerEliminationEvent, Team } from "./team";
 
 interface TeamOrdersValue {
 	colorCode: string;
@@ -208,7 +208,7 @@ export class Game {
 	public get teamsRemaining(): number {
 		let remaining = 0;
 		for (const t of this.teams) {
-			if (t.playerCount > 0) {
+			if (t.activePlayers.length > 0) {
 				remaining++;
 			}
 		}
@@ -337,11 +337,11 @@ export class Game {
 
 	private winMessage(): void {
 		for (const t of this.teams) {
-			if (t.playerCount === 0) {
+			if (t.activePlayers.length === 0) {
 				continue;
 			}
 			this.sendMessage(`${t.displayName} §ahas won the game!`);
-			for (const p of t.players) {
+			for (const p of t.activePlayers) {
 				p.playSound("random.levelup");
 				p.onScreenDisplay.setTitle("§6VICTORY!");
 			}
@@ -427,9 +427,9 @@ export class Game {
 		}
 	};
 
-	private teamEliminationCallback = (event: TeamPlayerEliminationEvent): void => {
+	private teamEliminationCallback = (event: PlayerEliminationEvent): void => {
 		event.player.onScreenDisplay.setTitle("§cDEFEAT!");
-		this.onElimination.triggerEvent({ game: this, oldTeam: event.oldTeam, player: event.player });
+		this.onElimination.triggerEvent({ game: this, oldTeam: event.team, player: event.player });
 		if (this.teamsRemaining <= 1) {
 			this.state = GameState.Ending;
 		}

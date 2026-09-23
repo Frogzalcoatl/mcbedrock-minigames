@@ -113,7 +113,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		}
 	});
 	game.whileActive.subscribe((game: Game): void => {
-		game.setActionBar(`Time Remaining: §e${formatTimeSeconds(game.secondsRemaining)}`);
+		game.setActionBar(`Time Remaining: §7${formatTimeSeconds(game.secondsRemaining)}`);
 	});
 	game.endGame = (game: Game): void => {
 		for (const p of game.players) {
