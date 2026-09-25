@@ -336,7 +336,7 @@ export class Game {
 			if (t.activePlayers.length === 0) {
 				continue;
 			}
-			this.sendMessage(`${t.displayName} §ahas won the game!`);
+			this.sendMessage(`${t.displayName} §awon the game!`);
 			for (const p of t.activePlayers) {
 				p.playSound("random.levelup");
 				p.onScreenDisplay.setTitle("§6VICTORY!");

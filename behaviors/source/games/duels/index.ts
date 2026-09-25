@@ -32,8 +32,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	});
 	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent) => {
-		const message: string | null = deathMessageFromEvent(event, "§7");
-		room.sendMessage(message);
+		room.sendMessage(deathMessageFromEvent(event));
 	});
 	const game = new Game({
 		maxPlayers: 2,
