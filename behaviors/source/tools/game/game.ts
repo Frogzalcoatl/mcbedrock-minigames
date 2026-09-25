@@ -10,7 +10,7 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
 import { itemLeaveGame } from "../../items/games/leaveGame";
-import { EventSignal, GameState, TeamDistributionMode } from "../../types";
+import { arrRemoveSwap, EventSignal, GameState, TeamDistributionMode } from "../../types";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
@@ -88,8 +88,8 @@ export class Game {
 	// You should set this.state to GameState.Resetting when complete
 	public endGame: ((game: Game) => void) | null;
 
-	private _players: Set<Player>;
-	private _spectators: Set<Player>;
+	public players: Player[];
+	public spectators: Player[];
 	private _state: GameState;
 	private _startingIntervalId: number | null;
 	private _activeIntervalId: number | null;
@@ -109,8 +109,8 @@ export class Game {
 		this.whileActive = new EventSignal<Game>();
 		this.onElimination = new EventSignal<GameEliminationEvent>();
 		this.endGame = null;
-		this._players = new Set<Player>();
-		this._spectators = new Set<Player>();
+		this.players = [];
+		this.spectators = [];
 		this._state = GameState.Resetting;
 		this._startingIntervalId = null;
 		this._activeIntervalId = null;
@@ -165,7 +165,7 @@ export class Game {
 				break;
 			}
 			case GameState.Starting: {
-				if (this.playerCount > 0) {
+				if (this.players.length > 0) {
 					this.whileStarting();
 				}
 				break;
@@ -188,18 +188,6 @@ export class Game {
 		}
 	}
 
-	public get playerCount(): number {
-		return this._players.size;
-	}
-
-	public get players(): Player[] {
-		return [...this._players];
-	}
-
-	public get spectators(): Player[] {
-		return [...this._spectators];
-	}
-
 	public get teamsRemaining(): number {
 		let remaining = 0;
 		for (const t of this.teams) {
@@ -211,19 +199,19 @@ export class Game {
 	}
 
 	public sendMessage(message: string): void {
-		for (const p of this._players) {
+		for (const p of this.players) {
 			p.sendMessage(message);
 		}
-		for (const s of this._spectators) {
+		for (const s of this.spectators) {
 			s.sendMessage(message);
 		}
 	}
 
 	public setActionBar(text: string): void {
-		for (const p of this._players) {
+		for (const p of this.players) {
 			p.onScreenDisplay.setActionBar(text);
 		}
-		for (const s of this._spectators) {
+		for (const s of this.spectators) {
 			s.onScreenDisplay.setActionBar(text);
 		}
 	}
@@ -239,7 +227,9 @@ export class Game {
 		clearEntityEquippable(player);
 		player.setGameMode(GameMode.Spectator);
 		system.runTimeout(() => player.teleport(this.spectatorPos, { dimension: dimension }), 5);
-		this._spectators.add(player);
+		if (!this.spectators.includes(player)) {
+			this.spectators.push(player);
+		}
 		this.sendMessage(`${getPlayerName(player)}§r§7 is spectating`);
 	}
 
@@ -249,15 +239,15 @@ export class Game {
 			t.clearPlayers(false);
 		}
 		if (hubRoomType !== undefined) {
-			for (const p of this._players) {
+			for (const p of this.players) {
 				roomTypeJoin(p, hubRoomType);
 			}
-			for (const s of this._spectators) {
+			for (const s of this.spectators) {
 				roomTypeJoin(s, hubRoomType);
 			}
 		}
-		this._spectators.clear();
-		this._players.clear();
+		this.spectators.length = 0;
+		this.players.length = 0;
 	}
 
 	private whileStarting(): void {
@@ -265,14 +255,15 @@ export class Game {
 			system.clearRun(this._startingIntervalId);
 			this._startingIntervalId = null;
 		}
-		const playSoundDuring = new Set<number>([60, 30, 20, 10, 5, 4, 3, 2, 1]);
-		playSoundDuring.add(this.startTimeSeconds);
+		const playSoundDuring: number[] = [60, 30, 20, 10, 5, 4, 3, 2, 1];
+		if (!playSoundDuring.includes(this.startTimeSeconds)) {
+			playSoundDuring.push(this.startTimeSeconds);
+		}
 		this.secondsRemaining = this.startTimeSeconds;
 		const intervalId: number = system.runInterval(() => {
-			const playerCount: number = this.playerCount;
-			if (playerCount < this.playersToStart) {
+			if (this.players.length < this.playersToStart) {
 				this.secondsRemaining = this.startTimeSeconds;
-				const playersNeeded: number = this.playersToStart - playerCount;
+				const playersNeeded: number = this.playersToStart - this.players.length;
 				this.setActionBar(
 					`Waiting for §l${playersNeeded}§r more player${playersNeeded !== 1 ? "s" : ""}...`,
 				);
@@ -284,11 +275,11 @@ export class Game {
 				return;
 			}
 			this.setActionBar(`Game starting in §l${Math.ceil(this.secondsRemaining)} §rseconds`);
-			if (playSoundDuring.has(this.secondsRemaining)) {
-				for (const p of this._players) {
+			if (playSoundDuring.includes(this.secondsRemaining)) {
+				for (const p of this.players) {
 					p.playSound("random.click");
 				}
-				for (const s of this._spectators) {
+				for (const s of this.spectators) {
 					s.playSound("random.click");
 				}
 			}
@@ -298,18 +289,18 @@ export class Game {
 	}
 
 	private startGame(): void {
-		Team.distribute(this.teams, [...this._players], TeamDistributionMode.InOrder);
+		Team.distribute(this.teams, this.players, TeamDistributionMode.InOrder);
 		for (const t of this.teams) {
 			t.spawnPlayers();
 		}
-		for (const p of this._players) {
+		for (const p of this.players) {
 			p.removeEffect(MinecraftEffectTypes.Weakness);
 		}
 		system.runTimeout(() => {
-			for (const p of this._players) {
+			for (const p of this.players) {
 				p.playSound("random.orb");
 			}
-			for (const s of this._spectators) {
+			for (const s of this.spectators) {
 				s.teleport(this.spectatorPos);
 				s.playSound("random.orb");
 			}
@@ -357,7 +348,7 @@ export class Game {
 				break;
 			}
 			case GameState.Starting: {
-				if (this.playerCount >= this.maxPlayers) {
+				if (this.players.length >= this.maxPlayers) {
 					event.player.sendMessage("§cUnable to join game: Game is full");
 					event.cancel = true;
 				}
@@ -374,12 +365,14 @@ export class Game {
 	};
 
 	private roomOnJoin = (player: Player): void => {
-		if (this._state !== GameState.Starting || this.playerCount >= this.maxPlayers) {
+		if (this._state !== GameState.Starting || this.players.length >= this.maxPlayers) {
 			this.addSpectator(player);
 			return;
 		}
-		this._players.add(player);
-		if (this._players.size === 1) {
+		if (!this.players.includes(player)) {
+			this.players.push(player);
+		}
+		if (this.players.length === 1) {
 			this.whileStarting();
 		}
 		hubEffectHelper(player);
@@ -393,7 +386,7 @@ export class Game {
 			inventory.container.setItem(8, itemLeaveGame());
 		}
 		this.sendMessage(
-			`${getPlayerName(player)}§r§7 joined the game §8[${this.playerCount}/${this.maxPlayers}]`,
+			`${getPlayerName(player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
 		);
 	};
 
@@ -402,19 +395,18 @@ export class Game {
 		if (team !== null) {
 			team.remove(player, this._state === GameState.Active);
 		}
-		this._players.delete(player);
-		this._spectators.delete(player);
+		arrRemoveSwap(this.players, player);
+		arrRemoveSwap(this.spectators, player);
 		const leaveMessage: string = `${getPlayerName(player)}§r§7 left the game`;
 		if (this._state !== GameState.Starting) {
 			this.sendMessage(leaveMessage);
 			return;
 		}
-		const playerCount: number = this._players.size;
-		if (playerCount === 0 && this._startingIntervalId !== null) {
+		if (this.players.length === 0 && this._startingIntervalId !== null) {
 			system.clearRun(this._startingIntervalId);
 			this._startingIntervalId = null;
 		} else {
-			this.sendMessage(`${leaveMessage} §8[${playerCount}/${this.maxPlayers}]`);
+			this.sendMessage(`${leaveMessage} §8[${this.players.length}/${this.maxPlayers}]`);
 		}
 	};
 

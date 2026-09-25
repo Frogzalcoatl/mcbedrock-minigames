@@ -1,25 +1,19 @@
-import {
-	type Dimension,
-	type DimensionLocation,
-	type Entity,
-	Player,
-	world,
-} from "@minecraft/server";
-import { EventSignal, type TeleportLocation } from "../../types";
+import { type Dimension, type DimensionLocation, type Player, world } from "@minecraft/server";
+import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../../types";
 
 export class LocalHub {
 	public readonly dimensionId: string;
 	public onJoin: EventSignal<Player>;
 	public onLeave: EventSignal<Player>;
+	public players: Player[];
 	private _spawn: TeleportLocation;
 	private _isActive: boolean;
-	private _playerIds: Set<string>;
 
 	public constructor(dimensionId: string, spawn: TeleportLocation) {
 		this.dimensionId = dimensionId;
 		this._spawn = spawn;
 		this._isActive = true;
-		this._playerIds = new Set<string>();
+		this.players = [];
 		this.onJoin = new EventSignal<Player>();
 		this.onLeave = new EventSignal<Player>();
 	}
@@ -30,7 +24,7 @@ export class LocalHub {
 
 	public set isActive(val: boolean) {
 		if (!val) {
-			this._playerIds.clear();
+			this.players.length = 0;
 		}
 		this._isActive = val;
 	}
@@ -48,17 +42,13 @@ export class LocalHub {
 			y: val.pos.y,
 			z: val.pos.z,
 		};
-		for (const playerId of this._playerIds) {
-			const player: Entity | undefined = world.getEntity(playerId);
-			if (player === undefined || player instanceof Player === false) {
-				continue;
-			}
+		for (const player of this.players) {
 			player.setSpawnPoint(location);
 		}
 	}
 
 	public has(player: Player): boolean {
-		return this._playerIds.has(player.id);
+		return this.players.indexOf(player) !== -1;
 	}
 
 	public join(player: Player): void {
@@ -66,7 +56,9 @@ export class LocalHub {
 			player.sendMessage("§cUnable to join inactive hub");
 			return;
 		}
-		this._playerIds.add(player.id);
+		if (!this.players.includes(player)) {
+			this.players.push(player);
+		}
 		const dimension: Dimension = world.getDimension(this.dimensionId);
 		player.teleport(this._spawn.pos, {
 			dimension: dimension,
@@ -85,7 +77,7 @@ export class LocalHub {
 		if (!this.isActive) {
 			return;
 		}
-		this._playerIds.delete(player.id);
+		arrRemoveSwap(this.players, player);
 		this.onLeave.triggerEvent(player);
 	}
 }
