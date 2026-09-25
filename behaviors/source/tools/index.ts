@@ -1,5 +1,2 @@
-import "./events/chatSend";
-import "./events/blockInteraction";
-import "./events/simulatedPlayers";
-import "./projectiles/arrowHitBlock";
+import "./events/index";
 import "./projectiles/iceBomb";

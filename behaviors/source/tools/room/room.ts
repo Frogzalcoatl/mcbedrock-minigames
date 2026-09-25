@@ -16,7 +16,7 @@ import {
 	type TeleportLocation,
 	teleportLocationToString,
 } from "../../types";
-import { ejectFromMount } from "../mount";
+import { ejectFromMount } from "../actions/mount";
 import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";

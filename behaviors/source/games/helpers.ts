@@ -1,7 +1,11 @@
 import { EntityComponentTypes, type EntityHealthComponent, type Player } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../constants";
-import { clearEntityEffects, clearEntityEquippable, clearEntityInventory } from "../tools/helpers";
+import {
+	clearEntityEffects,
+	clearEntityEquippable,
+	clearEntityInventory,
+} from "../tools/componentHelpers";
 
 export function hubEffectHelper(player: Player): void {
 	const health: EntityHealthComponent | undefined = player.getComponent(

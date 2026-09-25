@@ -10,7 +10,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { EventSignal, type PlayerEvent } from "../../types";
-import { kitEntityDieHandler } from "../games/kits";
+import { kitEntityDieHandler } from "../game/kits";
 import { dimensionTracker } from "./dimensionTracker";
 
 const hitCooldownTicks: number = 20 * 7;

@@ -2,8 +2,8 @@ import { EntityComponentTypes, type EntityInventoryComponent, GameMode } from "@
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { Room } from "../../tools/rooms/room";
-import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
+import { Room } from "../../tools/room/room";
+import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
 import type { PlayerEvent } from "../../types";
 import { hubEffectHelper } from "../helpers";
 

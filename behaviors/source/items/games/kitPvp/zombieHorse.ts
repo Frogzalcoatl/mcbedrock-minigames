@@ -7,8 +7,8 @@ import {
 	system,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "../../../tools/helpers";
-import { spawnTemporaryMount } from "../../../tools/mount";
+import { spawnTemporaryMount } from "../../../tools/actions/mount";
+import { defaultItemStackFunc } from "../../../tools/componentHelpers";
 import { itemCooldownCheck, itemCooldownSet } from "../../cooldowns";
 import { itemUseMap } from "../../events";
 

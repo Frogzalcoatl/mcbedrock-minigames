@@ -36,26 +36,13 @@ export function getDataValueItem(
 		containerEntity.remove();
 		return null;
 	}
-	containerEntity.runCommand(`/replaceitem entity @s slot.inventory 0 ${typeId} 1 ${dataValue}`);
+	containerEntity.runCommand(`replaceitem entity @s slot.inventory 0 ${typeId} 1 ${dataValue}`);
 	const dataValueItem: ItemStack | undefined = inventory.container.getItem(0);
 	containerEntity.remove();
 	if (dataValueItem === undefined) {
 		return null;
 	}
 	return dataValueItem;
-}
-
-export function arrRemoveSwap<T>(arr: T[], val: T): boolean {
-	const i = arr.indexOf(val);
-	if (i === -1) {
-		return false;
-	}
-	const lastValue: T | undefined = arr[arr.length - 1];
-	if (lastValue !== undefined) {
-		arr[i] = lastValue;
-		arr.pop();
-	}
-	return true;
 }
 
 // was typing this everywhere so just created a func for it.

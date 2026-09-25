@@ -8,14 +8,14 @@ import {
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { ICE_BOMB_ID } from "../../../constants";
+import { applyEnchant, giveItem, setDurability } from "../../../tools/componentHelpers";
 import {
 	type Kit,
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/games/kits";
-import { applyEnchant, giveItem, setDurability } from "../../../tools/helpers";
+} from "../../../tools/game/kits";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(

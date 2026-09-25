@@ -1,7 +1,7 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { Room } from "../tools/rooms/room";
-import type { RoomType } from "../tools/rooms/roomType";
+import type { Room } from "../tools/room/room";
+import type { RoomType } from "../tools/room/roomType";
 import { safeActionFormShow } from "./safeShow";
 
 // Returns true if player selected a room

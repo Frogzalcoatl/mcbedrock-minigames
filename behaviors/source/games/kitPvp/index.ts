@@ -13,12 +13,12 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { kitReset, kits } from "../../tools/games/kits";
-import { changeEntityHealth } from "../../tools/helpers";
-import { LocalHub } from "../../tools/rooms/localHub";
-import { Room } from "../../tools/rooms/room";
-import { type RoomCreatorFunc, roomTypeInit } from "../../tools/rooms/roomType";
-import { deathMessageFromEvent } from "../../tools/textFormatting";
+import { changeEntityHealth } from "../../tools/componentHelpers";
+import { kitReset, kits } from "../../tools/game/kits";
+import { deathMessageFromEvent } from "../../tools/game/textFormatting";
+import { LocalHub } from "../../tools/room/localHub";
+import { Room } from "../../tools/room/room";
+import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,

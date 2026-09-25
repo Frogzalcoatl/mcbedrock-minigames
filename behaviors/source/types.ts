@@ -2,7 +2,6 @@
 /** biome-ignore-all assist/source/useSortedKeys: Using objects as an enums */
 
 import { type Player, type Vector3, world } from "@minecraft/server";
-import { arrRemoveSwap } from "./tools/helpers";
 
 export interface TeleportLocation {
 	facing: Vector3;
@@ -61,4 +60,17 @@ export class EventSignal<T> {
 
 export interface PlayerEvent {
 	player: Player;
+}
+
+export function arrRemoveSwap<T>(arr: T[], val: T): boolean {
+	const i = arr.indexOf(val);
+	if (i === -1) {
+		return false;
+	}
+	const lastValue: T | undefined = arr[arr.length - 1];
+	if (lastValue !== undefined) {
+		arr[i] = lastValue;
+		arr.pop();
+	}
+	return true;
 }

@@ -9,9 +9,9 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
-import type { LocalHub } from "../tools/rooms/localHub";
-import { Room } from "../tools/rooms/room";
-import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/rooms/roomType";
+import type { LocalHub } from "../tools/room/localHub";
+import { Room } from "../tools/room/room";
+import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/room/roomType";
 import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandHub(registry: CustomCommandRegistry): void {

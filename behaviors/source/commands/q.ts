@@ -11,7 +11,7 @@ import {
 import { PACK_NAMESPACE } from "../constants";
 import { formRoomType } from "../forms/roomType";
 import { showFormTeleporter } from "../forms/teleporter";
-import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/rooms/roomType";
+import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/room/roomType";
 import { commandEnums } from "./utils/enums";
 import { getPlayerFromOrigin } from "./utils/origin";
 

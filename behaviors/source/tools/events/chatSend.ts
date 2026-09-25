@@ -1,5 +1,5 @@
 import { type ChatSendBeforeEvent, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import { getPlayerName } from "../textFormatting";
+import { getPlayerName } from "../game/textFormatting";
 
 const timestamps = new Map<string, number>();
 const cooldownMs: number = 500;

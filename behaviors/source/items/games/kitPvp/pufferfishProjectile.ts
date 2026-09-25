@@ -1,6 +1,6 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/helpers";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
 import { pufferfishProjectile } from "../../../tools/projectiles/pufferfish";
 import { itemUseMap } from "../../events";
 

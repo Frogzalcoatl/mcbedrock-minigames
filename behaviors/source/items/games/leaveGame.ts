@@ -9,8 +9,8 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
-import { defaultItemStackFunc } from "../../tools/helpers";
-import { roomTypeIdJoin } from "../../tools/rooms/roomType";
+import { defaultItemStackFunc } from "../../tools/componentHelpers";
+import { roomTypeIdJoin } from "../../tools/room/roomType";
 import { itemUseMap } from "../events";
 
 const typeId: string = MinecraftItemTypes.RedDye;

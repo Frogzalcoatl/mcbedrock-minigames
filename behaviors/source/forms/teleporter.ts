@@ -1,6 +1,6 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { type RoomType, roomTypeJoin, roomTypes } from "../tools/rooms/roomType";
+import { type RoomType, roomTypeJoin, roomTypes } from "../tools/room/roomType";
 import { formRoomType } from "./roomType";
 import { safeActionFormShow } from "./safeShow";
 

@@ -1,6 +1,6 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { type Kit, kits } from "../tools/games/kits";
+import { type Kit, kits } from "../tools/game/kits";
 import { safeActionFormShow } from "./safeShow";
 
 // returns selected kit index

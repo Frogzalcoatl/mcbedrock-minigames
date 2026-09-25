@@ -9,7 +9,7 @@ import {
 	type ItemLockMode,
 	type ItemStack,
 } from "@minecraft/server";
-import { applyEnchant, setDurability } from "../helpers";
+import { applyEnchant, setDurability } from "../componentHelpers";
 
 function giveKitInventory(kitInventory: KitInventory, container: Container): void {
 	for (const entry of kitInventory) {
