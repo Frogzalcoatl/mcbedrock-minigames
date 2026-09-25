@@ -13,7 +13,11 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
-import { changeEntityHealth } from "../../tools/componentHelpers";
+import {
+	changeEntityHealth,
+	clearEntityEquippable,
+	hubEffectHelper,
+} from "../../tools/componentHelpers";
 import { kitReset, kits } from "../../tools/game/kits";
 import { deathMessageFromEvent } from "../../tools/game/textFormatting";
 import { LocalHub } from "../../tools/room/localHub";
@@ -28,8 +32,6 @@ import {
 	projectileTrackerAddDimension,
 	projectileTrackerRemovePlayer,
 } from "../../tools/trackers/projectileTracker";
-import type { PlayerEvent } from "../../types";
-import { hubEffectHelper } from "../helpers";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
@@ -68,24 +70,26 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
-	room.onLeave.subscribe((event) => {
-		killTrackerRemovePlayer(event.player);
-		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
-		kitReset(event.player);
+	room.onLeave.subscribe((player: Player) => {
+		killTrackerRemovePlayer(player);
+		itemCooldownRemovePlayer(player);
+		projectileTrackerRemovePlayer(player.id, room.dimensionId);
+		kitReset(player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
-	room.localHub.onJoin.subscribe((event: PlayerEvent): void => {
-		killTrackerRemovePlayer(event.player);
-		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
-		kitReset(event.player);
-		event.player.setGameMode(GameMode.Adventure);
-		hubEffectHelper(event.player);
-		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
+	room.localHub.onJoin.subscribe((player: Player): void => {
+		killTrackerRemovePlayer(player);
+		itemCooldownRemovePlayer(player);
+		projectileTrackerRemovePlayer(player.id, room.dimensionId);
+		kitReset(player);
+		hubEffectHelper(player);
+		player.setGameMode(GameMode.Adventure);
+		clearEntityEquippable(player);
+		const inventory: EntityInventoryComponent | undefined = player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
+			inventory.container.clearAll();
 			inventory.container.setItem(3, itemKitPvpSelect());
 			inventory.container.setItem(5, itemTeleporter());
 		}

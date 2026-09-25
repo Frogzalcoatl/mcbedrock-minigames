@@ -14,8 +14,11 @@ import {
 	type ItemDurabilityComponent,
 	type ItemEnchantableComponent,
 	ItemStack,
+	type Player,
 	type Vector3,
 } from "@minecraft/server";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { MAX_EFFECT_DURATION } from "../constants";
 
 const CONTAINER_TYPE_ID: string = "mg:container";
 
@@ -208,5 +211,24 @@ export function clearEntityInventory(entity: Entity): void {
 	);
 	if (inventory !== undefined) {
 		inventory.container.clearAll();
+	}
+}
+
+// Resets health to max and applies saturation/weakness
+export function hubEffectHelper(player: Player): void {
+	clearEntityEffects(player);
+	player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
+		amplifier: 255,
+		showParticles: false,
+	});
+	player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
+		amplifier: 255,
+		showParticles: false,
+	});
+	const health: EntityHealthComponent | undefined = player.getComponent(
+		EntityComponentTypes.Health,
+	);
+	if (health !== undefined) {
+		health.resetToMaxValue();
 	}
 }

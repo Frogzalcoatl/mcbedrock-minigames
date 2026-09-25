@@ -1,11 +1,15 @@
-import { EntityComponentTypes, type EntityInventoryComponent, GameMode } from "@minecraft/server";
+import {
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	GameMode,
+	type Player,
+} from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
+import { clearEntityEquippable, hubEffectHelper } from "../../tools/componentHelpers";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
-import type { PlayerEvent } from "../../types";
-import { hubEffectHelper } from "../helpers";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
@@ -18,13 +22,15 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		},
 		structures: [{ id: "ghostly/spawn", pos: { x: -55, y: -11, z: -59 } }],
 	});
-	room.onJoin.subscribe((event: PlayerEvent): void => {
-		event.player.setGameMode(GameMode.Adventure);
-		hubEffectHelper(event.player);
-		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
+	room.onJoin.subscribe((player: Player): void => {
+		player.setGameMode(GameMode.Adventure);
+		hubEffectHelper(player);
+		clearEntityEquippable(player);
+		const inventory: EntityInventoryComponent | undefined = player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
+			inventory.container.clearAll();
 			inventory.container.setItem(4, itemTeleporter());
 		}
 	});

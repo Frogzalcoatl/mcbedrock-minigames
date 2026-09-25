@@ -7,11 +7,10 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION, PACK_NAMESPACE, roomTypeIds } from "../../constants";
-import { itemLeaveGame } from "../../items/games/leaveGame";
+import { MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { clearEntityEquippable } from "../../tools/componentHelpers";
-import { Game, type GameJoinEvent } from "../../tools/game/game";
+import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/game/textFormatting";
 import { Room } from "../../tools/room/room";
@@ -79,28 +78,10 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		}
 		team.spawnPoint = spawnPoint;
 	}
-	game.onJoin.subscribe((event: GameJoinEvent): void => {
-		if (event.game.state !== GameState.Active) {
-			event.player.setGameMode(GameMode.Adventure);
-			event.player.addEffect(MinecraftEffectTypes.Weakness, MAX_EFFECT_DURATION, {
-				amplifier: 255,
-				showParticles: false,
-			});
-		}
-		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
-			EntityComponentTypes.Inventory,
-		);
-		if (inventory !== undefined) {
-			if (event.game.state === GameState.Starting) {
-				inventory.container.setItem(8, itemLeaveGame());
-			}
-		}
-	});
-	game.onStart.subscribe((gameEvent: Game) => {
-		const players: Player[] = gameEvent.players;
+	game.onStart.subscribe((game: Game) => {
+		const players: Player[] = game.players;
 		const woodenSword = new ItemStack(MinecraftItemTypes.WoodenSword);
 		for (const p of players) {
-			p.removeEffect(MinecraftEffectTypes.Weakness);
 			clearEntityEquippable(p);
 			const inventory: EntityInventoryComponent | undefined = p.getComponent(
 				EntityComponentTypes.Inventory,

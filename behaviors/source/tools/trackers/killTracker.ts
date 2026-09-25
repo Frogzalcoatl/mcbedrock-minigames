@@ -9,7 +9,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type PlayerEvent } from "../../types";
+import { EventSignal } from "../../types";
 import { kitEntityDieHandler } from "../game/kits";
 import { dimensionTracker } from "./dimensionTracker";
 
@@ -65,18 +65,15 @@ function showCombatTime(player: Player): void {
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
-	const event: PlayerEvent = {
-		player: player,
-	};
 	system.run(() => {
-		config.showCombatTime.triggerEvent(event);
+		config.showCombatTime.triggerEvent(player);
 	});
 	const intervalId: number = system.runInterval(() => {
 		if (!(player.isValid && killTrackerInCombat(player))) {
 			clearShowTimeRunInterval(player);
 			return;
 		}
-		config.showCombatTime.triggerEvent(event);
+		config.showCombatTime.triggerEvent(player);
 	}, config.showCombatTimeTickInterval ?? 0);
 	showTimeRunIntervalMap.set(player.id, intervalId);
 }
@@ -109,14 +106,14 @@ world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
 
 export interface KillTrackerConfig {
 	onKill: EventSignal<EntityDieAfterEvent>;
-	showCombatTime: EventSignal<PlayerEvent>;
+	showCombatTime: EventSignal<Player>;
 	showCombatTimeTickInterval: number;
 }
 
 export function killTrackerAddDimension(dimensionId: string): KillTrackerConfig {
 	const config: KillTrackerConfig = {
 		onKill: new EventSignal<EntityDieAfterEvent>(),
-		showCombatTime: new EventSignal<PlayerEvent>(),
+		showCombatTime: new EventSignal<Player>(),
 		showCombatTimeTickInterval: 0,
 	};
 	configs.set(dimensionId, config);

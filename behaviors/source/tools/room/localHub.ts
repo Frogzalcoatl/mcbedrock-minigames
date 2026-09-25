@@ -5,12 +5,12 @@ import {
 	Player,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../types";
+import { EventSignal, type TeleportLocation } from "../../types";
 
 export class LocalHub {
 	public readonly dimensionId: string;
-	public onJoin: EventSignal<PlayerEvent>;
-	public onLeave: EventSignal<PlayerEvent>;
+	public onJoin: EventSignal<Player>;
+	public onLeave: EventSignal<Player>;
 	private _spawn: TeleportLocation;
 	private _isActive: boolean;
 	private _playerIds: Set<string>;
@@ -20,8 +20,8 @@ export class LocalHub {
 		this._spawn = spawn;
 		this._isActive = true;
 		this._playerIds = new Set<string>();
-		this.onJoin = new EventSignal<PlayerEvent>();
-		this.onLeave = new EventSignal<PlayerEvent>();
+		this.onJoin = new EventSignal<Player>();
+		this.onLeave = new EventSignal<Player>();
 	}
 
 	public get isActive(): boolean {
@@ -78,10 +78,7 @@ export class LocalHub {
 			y: this._spawn.pos.y,
 			z: this._spawn.pos.z,
 		});
-		const event: PlayerEvent = {
-			player: player,
-		};
-		this.onJoin.triggerEvent(event);
+		this.onJoin.triggerEvent(player);
 	}
 
 	public leave(player: Player): void {
@@ -89,9 +86,6 @@ export class LocalHub {
 			return;
 		}
 		this._playerIds.delete(player.id);
-		const event: PlayerEvent = {
-			player: player,
-		};
-		this.onLeave.triggerEvent(event);
+		this.onLeave.triggerEvent(player);
 	}
 }

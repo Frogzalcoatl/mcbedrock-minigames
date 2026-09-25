@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/style/useNamingConvention: Using objects as an enums */
 /** biome-ignore-all assist/source/useSortedKeys: Using objects as an enums */
 
-import { type Player, type Vector3, world } from "@minecraft/server";
+import { type Vector3, world } from "@minecraft/server";
 
 export interface TeleportLocation {
 	facing: Vector3;
@@ -56,10 +56,6 @@ export class EventSignal<T> {
 			}
 		}
 	}
-}
-
-export interface PlayerEvent {
-	player: Player;
 }
 
 export function arrRemoveSwap<T>(arr: T[], val: T): boolean {

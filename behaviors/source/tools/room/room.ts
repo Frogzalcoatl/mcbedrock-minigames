@@ -10,12 +10,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { loadStructure } from "../../structures/load";
-import {
-	EventSignal,
-	type PlayerEvent,
-	type TeleportLocation,
-	teleportLocationToString,
-} from "../../types";
+import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { ejectFromMount } from "../actions/mount";
 import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
@@ -89,6 +84,11 @@ export interface RoomConfig {
 	structures?: RoomStructure[];
 }
 
+export interface RoomBeforeJoinEvent {
+	cancel: boolean;
+	player: Player;
+}
+
 export class Room {
 	private static _rooms = new Map<string, Room>(); // key is dimensionId
 
@@ -111,11 +111,10 @@ export class Room {
 	public displayName: string;
 	public icon: string;
 	public readonly structures: RoomStructure[];
-	// Return false if join attempt should be ignored
-	public beforeJoin: ((player: Player) => boolean) | null;
-	public onJoin: EventSignal<PlayerEvent>;
+	public readonly beforeJoin: EventSignal<RoomBeforeJoinEvent>;
+	public readonly onJoin: EventSignal<Player>;
 	// Leave events still triggered when player.isValid is false
-	public onLeave: EventSignal<PlayerEvent>;
+	public readonly onLeave: EventSignal<Player>;
 	public localHub: LocalHub | null;
 	private _spawn: TeleportLocation;
 	private _dimension: Dimension | undefined;
@@ -127,9 +126,9 @@ export class Room {
 		this.structures = config.structures ?? [];
 		this.localHub = null;
 		this._spawn = config.spawn;
-		this.beforeJoin = null;
-		this.onJoin = new EventSignal<PlayerEvent>();
-		this.onLeave = new EventSignal<PlayerEvent>();
+		this.beforeJoin = new EventSignal<RoomBeforeJoinEvent>();
+		this.onJoin = new EventSignal<Player>();
+		this.onLeave = new EventSignal<Player>();
 		Room._rooms.set(this.dimensionId, this);
 	}
 
@@ -174,11 +173,18 @@ export class Room {
 	}
 
 	public join(player: Player, previousRoom?: Room, ignoreBeforeJoin = false): boolean {
-		if (
-			this._dimension === undefined ||
-			(!ignoreBeforeJoin && this.beforeJoin !== null && !this.beforeJoin(player))
-		) {
+		if (this._dimension === undefined) {
 			return false;
+		}
+		if (!ignoreBeforeJoin) {
+			const beforeJoinEvent: RoomBeforeJoinEvent = {
+				cancel: false,
+				player: player,
+			};
+			this.beforeJoin.triggerEvent(beforeJoinEvent);
+			if (beforeJoinEvent.cancel) {
+				return false;
+			}
 		}
 		if (previousRoom === undefined) {
 			previousRoom = Room.findPlayer(player);
@@ -206,24 +212,18 @@ export class Room {
 		if (previousRoom === undefined || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
-		const event: PlayerEvent = {
-			player: player,
-		};
-		this.onJoin.triggerEvent(event);
+		this.onJoin.triggerEvent(player);
 		return true;
 	}
 
 	public leave(player: Player): void {
-		const event: PlayerEvent = {
-			player: player,
-		};
-		this.onLeave.triggerEvent(event);
-		if (this.localHub?.isActive) {
-			this.localHub.leave(player);
-		}
 		if (player.isValid) {
 			ejectFromMount(player); // If i dont do this, player is teleported to their mount's location in the new dimension for some reason
 		}
+		if (this.localHub?.isActive) {
+			this.localHub.leave(player);
+		}
+		this.onLeave.triggerEvent(player);
 	}
 
 	public loadStructure(index: number | "all"): void {

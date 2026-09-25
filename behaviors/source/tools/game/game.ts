@@ -1,7 +1,6 @@
 import {
 	type Dimension,
 	EntityComponentTypes,
-	type EntityHealthComponent,
 	type EntityInventoryComponent,
 	GameMode,
 	type Player,
@@ -9,10 +8,16 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
-import { EventSignal, GameState, type PlayerEvent, TeamDistributionMode } from "../../types";
-import { clearEntityEffects, clearEntityEquippable, clearEntityInventory } from "../componentHelpers";
-import type { Room } from "../room/room";
+import { roomTypeIds } from "../../constants";
+import { itemLeaveGame } from "../../items/games/leaveGame";
+import { EventSignal, GameState, TeamDistributionMode } from "../../types";
+import {
+	clearEntityEffects,
+	clearEntityEquippable,
+	clearEntityInventory,
+	hubEffectHelper,
+} from "../componentHelpers";
+import type { Room, RoomBeforeJoinEvent } from "../room/room";
 import { type RoomType, roomTypeGet, roomTypeJoin } from "../room/roomType";
 import { type PlayerEliminationEvent, Team } from "./team";
 import { getPlayerName } from "./textFormatting";
@@ -33,19 +38,15 @@ const teamOrders: TeamOrdersValue[] = [
 	{ colorCode: "§8", name: "Gray" },
 ];
 
-export interface GameEvent {
-	game: Game;
-}
-
 export interface GameJoinEvent {
 	game: Game;
 	player: Player;
 }
 
-export interface GamePlayerEliminationEvent {
+export interface GameEliminationEvent {
 	game: Game;
-	oldTeam: Team;
 	player: Player;
+	team: Team;
 }
 
 export interface GameConfig {
@@ -58,7 +59,7 @@ export interface GameConfig {
 }
 
 export class Game {
-	public static _globalPlayers = new Map<string, Game>();
+	private static _globalPlayers = new Map<string, Game>();
 
 	public static findPlayer(player: Player): Game | undefined {
 		return Game._globalPlayers.get(player.id);
@@ -80,10 +81,9 @@ export class Game {
 	// You should set this.state to GameState.Starting when complete
 	public resetGame: ((game: Game) => void) | null;
 
-	public onJoin: EventSignal<GameJoinEvent>;
-	public onStart: EventSignal<Game>;
-	public whileActive: EventSignal<Game>;
-	public onElimination: EventSignal<GamePlayerEliminationEvent>;
+	public readonly onStart: EventSignal<Game>;
+	public readonly whileActive: EventSignal<Game>;
+	public readonly onElimination: EventSignal<GameEliminationEvent>;
 
 	// You should set this.state to GameState.Resetting when complete
 	public endGame: ((game: Game) => void) | null;
@@ -105,17 +105,16 @@ export class Game {
 		this.startTimeSeconds = 20;
 		this.gameDurationSeconds = 300; // 5 Minutes
 		this.resetGame = null;
-		this.onJoin = new EventSignal<GameJoinEvent>();
 		this.onStart = new EventSignal<Game>();
 		this.whileActive = new EventSignal<Game>();
-		this.onElimination = new EventSignal<GamePlayerEliminationEvent>();
+		this.onElimination = new EventSignal<GameEliminationEvent>();
 		this.endGame = null;
 		this._players = new Set<Player>();
 		this._spectators = new Set<Player>();
 		this._state = GameState.Resetting;
 		this._startingIntervalId = null;
 		this._activeIntervalId = null;
-		this.room.beforeJoin = this.beforeJoin;
+		this.room.beforeJoin.subscribe(this.beforeJoin);
 		this.room.onJoin.subscribe(this.roomOnJoin);
 		this.room.onLeave.subscribe(this.roomOnLeave);
 		let teamsAdded = 0;
@@ -237,6 +236,7 @@ export class Game {
 		}
 		clearEntityEffects(player);
 		clearEntityInventory(player);
+		clearEntityEquippable(player);
 		player.setGameMode(GameMode.Spectator);
 		system.runTimeout(() => player.teleport(this.spectatorPos, { dimension: dimension }), 5);
 		this._spectators.add(player);
@@ -302,6 +302,9 @@ export class Game {
 		for (const t of this.teams) {
 			t.spawnPlayers();
 		}
+		for (const p of this._players) {
+			p.removeEffect(MinecraftEffectTypes.Weakness);
+		}
 		system.runTimeout(() => {
 			for (const p of this._players) {
 				p.playSound("random.orb");
@@ -346,86 +349,78 @@ export class Game {
 
 	// Arrow functions because they seem to maintain context of "this"
 
-	private beforeJoin = (player: Player): boolean => {
+	private beforeJoin = (event: RoomBeforeJoinEvent): void => {
 		switch (this._state) {
 			case GameState.Resetting: {
-				player.sendMessage("§cUnable to join game: Game is resetting");
-				return false;
+				event.player.sendMessage("§cUnable to join game: Game is resetting");
+				event.cancel = true;
+				break;
 			}
 			case GameState.Starting: {
 				if (this.playerCount >= this.maxPlayers) {
-					player.sendMessage("§cUnable to join game: Game is full");
-					return false;
+					event.player.sendMessage("§cUnable to join game: Game is full");
+					event.cancel = true;
 				}
 				break;
 			}
 			case GameState.Ending: {
-				player.sendMessage("§cUnable to join game: Game is ending");
-				return false;
+				event.player.sendMessage("§cUnable to join game: Game is ending");
+				event.cancel = true;
+				break;
 			}
 			default:
 				break;
 		}
-		return true;
 	};
 
-	private roomOnJoin = (event: PlayerEvent): void => {
-		clearEntityEffects(event.player);
-		const health: EntityHealthComponent | undefined = event.player.getComponent(
-			EntityComponentTypes.Health,
-		);
-		if (health !== undefined) {
-			health.resetToMaxValue();
+	private roomOnJoin = (player: Player): void => {
+		if (this._state !== GameState.Starting || this.playerCount >= this.maxPlayers) {
+			this.addSpectator(player);
+			return;
 		}
-		clearEntityEquippable(event.player);
-		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
+		this._players.add(player);
+		if (this._players.size === 1) {
+			this.whileStarting();
+		}
+		hubEffectHelper(player);
+		player.setGameMode(GameMode.Adventure);
+		clearEntityEquippable(player);
+		const inventory: EntityInventoryComponent | undefined = player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
 			inventory.container.clearAll();
+			inventory.container.setItem(8, itemLeaveGame());
 		}
-		if (this._state !== GameState.Starting || this.playerCount >= this.maxPlayers) {
-			this.addSpectator(event.player);
-			return;
-		}
-		this._players.add(event.player);
-		event.player.addEffect(MinecraftEffectTypes.Saturation, MAX_EFFECT_DURATION, {
-			amplifier: 255,
-			showParticles: false,
-		});
 		this.sendMessage(
-			`${getPlayerName(event.player)}§r§7 joined the game §8[${this.playerCount}/${this.maxPlayers}]`,
+			`${getPlayerName(player)}§r§7 joined the game §8[${this.playerCount}/${this.maxPlayers}]`,
 		);
-		if (this.playerCount === 1) {
-			this.whileStarting();
-		}
-		this.onJoin.triggerEvent({ game: this, player: event.player });
 	};
 
-	private roomOnLeave = (event: PlayerEvent): void => {
-		const leaveMessage: string = `${getPlayerName(event.player)}§r§7 left the game`;
-		const team: Team | null = Team.findPlayer(event.player);
+	private roomOnLeave = (player: Player): void => {
+		const team: Team | null = Team.findPlayer(player);
 		if (team !== null) {
-			team.remove(event.player, this._state === GameState.Active);
+			team.remove(player, this._state === GameState.Active);
 		}
-		this._players.delete(event.player);
-		this._spectators.delete(event.player);
+		this._players.delete(player);
+		this._spectators.delete(player);
+		const leaveMessage: string = `${getPlayerName(player)}§r§7 left the game`;
 		if (this._state !== GameState.Starting) {
 			this.sendMessage(leaveMessage);
 			return;
 		}
-		const playerCount: number = this.playerCount;
-		if (playerCount !== 0) {
-			this.sendMessage(`${leaveMessage} §8[${playerCount}/${this.maxPlayers}]`);
-		} else if (this._startingIntervalId !== null) {
+		const playerCount: number = this._players.size;
+		if (playerCount === 0 && this._startingIntervalId !== null) {
 			system.clearRun(this._startingIntervalId);
 			this._startingIntervalId = null;
+		} else {
+			this.sendMessage(`${leaveMessage} §8[${playerCount}/${this.maxPlayers}]`);
 		}
 	};
 
 	private teamEliminationCallback = (event: PlayerEliminationEvent): void => {
 		event.player.onScreenDisplay.setTitle("§cDEFEAT!");
-		this.onElimination.triggerEvent({ game: this, oldTeam: event.team, player: event.player });
+		this.onElimination.triggerEvent({ game: this, player: event.player, team: event.team });
 		if (this.teamsRemaining <= 1) {
 			this.state = GameState.Ending;
 		}
