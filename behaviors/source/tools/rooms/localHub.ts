@@ -5,7 +5,6 @@ import {
 	Player,
 	world,
 } from "@minecraft/server";
-import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { EventSignal, type PlayerEvent, type TeleportLocation } from "../../types";
 
 export class LocalHub {
@@ -78,7 +77,6 @@ export class LocalHub {
 			y: this._spawn.pos.y,
 			z: this._spawn.pos.z,
 		});
-		itemCooldownRemovePlayer(player);
 		const event: PlayerEvent = {
 			player: player,
 		};
