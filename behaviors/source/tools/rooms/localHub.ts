@@ -63,6 +63,7 @@ export class LocalHub {
 
 	public join(player: Player): void {
 		if (!this.isActive) {
+			player.sendMessage("§cUnable to join inactive hub");
 			return;
 		}
 		this._playerIds.add(player.id);
