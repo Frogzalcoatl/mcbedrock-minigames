@@ -32,7 +32,7 @@ export function deathMessageFormat(
 	deadName: string,
 	killerName: string | null,
 	_cause: EntityDamageCause | null,
-	colorCode = "§f",
+	colorCode = "§7",
 ): string {
 	if (killerName === null) {
 		return `${colorCode}${deadName}§r${colorCode} died`;
