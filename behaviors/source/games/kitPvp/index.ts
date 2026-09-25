@@ -1,4 +1,5 @@
 import {
+	type Entity,
 	EntityComponentTypes,
 	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
@@ -78,6 +79,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		killTrackerRemovePlayer(event.player);
 		itemCooldownRemovePlayer(event.player);
 		projectileTrackerRemovePlayer(event.player.id, room.dimensionId);
+		kitReset(event.player);
 		event.player.setGameMode(GameMode.Adventure);
 		hubEffectHelper(event.player);
 		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
@@ -90,14 +92,13 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	});
 	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
-		const message: string | null = deathMessageFromEvent(event);
-		room.sendMessage(message);
-		if (
-			event.damageSource.damagingEntity instanceof Player &&
-			event.damageSource.damagingEntity.isValid
-		) {
-			const killer: Player = event.damageSource.damagingEntity;
+		room.sendMessage(deathMessageFromEvent(event));
+		if (event.damageSource.damagingEntity?.isValid) {
+			const killer: Entity = event.damageSource.damagingEntity;
 			system.run(() => changeEntityHealth(killer, healthAddedOnKill));
+		}
+		if (event.deadEntity instanceof Player && event.deadEntity.isValid) {
+			room.localHub?.join(event.deadEntity);
 		}
 	});
 	projectileTrackerAddDimension(room.dimensionId, [

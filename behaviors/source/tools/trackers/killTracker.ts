@@ -1,4 +1,5 @@
 import {
+	type Dimension,
 	type Entity,
 	EntityDamageCause,
 	type EntityDamageSource,
@@ -10,6 +11,7 @@ import {
 } from "@minecraft/server";
 import { EventSignal, type PlayerEvent } from "../../types";
 import { kitEntityDieHandler } from "../games/kits";
+import { dimensionTracker } from "./dimensionTracker";
 
 const hitCooldownTicks: number = 20 * 7;
 
@@ -97,12 +99,12 @@ world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
 		// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
 		event = createDeathEvent(event.deadEntity, event.damageSource.cause);
 	}
-	config.onKill.triggerEvent(event);
-	kitEntityDieHandler(event);
 	hitMap.delete(event.deadEntity.id);
 	if (event.damageSource.damagingEntity !== undefined) {
 		hitMap.delete(event.damageSource.damagingEntity.id);
 	}
+	config.onKill.triggerEvent(event);
+	kitEntityDieHandler(event);
 });
 
 export interface KillTrackerConfig {
@@ -134,7 +136,8 @@ export function killTrackerClearDimensions(): void {
 }
 
 export function killTrackerInCombat(player: Player): boolean {
-	if (!configs.has(player.dimension.id)) {
+	const playerDimension: Dimension | null = dimensionTracker(player.id);
+	if (playerDimension === null || !configs.has(playerDimension.id)) {
 		return false;
 	}
 	const value: HitMapValue | undefined = hitMap.get(player.id);
@@ -145,7 +148,8 @@ export function killTrackerInCombat(player: Player): boolean {
 }
 
 export function killTrackerGetLastHitter(player: Player): Entity | null {
-	if (!configs.has(player.dimension.id)) {
+	const playerDimension: Dimension | null = dimensionTracker(player.id);
+	if (playerDimension === null || !configs.has(playerDimension.id)) {
 		return null;
 	}
 	const value: HitMapValue | undefined = hitMap.get(player.id);
@@ -176,10 +180,13 @@ export function killTrackerGetCombatTimeTicks(player: Player): number {
 
 export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
-		const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
-		if (config !== undefined) {
-			const event: EntityDieAfterEvent = createDeathEvent(player);
-			config.onKill.triggerEvent(event);
+		const playerDimension: Dimension | null = dimensionTracker(player.id);
+		if (playerDimension !== null) {
+			const config: KillTrackerConfig | undefined = configs.get(playerDimension.id);
+			if (config !== undefined) {
+				const event: EntityDieAfterEvent = createDeathEvent(player);
+				config.onKill.triggerEvent(event);
+			}
 		}
 	}
 	hitMap.delete(player.id);
