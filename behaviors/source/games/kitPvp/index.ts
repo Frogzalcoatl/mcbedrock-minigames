@@ -98,7 +98,10 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			system.run(() => changeEntityHealth(killer, healthAddedOnKill));
 		}
 		if (event.deadEntity instanceof Player && event.deadEntity.isValid) {
-			room.localHub?.join(event.deadEntity);
+			const dead: Player = event.deadEntity;
+			system.runTimeout(() => {
+				room.localHub?.join(dead);
+			}, 1);
 		}
 	});
 	projectileTrackerAddDimension(room.dimensionId, [
