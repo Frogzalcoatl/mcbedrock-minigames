@@ -50,7 +50,9 @@ export class EventSignal<T> {
 				callback(event);
 			} catch (error) {
 				if (error instanceof Error) {
-					world.sendMessage(`§cError occured during event: ${error.message}`);
+					world.sendMessage(
+						`§cError occured during event: ${error.name} - ${error.message}\n\n§6${error.stack}`,
+					);
 				}
 			}
 		}
