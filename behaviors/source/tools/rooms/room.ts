@@ -224,9 +224,6 @@ export class Room {
 		if (player.isValid) {
 			ejectFromMount(player); // If i dont do this, player is teleported to their mount's location in the new dimension for some reason
 		}
-		if (this.localHub !== null) {
-			this.localHub.leave(player);
-		}
 	}
 
 	public loadStructure(index: number | "all"): void {
