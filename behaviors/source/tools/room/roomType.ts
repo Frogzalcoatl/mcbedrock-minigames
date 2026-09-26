@@ -150,6 +150,7 @@ export class RoomType {
 	}
 
 	private joinGameWithPlayersWaiting(player: Player): boolean {
+		const hasPlayersWaiting: Room[] = [];
 		for (let i = 0; i < this.rooms.length; i++) {
 			const room: Room | undefined = this.rooms[i];
 			if (room === undefined) {
@@ -160,9 +161,15 @@ export class RoomType {
 				game !== undefined &&
 				game.state === GameState.Open &&
 				game.players.length > 0 &&
-				game.players.length < game.maxPlayers &&
-				room.join(player)
+				game.players.length < game.maxPlayers
 			) {
+				hasPlayersWaiting.push(room);
+			}
+		}
+		const randomIndex: number = Math.floor(Math.random() * hasPlayersWaiting.length);
+		for (let i = 0; i < hasPlayersWaiting.length; i++) {
+			const room: Room | undefined = this.rooms[(randomIndex + i) % hasPlayersWaiting.length];
+			if (room?.join(player)) {
 				return true;
 			}
 		}
