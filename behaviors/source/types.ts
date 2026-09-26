@@ -74,7 +74,7 @@ export class EventSignal<T> {
 			} catch (error) {
 				if (error instanceof Error) {
 					world.sendMessage(
-						`§cError occured during event: ${error.name} - ${error.message}\n\n§6${error.stack}`,
+						`§4EventSignal Error:\n§c${error.name} - ${error.message}\n§6${error.stack}`,
 					);
 				}
 			}
