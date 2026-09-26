@@ -69,16 +69,21 @@ const structureSchemas = new Map<string, unknown>([
 ]);
 ```
 
-
 ### Loading Structures
-
 Use the **/load** command. Example:
 ```
 /load "username/myStructure"
 ```
 Loads structure with id "username/myStructure" at the user's current position.
 
-## Custom Commands
+## Features
+### Rooms
+Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
+Even if a world is loaded without registering a specific dimension, its data still exists and will remain if registered again.
+Rooms optionally include a hub, which can also be used for waiting rooms.
+Use the **/settings** command to manage rooms in game.
+
+### Custom Commands
 **All Players:**
 
 `/hub` - Transfer to hub.
@@ -101,50 +106,15 @@ Loads structure with id "username/myStructure" at the user's current position.
 
 `/clearsim` - Clear simulated players.
 
-## Rooms
-Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
-Even if a world is loaded without registering a specific dimension, its data still exists and will remain if registered again.
-Rooms optionally include a hub, which can also be used for waiting rooms.
-Use the **/settings** command to manage rooms in game.
+### Custom Items
+Custom items on this world are currently just renamed vanilla items.
+I would like to learn about adding custom items through resource packs, especially if we decide to give players anvil access in a future gamemode.
+As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
 
-## Tools
-**Implemented:**
-- Kill Tracker
-	- Grants indirect kills by tracking who last attacked an entity using the EntityHurtAfterEvent.
-	- Cooldown ticks represents the max amount of time that a kill will still be counted after last hit.
-	- An optional per room onKill callback can be included, which is useful for death messages.
-	- An optional per room showCombatTime callback can be included to display a cooldown countdown. (e.g. an actionbar)
+### Kits
+A collection of items with optional onKill and onDeath callbacks. Currently just used for kitpvp, but can be used for future modes like Skywars.
 
-- Projectile Tracker
-	- Can be used to kill projectiles shot by a player on leave.
-	- Projectiles cannot be removed on world shutdown, so they are all tagged then removed on entityLoad.
-
-**Planned:**
-- Custom Knockback
-	- Minecraft gamerule pvp set to false.
-	- Use events to manually calculate damage and knockback.
-	- Useful to enable/disable combat based on gamemode.
-	- Try to emulate The Hive here.
-
-- Team Manager
-	- Would use custom kockback listed above to cancel attacks from teammates.
-
-- Custom Fall Damage
-	- Useful to enable, disable, or edit fall damage based on gamemode.
-
-- Game States
-	- GameStarting, GameActive, GameResetting, etc.
-	- Not sure how I want to implement these yet but definitely needed.
-
-- Player Statistics
-	- Kills, Wins, etc.
-	- Use dynamic properties (per stat properties instead of json stringify tomfoolery)
-
-- Game Queuing
-	- For modes that should have more than one instance such as duels.
-	- We'd never have enough players for something like skill based matchmaking, so just fill rooms in order.
-
-## Floating Text
+### Floating Text
 A basic invisible entity whose nametag is always visible. 
 
 **Spawning:**
@@ -164,10 +134,49 @@ Remove all text entities within 1 block of the user:
 ```
 If 1 block of precision is not enough, change the number after r= (Example: r=0.5).
 
-## Custom Items
-Custom items on this world are currently just renamed vanilla items.
-I would like to learn about adding custom items through resource packs, especially if we decide to give players anvil access in a future gamemode.
-As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
+### Trackers
+- Kill Tracker
+	- Grants indirect kills by tracking who last attacked an entity using the EntityHurtAfterEvent.
+	- Cooldown ticks represents the max amount of time that a kill will still be counted after last hit.
+	- An optional per room onKill callback can be included, which is useful for death messages.
+	- An optional per room showCombatTime callback can be included to display a cooldown countdown. (e.g. an actionbar)
 
-## Kits
-A collection of items with optional onKill and onDeath callbacks. Currently just used for kitpvp, but can be used for future modes like The Bridge.
+- Projectile Tracker
+	- Can be used to kill projectiles shot by a player on leave.
+	- Projectiles cannot be removed on world shutdown, so they are all tagged then removed on entityLoad.
+
+- Death Location Tracker
+	- Used to teleport players to their death location in spectator mode after respawning.
+
+- Dimension Tracker
+	- In 26.50, player.dimension is not accessible during the PlayerLeaveBeforeEvent.
+	- Track player dimensions using the dimension transfer event to properly run room leave callbacks.
+
+- Player Name Tracker
+	- In 26.50, player.name is not accessible during the PlayerLeaveBeforeEvent.
+	- Properly send "PlayerName has left the game" message if they were in an active game.
+	- player.name is technically available in the after event, could potentially refactor to remove bloat.
+
+
+## Planned Features
+- Game State Manager
+	- Handle basic game loop and teams.
+
+- Custom Knockback
+	- Minecraft gamerule pvp set to false.
+	- Use events to manually calculate damage and knockback.
+	- Useful to enable/disable combat based on gamemode.
+	- Try to emulate The Hive here.
+
+- Team Manager
+	- Would use custom kockback listed above to cancel attacks from teammates.
+
+- Custom Fall Damage
+	- Useful to enable, disable, or edit fall damage based on gamemode.
+
+- Player Statistics
+	- Kills, Wins, etc.
+	- Use dynamic properties (per stat properties instead of json stringify tomfoolery)
+
+- Ticking Area Queue
+	- Minecraft limits worlds to 10 ticking areas.
