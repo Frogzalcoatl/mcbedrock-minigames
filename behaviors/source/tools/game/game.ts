@@ -25,7 +25,7 @@ import {
 } from "../componentHelpers";
 import type { Room, RoomBeforeJoinEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
-import { type PlayerEliminationEvent, Team } from "./team";
+import { Team, type TeamEliminationEvent } from "./team";
 import { getPlayerName } from "./textFormatting";
 
 interface TeamOrdersValue {
@@ -239,7 +239,7 @@ export class Game {
 		clearEntityInventory(player);
 		clearEntityEquippable(player);
 		player.setGameMode(GameMode.Spectator);
-		system.runTimeout(() => player.teleport(this.spectatorPos, { dimension: dimension }), 5);
+		player.teleport(this.spectatorPos, { dimension: dimension });
 		if (!this.spectators.includes(player)) {
 			this.spectators.push(player);
 		}
@@ -429,12 +429,12 @@ Active: §e${this._activeIntervalId}§r
 	};
 
 	private roomOnLeave = (player: Player): void => {
+		arrRemoveSwap(this.players, player);
+		arrRemoveSwap(this.spectators, player);
 		const team: Team | null = Team.findPlayer(player);
 		if (team !== null) {
 			team.remove(player, this._state === GameState.Active);
 		}
-		arrRemoveSwap(this.players, player);
-		arrRemoveSwap(this.spectators, player);
 		const leaveMessage: string = `${getPlayerName(player)}§r§7 left the game`;
 		if (this._state !== GameState.Open) {
 			this.sendMessage(leaveMessage);
@@ -448,8 +448,10 @@ Active: §e${this._activeIntervalId}§r
 		}
 	};
 
-	private teamEliminationCallback = (event: PlayerEliminationEvent): void => {
-		event.player.onScreenDisplay.setTitle("§cDEFEAT!");
+	private teamEliminationCallback = (event: TeamEliminationEvent): void => {
+		if (event.player.isValid) {
+			event.player.onScreenDisplay.setTitle("§cDEFEAT!");
+		}
 		this.onElimination.triggerEvent({ game: this, player: event.player, team: event.team });
 		if (this.teamsRemaining <= 1) {
 			this.state = GameState.Ending;

@@ -1,7 +1,6 @@
 import {
 	GameMode,
 	type Player,
-	type PlayerLeaveBeforeEvent,
 	type PlayerSpawnAfterEvent,
 	system,
 	type Vector3,
@@ -15,15 +14,6 @@ import {
 	type TeleportLocation,
 } from "../../types";
 import { deathLocationTracker } from "../trackers/deathLocationTracker";
-
-world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
-	const team: Team | null = Team.findPlayer(event.player);
-	if (team !== null) {
-		system.run(() => {
-			team.remove(event.player);
-		});
-	}
-});
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {
@@ -44,7 +34,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 	}
 });
 
-export interface PlayerEliminationEvent {
+export interface TeamEliminationEvent {
 	player: Player;
 	team: Team;
 }
@@ -101,7 +91,7 @@ export class Team {
 	public spawnPoint: TeleportLocation;
 	public onSpawn: EventSignal<PlayerSpawnAfterEvent>;
 	// Elimination events are still triggered when player.isValid is false
-	public onElimination: EventSignal<PlayerEliminationEvent>;
+	public onElimination: EventSignal<TeamEliminationEvent>;
 	public activePlayers: Player[];
 	public eliminatedPlayers: Player[];
 	private _isRespawning: Player[];
@@ -121,7 +111,7 @@ export class Team {
 			pos: spawnPoint,
 		};
 		this.onSpawn = new EventSignal<PlayerSpawnAfterEvent>();
-		this.onElimination = new EventSignal<PlayerEliminationEvent>();
+		this.onElimination = new EventSignal<TeamEliminationEvent>();
 		this.activePlayers = [];
 		this.eliminatedPlayers = [];
 		this._isRespawning = [];
@@ -203,12 +193,11 @@ export class Team {
 		if (this._isRespawning.includes(player)) {
 			return;
 		}
-		player.onScreenDisplay.setTitle("§cYOU DIED!");
-		if (this.canRespawn && this.respawnTimeTicks === 0) {
-			player.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
-			this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
+		if (!player.isValid) {
+			this.eliminate(player);
 			return;
 		}
+		player.onScreenDisplay.setTitle("§cYOU DIED!");
 		const oldGameMode: GameMode = player.getGameMode();
 		player.setGameMode(GameMode.Spectator);
 		const deathLocation: Vector3 | null = deathLocationTracker(player);
@@ -216,7 +205,12 @@ export class Team {
 			player.teleport(deathLocation);
 		}
 		if (!this.canRespawn) {
-			this.remove(player);
+			this.eliminate(player);
+			return;
+		}
+		if (this.respawnTimeTicks === 0) {
+			player.teleport(this.spawnPoint.pos, { facingLocation: this.spawnPoint.facing });
+			this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 			return;
 		}
 		this._isRespawning.push(player);
