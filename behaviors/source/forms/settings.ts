@@ -6,7 +6,7 @@ import {
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
 import type { Room, RoomStructure } from "../tools/room/room";
-import { type RoomType, roomTypes } from "../tools/room/roomType";
+import { RoomType } from "../tools/room/roomType";
 import { safeActionFormShow, safeMessageFormShow } from "./safeShow";
 
 async function showLoadConfirmation(
@@ -132,7 +132,7 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 		});
 	}
 	if (resp.selection === 0) {
-		for (const type of roomTypes) {
+		for (const type of RoomType.getAll()) {
 			for (const room of type.rooms) {
 				room.loadStructure("all");
 			}
@@ -207,6 +207,7 @@ export async function showFormSettings(player: Player): Promise<void> {
 	form.button("General", "textures/ui/settings_glyph_color_2x.png");
 	const generalButtonIndex: number = 0;
 	const roomTypesStartingIndex: number = 1;
+	const roomTypes = RoomType.getAll();
 	for (const type of roomTypes) {
 		form.button(type.displayName, type.icon);
 	}

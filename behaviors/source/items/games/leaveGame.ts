@@ -10,7 +10,7 @@ import {
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
 import { defaultItemStackFunc } from "../../tools/componentHelpers";
-import { roomTypeIdJoin } from "../../tools/room/roomType";
+import { RoomType } from "../../tools/room/roomType";
 import { itemUseMap } from "../events";
 
 const typeId: string = MinecraftItemTypes.RedDye;
@@ -18,7 +18,7 @@ const nameTag: string = "§r§cLeave";
 
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
-		roomTypeIdJoin(event.source, roomTypeIds.hub);
+		RoomType.join(roomTypeIds.hub, event.source);
 	},
 	typeId: typeId,
 });
@@ -30,7 +30,7 @@ world.afterEvents.playerSwingStart.subscribe(
 			event.heldItemStack.typeId === typeId &&
 			event.heldItemStack.nameTag === nameTag
 		) {
-			roomTypeIdJoin(event.player, roomTypeIds.hub);
+			RoomType.join(roomTypeIds.hub, event.player);
 		}
 	},
 	{ heldItemOption: HeldItemOption.AnyItem, swingSource: EntitySwingSource.Attack },

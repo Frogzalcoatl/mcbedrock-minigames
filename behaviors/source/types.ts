@@ -14,17 +14,41 @@ export function teleportLocationToString(spawn: TeleportLocation): string {
 
 export const GameState = {
 	Resetting: 0,
-	Starting: 1,
+	Open: 1,
 	Active: 2,
 	Ending: 3,
 } as const;
 export type GameState = (typeof GameState)[keyof typeof GameState];
+
+export function gameStateToString(state: GameState): string {
+	switch (state) {
+		case GameState.Resetting:
+			return "Resetting";
+		case GameState.Open:
+			return "Open";
+		case GameState.Active:
+			return "Active";
+		case GameState.Ending:
+			return "Ending";
+		default:
+			return "Unknown";
+	}
+}
 
 export const TeamDistributionMode = {
 	Balanced: 0,
 	InOrder: 1,
 } as const;
 export type TeamDistributionMode = (typeof TeamDistributionMode)[keyof typeof TeamDistributionMode];
+
+export const QueueMode = {
+	Form: 0,
+	InOrder: 1,
+	Random: 2, // Doesnt check game states at all
+	GameInOrder: 3,
+	GameRandom: 4, // Is random when there are no games with players, awaiting more players
+} as const;
+export type QueueMode = (typeof QueueMode)[keyof typeof QueueMode];
 
 export class EventSignal<T> {
 	private _callbacks: ((event: T) => void)[];

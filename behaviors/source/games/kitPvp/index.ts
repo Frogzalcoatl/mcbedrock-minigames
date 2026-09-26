@@ -22,7 +22,7 @@ import { kitReset, kits } from "../../tools/game/kits";
 import { deathMessageFromEvent } from "../../tools/game/textFormatting";
 import { LocalHub } from "../../tools/room/localHub";
 import { Room } from "../../tools/room/room";
-import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
+import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import {
 	type KillTrackerConfig,
 	killTrackerAddDimension,
@@ -115,7 +115,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	return room;
 };
 
-roomTypeInit({
+new RoomType({
 	defaultDimensionId: `${PACK_NAMESPACE}:kitpvp`,
 	displayName: "Kit Pvp",
 	icon: "textures/items/blaze_powder.png",

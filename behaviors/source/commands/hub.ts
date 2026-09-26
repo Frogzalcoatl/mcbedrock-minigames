@@ -11,7 +11,7 @@ import {
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import type { LocalHub } from "../tools/room/localHub";
 import { Room } from "../tools/room/room";
-import { type RoomType, roomTypeGet, roomTypeJoin } from "../tools/room/roomType";
+import { RoomType } from "../tools/room/roomType";
 import { getPlayerFromOrigin } from "./utils/origin";
 
 export function registerCommandHub(registry: CustomCommandRegistry): void {
@@ -38,7 +38,7 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 				});
 				return;
 			}
-			const mainHubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
+			const mainHubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
 			if (mainHubRoomType === undefined) {
 				return {
 					message: "No valid hubs found",
@@ -52,8 +52,15 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			}
+			const room: Room | undefined = mainHubRoomType.rooms[actualIndex];
+			if (room === undefined) {
+				return {
+					message: `Unable to join hub`,
+					status: CustomCommandStatus.Failure,
+				};
+			}
 			system.run(() => {
-				const joinResult: boolean = roomTypeJoin(player, mainHubRoomType, actualIndex);
+				const joinResult: boolean = room.join(player);
 				if (!joinResult) {
 					player.sendMessage("§cUnable to join hub");
 				}

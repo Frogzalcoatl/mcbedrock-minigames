@@ -10,7 +10,13 @@ import {
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
 import { itemLeaveGame } from "../../items/games/leaveGame";
-import { arrRemoveSwap, EventSignal, GameState, TeamDistributionMode } from "../../types";
+import {
+	arrRemoveSwap,
+	EventSignal,
+	GameState,
+	gameStateToString,
+	TeamDistributionMode,
+} from "../../types";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
@@ -18,7 +24,7 @@ import {
 	hubEffectHelper,
 } from "../componentHelpers";
 import type { Room, RoomBeforeJoinEvent } from "../room/room";
-import { type RoomType, roomTypeGet, roomTypeJoin } from "../room/roomType";
+import { RoomType } from "../room/roomType";
 import { type PlayerEliminationEvent, Team } from "./team";
 import { getPlayerName } from "./textFormatting";
 
@@ -65,6 +71,12 @@ export class Game {
 		return Game._globalPlayers.get(player.id);
 	}
 
+	private static _games = new Map<string, Game>(); // key is dimensionId
+
+	public static get(dimensionId: string): Game | undefined {
+		return Game._games.get(dimensionId);
+	}
+
 	public readonly room: Room;
 	public readonly teams: Team[];
 
@@ -78,7 +90,7 @@ export class Game {
 	public startTimeSeconds: number;
 	public gameDurationSeconds: number;
 
-	// You should set this.state to GameState.Starting when complete
+	// You should set this.state to GameState.Open when complete
 	public resetGame: ((game: Game) => void) | null;
 
 	public readonly onStart: EventSignal<Game>;
@@ -91,10 +103,11 @@ export class Game {
 	public players: Player[];
 	public spectators: Player[];
 	private _state: GameState;
-	private _startingIntervalId: number | null;
+	private _openIntervalId: number | null;
 	private _activeIntervalId: number | null;
 
 	public constructor(config: GameConfig) {
+		Game._games.set(config.room.dimensionId, this);
 		this.room = config.room;
 		this.teams = [];
 		this.playersToStart = config.playersToStart;
@@ -112,7 +125,7 @@ export class Game {
 		this.players = [];
 		this.spectators = [];
 		this._state = GameState.Resetting;
-		this._startingIntervalId = null;
+		this._openIntervalId = null;
 		this._activeIntervalId = null;
 		this.room.beforeJoin.subscribe(this.beforeJoin);
 		this.room.onJoin.subscribe(this.roomOnJoin);
@@ -145,9 +158,9 @@ export class Game {
 	}
 
 	public set state(newState: GameState) {
-		if (this._startingIntervalId !== null) {
-			system.clearRun(this._startingIntervalId);
-			this._startingIntervalId = null;
+		if (this._openIntervalId !== null) {
+			system.clearRun(this._openIntervalId);
+			this._openIntervalId = null;
 		}
 		if (this._activeIntervalId !== null) {
 			system.clearRun(this._activeIntervalId);
@@ -158,15 +171,15 @@ export class Game {
 			case GameState.Resetting: {
 				this.clearPlayers();
 				if (this.resetGame === null) {
-					this._state = GameState.Starting;
+					this._state = GameState.Open;
 				} else {
 					this.resetGame(this);
 				}
 				break;
 			}
-			case GameState.Starting: {
+			case GameState.Open: {
 				if (this.players.length > 0) {
-					this.whileStarting();
+					this.whileOpen();
 				}
 				break;
 			}
@@ -234,26 +247,51 @@ export class Game {
 	}
 
 	public clearPlayers(): void {
-		const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
+		const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
 		for (const t of this.teams) {
 			t.clearPlayers(false);
 		}
 		if (hubRoomType !== undefined) {
 			for (const p of this.players) {
-				roomTypeJoin(p, hubRoomType);
+				hubRoomType.queue(p);
 			}
 			for (const s of this.spectators) {
-				roomTypeJoin(s, hubRoomType);
+				hubRoomType.queue(s);
 			}
 		}
 		this.spectators.length = 0;
 		this.players.length = 0;
 	}
 
-	private whileStarting(): void {
-		if (this._startingIntervalId !== null) {
-			system.clearRun(this._startingIntervalId);
-			this._startingIntervalId = null;
+	public info(): string {
+		let info = `
+Game:
+State: §e${gameStateToString(this._state)}§r
+Active Players: §e${this.players.length}/${this.maxPlayers}§r
+Spectators: §e${this.spectators.length}§r
+Game Duration: §e${this.gameDurationSeconds}s§r`.trimStart();
+		if (this._openIntervalId !== null || this._activeIntervalId !== null) {
+			info += `\nTime Remaining: §e${this.secondsRemaining}s§r`;
+		}
+		info += `
+Teams: §e${this.teams.length}§r
+Players Per Team: §e${this.playersPerTeam}§r`;
+		if (this._state === GameState.Active) {
+			info += `\nTeams Remaining: §e${this.teamsRemaining}§r`;
+		}
+		info += `
+
+Interval Ids:
+Open: §e${this._openIntervalId}§r
+Active: §e${this._activeIntervalId}§r
+`;
+		return info;
+	}
+
+	private whileOpen(): void {
+		if (this._openIntervalId !== null) {
+			system.clearRun(this._openIntervalId);
+			this._openIntervalId = null;
 		}
 		const playSoundDuring: number[] = [60, 30, 20, 10, 5, 4, 3, 2, 1];
 		if (!playSoundDuring.includes(this.startTimeSeconds)) {
@@ -285,7 +323,7 @@ export class Game {
 			}
 			this.secondsRemaining -= 1;
 		}, 20);
-		this._startingIntervalId = intervalId;
+		this._openIntervalId = intervalId;
 	}
 
 	private startGame(): void {
@@ -347,7 +385,7 @@ export class Game {
 				event.cancel = true;
 				break;
 			}
-			case GameState.Starting: {
+			case GameState.Open: {
 				if (this.players.length >= this.maxPlayers) {
 					event.player.sendMessage("§cUnable to join game: Game is full");
 					event.cancel = true;
@@ -365,7 +403,7 @@ export class Game {
 	};
 
 	private roomOnJoin = (player: Player): void => {
-		if (this._state !== GameState.Starting || this.players.length >= this.maxPlayers) {
+		if (this._state !== GameState.Open || this.players.length >= this.maxPlayers) {
 			this.addSpectator(player);
 			return;
 		}
@@ -373,7 +411,7 @@ export class Game {
 			this.players.push(player);
 		}
 		if (this.players.length === 1) {
-			this.whileStarting();
+			this.whileOpen();
 		}
 		hubEffectHelper(player);
 		player.setGameMode(GameMode.Adventure);
@@ -398,13 +436,13 @@ export class Game {
 		arrRemoveSwap(this.players, player);
 		arrRemoveSwap(this.spectators, player);
 		const leaveMessage: string = `${getPlayerName(player)}§r§7 left the game`;
-		if (this._state !== GameState.Starting) {
+		if (this._state !== GameState.Open) {
 			this.sendMessage(leaveMessage);
 			return;
 		}
-		if (this.players.length === 0 && this._startingIntervalId !== null) {
-			system.clearRun(this._startingIntervalId);
-			this._startingIntervalId = null;
+		if (this.players.length === 0 && this._openIntervalId !== null) {
+			system.clearRun(this._openIntervalId);
+			this._openIntervalId = null;
 		} else {
 			this.sendMessage(`${leaveMessage} §8[${this.players.length}/${this.maxPlayers}]`);
 		}

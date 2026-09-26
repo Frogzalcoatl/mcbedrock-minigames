@@ -9,7 +9,8 @@ import { roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/componentHelpers";
 import { Room } from "../../tools/room/room";
-import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
+import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
+import { QueueMode } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
@@ -37,10 +38,11 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	return room;
 };
 
-roomTypeInit({
+new RoomType({
 	defaultDimensionId: MinecraftDimensionTypes.Overworld,
 	displayName: "Hub",
 	icon: "textures/items/ender_eye.png",
+	queueMode: QueueMode.InOrder,
 	roomCount: 2,
 	roomCreatorFunc: creator,
 	typeId: roomTypeIds.hub,

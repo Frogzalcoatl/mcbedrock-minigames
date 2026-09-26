@@ -8,11 +8,15 @@ import {
 	world,
 } from "@minecraft/server";
 import { SimulatedPlayer } from "@minecraft/server-gametest";
+import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
+import { safeActionFormShow } from "../../forms/safeShow";
+import { GameState, QueueMode } from "../../types";
+import { Game } from "../game/game";
 import { Room } from "./room";
 
 system.beforeEvents.startup.subscribe((event: StartupEvent) => {
-	for (const type of roomTypes) {
+	for (const type of RoomType.getAll()) {
 		for (const room of type.rooms) {
 			room.registerDimension(event.dimensionRegistry);
 		}
@@ -20,8 +24,12 @@ system.beforeEvents.startup.subscribe((event: StartupEvent) => {
 });
 
 world.afterEvents.worldLoad.subscribe(() => {
-	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
+	const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
 	if (hubRoomType === undefined) {
+		return;
+	}
+	const firstHub: Room | undefined = hubRoomType.rooms[0];
+	if (firstHub === undefined) {
 		return;
 	}
 	for (const p of world.getAllPlayers()) {
@@ -31,7 +39,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 		) {
 			continue;
 		}
-		roomTypeJoin(p, hubRoomType);
+		firstHub.join(p);
 	}
 });
 
@@ -42,7 +50,7 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 		return;
 	}
 	event.player.setDynamicProperty(propertyInitialSpawnTransfer, true);
-	const hubRoomType: RoomType | undefined = roomTypeGet(roomTypeIds.hub);
+	const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
 	if (hubRoomType === undefined) {
 		return;
 	}
@@ -72,74 +80,211 @@ export interface RoomTypeConfig {
 	defaultDimensionId: string;
 	displayName: string;
 	icon?: string;
+	queueMode?: QueueMode;
 	roomCount: number;
 	roomCreatorFunc: RoomCreatorFunc;
 	typeId: string;
 }
 
-export interface RoomType {
-	displayName: string;
-	icon: string;
-	readonly rooms: Room[];
-	typeId: string;
-}
+export class RoomType {
+	private static _globalTypes: RoomType[] = [];
 
-export const roomTypes: RoomType[] = [];
-
-export function roomTypeGet(typeId: string): RoomType | undefined {
-	return roomTypes.find((t) => t.typeId === typeId);
-}
-
-export function roomTypeInit(config: RoomTypeConfig): RoomType {
-	const type: RoomType = {
-		displayName: config.displayName,
-		icon: config.icon ?? "",
-		rooms: [],
-		typeId: config.typeId,
-	};
-	roomTypes.push(type);
-	if (config.roomCount < 1) {
-		return type;
+	public static get(typeId: string): RoomType | undefined {
+		return RoomType._globalTypes.find((t) => t.typeId === typeId);
 	}
-	if (!config.defaultDimensionId.startsWith("minecraft:")) {
-		for (let i = 0; i < config.roomCount; i++) {
-			type.rooms.push(
+
+	public static getAll(): RoomType[] {
+		return RoomType._globalTypes;
+	}
+
+	public static async join(typeId: string, player: Player): Promise<boolean> {
+		const type: RoomType | undefined = RoomType.get(typeId);
+		return (await type?.queue(player)) ?? false;
+	}
+
+	public displayName: string;
+	public icon: string;
+	public queueMode: QueueMode;
+	public readonly rooms: Room[];
+	public readonly typeId: string;
+
+	public constructor(config: RoomTypeConfig) {
+		RoomType._globalTypes.push(this);
+		this.displayName = config.displayName;
+		this.queueMode = config.queueMode ?? QueueMode.Form;
+		this.icon = config.icon ?? "";
+		this.rooms = [];
+		this.typeId = config.typeId;
+		if (config.roomCount < 1) {
+			return;
+		}
+		if (!config.defaultDimensionId.startsWith("minecraft:")) {
+			for (let i = 0; i < config.roomCount; i++) {
+				this.rooms.push(
+					config.roomCreatorFunc(
+						`${config.defaultDimensionId}-${i + 1}`,
+						`${this.displayName} ${i + 1}`,
+						this.icon,
+					),
+				);
+			}
+			return;
+		}
+		this.rooms.push(
+			config.roomCreatorFunc(config.defaultDimensionId, `${this.displayName} 1`, this.icon),
+		);
+		if (config.roomCount === 1) {
+			return;
+		}
+		const colonIndex: number = config.defaultDimensionId.indexOf(":");
+		const customDimensionId: string = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(colonIndex + 1)}`;
+		for (let i = 1; i < config.roomCount; i++) {
+			this.rooms.push(
 				config.roomCreatorFunc(
-					`${config.defaultDimensionId}-${i + 1}`,
-					`${type.displayName} ${i + 1}`,
-					type.icon,
+					`${customDimensionId}-${i + 1}`,
+					`${this.displayName} ${i + 1}`,
+					this.icon,
 				),
 			);
 		}
-		return type;
 	}
-	type.rooms.push(
-		config.roomCreatorFunc(config.defaultDimensionId, `${type.displayName} 1`, type.icon),
-	);
-	if (config.roomCount === 1) {
-		return type;
-	}
-	const colonIndex: number = config.defaultDimensionId.indexOf(":");
-	const customDimensionId: string = `${PACK_NAMESPACE}:${config.defaultDimensionId.slice(colonIndex + 1)}`;
-	for (let i = 1; i < config.roomCount; i++) {
-		type.rooms.push(
-			config.roomCreatorFunc(
-				`${customDimensionId}-${i + 1}`,
-				`${type.displayName} ${i + 1}`,
-				type.icon,
-			),
-		);
-	}
-	return type;
-}
 
-export function roomTypeJoin(player: Player, type: RoomType, roomIndex = 0): boolean {
-	const room: Room | undefined = type?.rooms[roomIndex];
-	return room?.join(player) ?? false;
-}
+	private joinGameWithPlayersWaiting(player: Player): boolean {
+		for (let i = 0; i < this.rooms.length; i++) {
+			const room: Room | undefined = this.rooms[i];
+			if (room === undefined) {
+				continue;
+			}
+			const game: Game | undefined = Game.get(room.dimensionId);
+			if (
+				game !== undefined &&
+				game.state === GameState.Open &&
+				game.players.length > 0 &&
+				game.players.length < game.maxPlayers &&
+				room.join(player)
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-export function roomTypeIdJoin(player: Player, typeId: string, roomIndex = 0): boolean {
-	const type: RoomType | undefined = roomTypeGet(typeId);
-	const room: Room | undefined = type?.rooms[roomIndex];
-	return room?.join(player) ?? false;
+	private async queueModeForm(player: Player): Promise<boolean> {
+		if (this.rooms.length === 1) {
+			return this.rooms[0]?.join(player) ?? false;
+		} else {
+			return await this.form(player);
+		}
+	}
+
+	private queueModeInOrder(player: Player): boolean {
+		for (let i = 0; i < this.rooms.length; i++) {
+			if (this.rooms[i]?.join(player)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private queueModeRandom(player: Player): boolean {
+		const index: number = Math.floor(Math.random() * this.rooms.length);
+		const room: Room | undefined = this.rooms[index];
+		if (room?.join(player)) {
+			return true;
+		}
+		// Check if the other rooms are available if random room failed for whatever reason
+		for (let i = 1; i < this.rooms.length; i++) {
+			const current: Room | undefined = this.rooms[(index + i) % this.rooms.length];
+			if (current?.join(player)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private queueModeGameInOrder(player: Player): boolean {
+		if (this.joinGameWithPlayersWaiting(player)) {
+			return true;
+		}
+		for (let i = 0; i < this.rooms.length; i++) {
+			const room: Room | undefined = this.rooms[i];
+			if (room === undefined) {
+				continue;
+			}
+			const game: Game | undefined = Game.get(room.dimensionId);
+			if (
+				game !== undefined &&
+				game.state === GameState.Open &&
+				game.players.length < game.maxPlayers &&
+				room.join(player)
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private queueModeGameRandom(player: Player): boolean {
+		if (this.joinGameWithPlayersWaiting(player)) {
+			return true;
+		}
+		const randomIndex: number = Math.floor(Math.random() * this.rooms.length);
+		for (let i = 0; i < this.rooms.length; i++) {
+			const room: Room | undefined = this.rooms[(randomIndex + i) % this.rooms.length];
+			if (room === undefined) {
+				continue;
+			}
+			const game: Game | undefined = Game.get(room.dimensionId);
+			if (
+				game !== undefined &&
+				game.state === GameState.Open &&
+				game.players.length < game.maxPlayers &&
+				room.join(player)
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public async queue(player: Player): Promise<boolean> {
+		switch (this.queueMode) {
+			case QueueMode.Form: {
+				return await this.queueModeForm(player);
+			}
+			case QueueMode.InOrder: {
+				return this.queueModeInOrder(player);
+			}
+			case QueueMode.Random: {
+				return this.queueModeRandom(player);
+			}
+			case QueueMode.GameInOrder: {
+				return this.queueModeGameInOrder(player);
+			}
+			case QueueMode.GameRandom: {
+				return this.queueModeGameRandom(player);
+			}
+			default:
+				return false;
+		}
+	}
+
+	public async form(player: Player): Promise<boolean> {
+		const form = new ActionFormData();
+		form.title(`§0${this.displayName} Rooms`);
+		for (const room of this.rooms) {
+			form.button(room.displayName, room.icon);
+		}
+		const resp: ActionFormResponse = await safeActionFormShow(form, player);
+		if (!player.isValid || resp.selection === undefined) {
+			return false;
+		}
+		const selectedRoom: Room | undefined = this.rooms[resp.selection];
+		if (selectedRoom === undefined) {
+			player.sendMessage("§cUnable to find selected room");
+			return false;
+		}
+		selectedRoom.join(player);
+		return true;
+	}
 }

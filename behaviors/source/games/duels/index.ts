@@ -14,9 +14,9 @@ import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/game/textFormatting";
 import { Room } from "../../tools/room/room";
-import { type RoomCreatorFunc, roomTypeInit } from "../../tools/room/roomType";
+import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";
-import { GameState, type TeleportLocation } from "../../types";
+import { GameState, QueueMode, type TeleportLocation } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
@@ -104,14 +104,15 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		}, 100);
 	};
 	game.startTimeSeconds = 10;
-	game.state = GameState.Starting;
+	game.state = GameState.Open;
 	return room;
 };
 
-roomTypeInit({
+new RoomType({
 	defaultDimensionId: `${PACK_NAMESPACE}:duels`,
 	displayName: "Duels",
 	icon: "textures/items/iron_sword.png",
+	queueMode: QueueMode.GameRandom,
 	roomCount: 3,
 	roomCreatorFunc: creator,
 	typeId: roomTypeIds.duels,

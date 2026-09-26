@@ -12,6 +12,7 @@ import {
 import { loadStructure } from "../../structures/load";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { ejectFromMount } from "../actions/mount";
+import { Game } from "../game/game";
 import { dimensionTracker } from "../trackers/dimensionTracker";
 import { killTrackerHasDimension } from "../trackers/killTracker";
 import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
@@ -251,16 +252,25 @@ export class Room {
 	}
 
 	public info(): string {
-		return `
+		let info: string = `
+General:
 Dimension ID: §e${this.dimensionId}§r
 Display Name: §e${this.displayName}§r
 Icon: §e${this.icon}§r
-Player Count: §e${this.playerCount}§r
 Spawn: §e${teleportLocationToString(this._spawn)}§r
 Saved Structures: §e${this.structures.length}§r
-Includes Hub: §e${this.localHub !== null}§r
+Players: §e${this.playerCount}§r
+Local Hub: §e${this.localHub !== null}§r
+
+Trackers:
 Projectile Tracker: §e${projectileTrackerHasDimension(this.dimensionId)}§r
 Kill Tracker: §e${killTrackerHasDimension(this.dimensionId)}§r
 `.trim();
+		const game: Game | undefined = Game.get(this.dimensionId);
+		if (game === undefined) {
+			return info;
+		}
+		info += `\n\n${game.info()}`;
+		return info;
 	}
 }
