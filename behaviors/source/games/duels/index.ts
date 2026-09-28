@@ -15,7 +15,10 @@ import type { Team } from "../../tools/game/team";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/game/textFormatting";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import { type KillTrackerConfig, killTrackerAddDimension } from "../../tools/trackers/killTracker";
+import {
+	type KillTrackerSettings,
+	killTrackerAddDimension,
+} from "../../tools/trackers/killTracker";
 import { GameState, QueueMode, type TeleportLocation } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
@@ -29,7 +32,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		},
 		structures: [{ id: "frogzalcoatl/duels/mangrove", pos: { x: -133, y: -3, z: -68 } }],
 	});
-	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
+	const killTracker: KillTrackerSettings = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent) => {
 		room.sendMessage(deathMessageFromEvent(event));
 	});

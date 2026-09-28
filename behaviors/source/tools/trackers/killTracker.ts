@@ -20,7 +20,7 @@ interface HitMapValue {
 	timestamp: number;
 }
 
-const configs = new Map<string, KillTrackerConfig>(); // key is dimensionId
+const configs = new Map<string, KillTrackerSettings>(); // key is dimensionId
 const hitMap = new Map<string, HitMapValue>(); // key is entity id
 const showTimeRunIntervalMap = new Map<string, number>(); //// [playerId, runIntervalId]
 
@@ -61,7 +61,7 @@ function clearShowTimeRunInterval(player: Player): void {
 
 function showCombatTime(player: Player): void {
 	clearShowTimeRunInterval(player);
-	const config: KillTrackerConfig | undefined = configs.get(player.dimension.id);
+	const config: KillTrackerSettings | undefined = configs.get(player.dimension.id);
 	if (config === undefined || config.showCombatTime === null) {
 		return;
 	}
@@ -83,12 +83,13 @@ world.afterEvents.entityHurt.subscribe((event: EntityHurtAfterEvent) => {
 		killTrackerSetCombat(event.hurtEntity, event.damageSource.damagingEntity);
 	}
 });
+
 world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
 	if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
 		return;
 	}
 	const deadPlayer: Player = event.deadEntity;
-	const config: KillTrackerConfig | undefined = configs.get(deadPlayer.dimension.id);
+	const config: KillTrackerSettings | undefined = configs.get(deadPlayer.dimension.id);
 	if (config === undefined) {
 		return;
 	}
@@ -104,14 +105,14 @@ world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
 	kitEntityDieHandler(event);
 });
 
-export interface KillTrackerConfig {
-	onKill: EventSignal<EntityDieAfterEvent>;
-	showCombatTime: EventSignal<Player>;
+export interface KillTrackerSettings {
+	readonly onKill: EventSignal<EntityDieAfterEvent>;
+	readonly showCombatTime: EventSignal<Player>;
 	showCombatTimeTickInterval: number;
 }
 
-export function killTrackerAddDimension(dimensionId: string): KillTrackerConfig {
-	const config: KillTrackerConfig = {
+export function killTrackerAddDimension(dimensionId: string): KillTrackerSettings {
+	const config: KillTrackerSettings = {
 		onKill: new EventSignal<EntityDieAfterEvent>(),
 		showCombatTime: new EventSignal<Player>(),
 		showCombatTimeTickInterval: 0,
@@ -179,7 +180,7 @@ export function killTrackerRemovePlayer(player: Player): void {
 	if (killTrackerInCombat(player)) {
 		const playerDimension: Dimension | null = dimensionTracker(player.id);
 		if (playerDimension !== null) {
-			const config: KillTrackerConfig | undefined = configs.get(playerDimension.id);
+			const config: KillTrackerSettings | undefined = configs.get(playerDimension.id);
 			if (config !== undefined) {
 				const event: EntityDieAfterEvent = createDeathEvent(player);
 				config.onKill.triggerEvent(event);
@@ -205,5 +206,19 @@ export function killTrackerSetCombat(hurtPlayer: Player, damagingEntity: Entity)
 			timestamp: Date.now(),
 		});
 		showCombatTime(damagingEntity);
+	}
+}
+
+export class KillTracker {
+	public hitCooldownTicks: number;
+	public readonly dimensions: Map<Dimension, KillTrackerSettings>;
+	private readonly _intervalIds: Map<string, number>;
+	private readonly _hitMap: Map<string, HitMapValue>; // key is entityId
+
+	public constructor(hitCooldownTicks: number) {
+		this.hitCooldownTicks = hitCooldownTicks;
+		this.dimensions = new Map<Dimension, KillTrackerSettings>();
+		this._intervalIds = new Map<string, number>();
+		this._hitMap = new Map<string, HitMapValue>();
 	}
 }

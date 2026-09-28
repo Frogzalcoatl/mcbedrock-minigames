@@ -8,97 +8,79 @@ import {
 	type EntitySpawnAfterEvent,
 	Player,
 	type PlayerLeaveAfterEvent,
+	World,
 	world,
 } from "@minecraft/server";
+import { minigames } from "..";
 import { dimensionTracker } from "./dimensionTracker";
 
-interface ProjectileTracker {
-	map: Map<string, string>; // [projectileId, playerId]
-	projectileTypeIds: string[];
-}
+export class ProjectileTracker {
+	private readonly _dimensions: Map<Dimension, string[]>; // values are projectileTypeIds
+	private readonly _projectiles: Map<string, string>; // [projectileId, playerId]
+	private readonly propertyId: string;
 
-const trackers = new Map<string, ProjectileTracker>(); // key is dimensionId
-
-const trackedPojectilePropertyId: string = "tracked_projectile";
-
-world.beforeEvents.entityRemove.subscribe((event: EntityRemoveBeforeEvent) => {
-	const tracker: ProjectileTracker | undefined = trackers.get(event.removedEntity.dimension.id);
-	if (tracker === undefined) {
-		return;
+	public constructor() {
+		this._dimensions = new Map<Dimension, string[]>();
+		this._projectiles = new Map<string, string>();
+		this.propertyId = "tracked_projectile";
 	}
-	if (tracker.map.delete(event.removedEntity.id)) {
-	}
-});
 
-world.afterEvents.entitySpawn.subscribe((event: EntitySpawnAfterEvent) => {
-	if (!event.entity.isValid) {
-		return;
-	}
-	const tracker: ProjectileTracker | undefined = trackers.get(event.entity.dimension.id);
-	if (tracker === undefined) {
-		return;
-	}
-	if (!tracker.projectileTypeIds.includes(event.entity.typeId)) {
-		return;
-	}
-	const projectile: EntityProjectileComponent | undefined = event.entity.getComponent(
-		EntityComponentTypes.Projectile,
-	);
-	if (projectile?.owner && projectile.owner instanceof Player) {
-		tracker.map.set(event.entity.id, projectile.owner.id);
-		event.entity.setDynamicProperty(trackedPojectilePropertyId, true);
-	}
-});
-world.afterEvents.entityLoad.subscribe((event: EntityLoadAfterEvent) => {
-	if (
-		event.entity.isValid &&
-		event.entity.getDynamicProperty(trackedPojectilePropertyId) !== undefined
-	) {
-		event.entity.remove();
-	}
-});
-
-world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent) => {
-	const dimension: Dimension | null = dimensionTracker(event.playerId);
-	if (dimension !== null) {
-		projectileTrackerRemovePlayer(event.playerId, dimension.id);
-	}
-});
-
-export function projectileTrackerAddDimension(
-	dimensionId: string,
-	projectileTypeIds: string[],
-): void {
-	trackers.set(dimensionId, {
-		map: new Map<string, string>(),
-		projectileTypeIds: projectileTypeIds,
-	});
-}
-
-export function projectileTrackerRemoveDimension(dimensionId: string): boolean {
-	return trackers.delete(dimensionId);
-}
-
-export function projectileTrackerHasDimension(dimensionId: string): boolean {
-	return trackers.has(dimensionId);
-}
-
-export function projectileTrackerClearDimensions(): void {
-	trackers.clear();
-}
-
-export function projectileTrackerRemovePlayer(playerId: string, dimensionId: string): void {
-	const tracker: ProjectileTracker | undefined = trackers.get(dimensionId);
-	if (tracker === undefined) {
-		return;
-	}
-	for (const [projectileId, currentPlayerId] of tracker.map) {
-		if (playerId === currentPlayerId) {
-			const projectileEntity: Entity | undefined = world.getEntity(projectileId);
-			if (projectileEntity?.isValid) {
-				projectileEntity.remove();
+	public removePlayer(playerId: string): void {
+		for (const [projectileId, currentPlayerId] of this._projectiles) {
+			if (playerId !== currentPlayerId) {
+				continue;
 			}
-			tracker.map.delete(projectileId);
+			const entity: Entity | undefined = world.getEntity(projectileId);
+			if (entity?.isValid) {
+				entity.remove();
+			}
 		}
+	}
+
+	private entityRemove = (event: EntityRemoveBeforeEvent): void => {
+		this._projectiles.delete(event.removedEntity.id);
+	};
+
+	private entitySpawn = (event: EntitySpawnAfterEvent): void => {
+		if (!event.entity.isValid) {
+			return;
+		}
+		const projectileTypeIds: string[] | undefined = this._dimensions.get(event.entity.dimension);
+		if (projectileTypeIds === undefined) {
+			return;
+		}
+		const projectileComponent: EntityProjectileComponent | undefined = event.entity.getComponent(
+			EntityComponentTypes.Projectile,
+		);
+		if (projectileComponent?.owner && projectileComponent.owner instanceof Player) {
+			this._projectiles.set(event.entity.id, projectileComponent.owner.id);
+		}
+	};
+
+	private entityLoad = (event: EntityLoadAfterEvent): void => {
+		if (
+			event.entity.isValid &&
+			event.entity.getDynamicProperty(this.propertyId) !== undefined
+		) {
+			event.entity.remove();
+		}
+	}
+
+	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
+		this.removePlayer(event.playerId);
+	}
+
+	public init(): void {
+		world.beforeEvents.entityRemove.subscribe(this.entityRemove);
+		world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
+		world.afterEvents.entityLoad.subscribe(this.entityLoad);
+		world.afterEvents.playerLeave.subscribe(this.playerLeave);
+	}
+
+	public shutdown(): void {
+		world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
+		world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
+		world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
+		world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
 	}
 }

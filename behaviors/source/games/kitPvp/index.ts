@@ -24,7 +24,7 @@ import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub"
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import {
-	type KillTrackerConfig,
+	type KillTrackerSettings,
 	killTrackerAddDimension,
 	killTrackerRemovePlayer,
 } from "../../tools/trackers/killTracker";
@@ -94,7 +94,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			inventory.container.setItem(5, itemTeleporter());
 		}
 	});
-	const killTracker: KillTrackerConfig = killTrackerAddDimension(room.dimensionId);
+	const killTracker: KillTrackerSettings = killTrackerAddDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
 		room.sendMessage(deathMessageFromEvent(event));
 		if (event.damageSource.damagingEntity?.isValid) {
