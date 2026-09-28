@@ -1,11 +1,16 @@
 import { type Dimension, type DimensionLocation, type Player, world } from "@minecraft/server";
 import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../../types";
 
+export interface LocalHubTransferEvent {
+	localHub: LocalHub;
+	player: Player;
+}
+
 export class LocalHub {
 	public readonly dimensionId: string;
-	public onJoin: EventSignal<Player>;
-	public onLeave: EventSignal<Player>;
-	public players: Player[];
+	public readonly onJoin: EventSignal<LocalHubTransferEvent>;
+	public readonly onLeave: EventSignal<LocalHubTransferEvent>;
+	public readonly players: Player[];
 	private _spawn: TeleportLocation;
 	private _isActive: boolean;
 
@@ -14,8 +19,8 @@ export class LocalHub {
 		this._spawn = spawn;
 		this._isActive = true;
 		this.players = [];
-		this.onJoin = new EventSignal<Player>();
-		this.onLeave = new EventSignal<Player>();
+		this.onJoin = new EventSignal<LocalHubTransferEvent>();
+		this.onLeave = new EventSignal<LocalHubTransferEvent>();
 	}
 
 	public get isActive(): boolean {
@@ -70,7 +75,7 @@ export class LocalHub {
 			y: this._spawn.pos.y,
 			z: this._spawn.pos.z,
 		});
-		this.onJoin.triggerEvent(player);
+		this.onJoin.triggerEvent({ localHub: this, player: player });
 	}
 
 	public leave(player: Player): void {
@@ -78,6 +83,6 @@ export class LocalHub {
 			return;
 		}
 		arrRemoveSwap(this.players, player);
-		this.onLeave.triggerEvent(player);
+		this.onLeave.triggerEvent({ localHub: this, player: player });
 	}
 }

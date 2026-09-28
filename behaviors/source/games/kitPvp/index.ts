@@ -20,8 +20,8 @@ import {
 } from "../../tools/componentHelpers";
 import { kitReset, kits } from "../../tools/game/kits";
 import { deathMessageFromEvent } from "../../tools/game/textFormatting";
-import { LocalHub } from "../../tools/room/localHub";
-import { Room } from "../../tools/room/room";
+import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
+import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import {
 	type KillTrackerConfig,
@@ -70,22 +70,22 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			{ id: "ghostly/kitPvp", pos: { x: 128, y: 0, z: 128 } },
 		],
 	});
-	room.onLeave.subscribe((player: Player) => {
-		killTrackerRemovePlayer(player);
-		itemCooldownRemovePlayer(player);
-		projectileTrackerRemovePlayer(player.id, room.dimensionId);
-		kitReset(player);
+	room.onLeave.subscribe((event: RoomTransferEvent) => {
+		killTrackerRemovePlayer(event.player);
+		itemCooldownRemovePlayer(event.player);
+		projectileTrackerRemovePlayer(event.player.id, event.room.dimensionId);
+		kitReset(event.player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
-	room.localHub.onJoin.subscribe((player: Player): void => {
-		killTrackerRemovePlayer(player);
-		itemCooldownRemovePlayer(player);
-		projectileTrackerRemovePlayer(player.id, room.dimensionId);
-		kitReset(player);
-		hubEffectHelper(player);
-		player.setGameMode(GameMode.Adventure);
-		clearEntityEquippable(player);
-		const inventory: EntityInventoryComponent | undefined = player.getComponent(
+	room.localHub.onJoin.subscribe((event: LocalHubTransferEvent): void => {
+		killTrackerRemovePlayer(event.player);
+		itemCooldownRemovePlayer(event.player);
+		projectileTrackerRemovePlayer(event.player.id, event.localHub.dimensionId);
+		kitReset(event.player);
+		hubEffectHelper(event.player);
+		event.player.setGameMode(GameMode.Adventure);
+		clearEntityEquippable(event.player);
+		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {

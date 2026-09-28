@@ -88,6 +88,12 @@ export interface RoomConfig {
 export interface RoomBeforeJoinEvent {
 	cancel: boolean;
 	player: Player;
+	room: Room;
+}
+
+export interface RoomTransferEvent {
+	player: Player;
+	room: Room;
 }
 
 export class Room {
@@ -113,9 +119,9 @@ export class Room {
 	public icon: string;
 	public readonly structures: RoomStructure[];
 	public readonly beforeJoin: EventSignal<RoomBeforeJoinEvent>;
-	public readonly onJoin: EventSignal<Player>;
+	public readonly onJoin: EventSignal<RoomTransferEvent>;
 	// Leave events still triggered when player.isValid is false
-	public readonly onLeave: EventSignal<Player>;
+	public readonly onLeave: EventSignal<RoomTransferEvent>;
 	public localHub: LocalHub | null;
 	private _spawn: TeleportLocation;
 	private _dimension: Dimension | undefined;
@@ -128,8 +134,8 @@ export class Room {
 		this.localHub = null;
 		this._spawn = config.spawn;
 		this.beforeJoin = new EventSignal<RoomBeforeJoinEvent>();
-		this.onJoin = new EventSignal<Player>();
-		this.onLeave = new EventSignal<Player>();
+		this.onJoin = new EventSignal<RoomTransferEvent>();
+		this.onLeave = new EventSignal<RoomTransferEvent>();
 		Room._rooms.set(this.dimensionId, this);
 	}
 
@@ -181,6 +187,7 @@ export class Room {
 			const beforeJoinEvent: RoomBeforeJoinEvent = {
 				cancel: false,
 				player: player,
+				room: this,
 			};
 			this.beforeJoin.triggerEvent(beforeJoinEvent);
 			if (beforeJoinEvent.cancel) {
@@ -213,7 +220,7 @@ export class Room {
 		if (previousRoom === undefined || previousRoom.dimensionId !== this.dimensionId) {
 			player.sendMessage(`§7Joined: ${this.displayName}`);
 		}
-		this.onJoin.triggerEvent(player);
+		this.onJoin.triggerEvent({ player: player, room: this });
 		return true;
 	}
 
@@ -224,7 +231,7 @@ export class Room {
 		if (this.localHub?.isActive) {
 			this.localHub.leave(player);
 		}
-		this.onLeave.triggerEvent(player);
+		this.onLeave.triggerEvent({ player: player, room: this });
 	}
 
 	public loadStructure(index: number | "all"): void {

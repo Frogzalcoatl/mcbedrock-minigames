@@ -23,7 +23,7 @@ import {
 	clearEntityInventory,
 	hubEffectHelper,
 } from "../componentHelpers";
-import type { Room, RoomBeforeJoinEvent } from "../room/room";
+import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
 import { Team, type TeamEliminationEvent } from "./team";
 import { getPlayerName } from "./textFormatting";
@@ -395,21 +395,21 @@ Active: §e${this._activeIntervalId}§r
 		}
 	};
 
-	private roomOnJoin = (player: Player): void => {
+	private roomOnJoin = (event: RoomTransferEvent): void => {
 		if (this._state !== GameState.Open || this.players.length >= this.maxPlayers) {
-			this.addSpectator(player);
+			this.addSpectator(event.player);
 			return;
 		}
-		if (!this.players.includes(player)) {
-			this.players.push(player);
+		if (!this.players.includes(event.player)) {
+			this.players.push(event.player);
 		}
 		if (this.players.length === 1) {
 			this.whileOpen();
 		}
-		hubEffectHelper(player);
-		player.setGameMode(GameMode.Adventure);
-		clearEntityEquippable(player);
-		const inventory: EntityInventoryComponent | undefined = player.getComponent(
+		hubEffectHelper(event.player);
+		event.player.setGameMode(GameMode.Adventure);
+		clearEntityEquippable(event.player);
+		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
 			EntityComponentTypes.Inventory,
 		);
 		if (inventory !== undefined) {
@@ -417,18 +417,18 @@ Active: §e${this._activeIntervalId}§r
 			inventory.container.setItem(8, itemLeaveGame());
 		}
 		this.sendMessage(
-			`${getPlayerName(player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
+			`${getPlayerName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
 		);
 	};
 
-	private roomOnLeave = (player: Player): void => {
-		arrRemoveSwap(this.players, player);
-		arrRemoveSwap(this.spectators, player);
-		const team: Team | null = Team.findPlayer(player);
+	private roomOnLeave = (event: RoomTransferEvent): void => {
+		arrRemoveSwap(this.players, event.player);
+		arrRemoveSwap(this.spectators, event.player);
+		const team: Team | null = Team.findPlayer(event.player);
 		if (team !== null) {
-			team.remove(player, this._state === GameState.Active);
+			team.remove(event.player, this._state === GameState.Active);
 		}
-		const leaveMessage: string = `${getPlayerName(player)}§r§7 left the game`;
+		const leaveMessage: string = `${getPlayerName(event.player)}§r§7 left the game`;
 		if (this._state !== GameState.Open) {
 			this.sendMessage(leaveMessage);
 			return;
