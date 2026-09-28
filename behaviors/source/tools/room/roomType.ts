@@ -168,7 +168,8 @@ export class RoomType {
 		}
 		const randomIndex: number = Math.floor(Math.random() * hasPlayersWaiting.length);
 		for (let i = 0; i < hasPlayersWaiting.length; i++) {
-			const room: Room | undefined = this.rooms[(randomIndex + i) % hasPlayersWaiting.length];
+			const room: Room | undefined =
+				hasPlayersWaiting[(randomIndex + i) % hasPlayersWaiting.length];
 			if (room?.join(player)) {
 				return true;
 			}
