@@ -385,13 +385,6 @@ Active: §e${this._activeIntervalId}§r
 				event.cancel = true;
 				break;
 			}
-			case GameState.Open: {
-				if (this.players.length >= this.maxPlayers) {
-					event.player.sendMessage("§cUnable to join game: Game is full");
-					event.cancel = true;
-				}
-				break;
-			}
 			case GameState.Ending: {
 				event.player.sendMessage("§cUnable to join game: Game is ending");
 				event.cancel = true;
