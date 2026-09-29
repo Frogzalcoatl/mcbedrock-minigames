@@ -9,16 +9,14 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
+import { tools } from "../../tools";
 import { clearEntityEquippable } from "../../tools/componentHelpers";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/game/textFormatting";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import {
-	type KillTrackerSettings,
-	killTrackerAddDimension,
-} from "../../tools/trackers/killTracker";
+import type { KillTrackerSettings } from "../../tools/trackers/killTracker";
 import { GameState, QueueMode, type TeleportLocation } from "../../types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
@@ -32,7 +30,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		},
 		structures: [{ id: "frogzalcoatl/duels/mangrove", pos: { x: -133, y: -3, z: -68 } }],
 	});
-	const killTracker: KillTrackerSettings = killTrackerAddDimension(room.dimensionId);
+	const killTracker: KillTrackerSettings = tools.killTracker.addDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent) => {
 		room.sendMessage(deathMessageFromEvent(event));
 	});

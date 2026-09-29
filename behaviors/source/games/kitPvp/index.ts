@@ -10,9 +10,9 @@ import {
 } from "@minecraft/server";
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
-import { itemCooldownRemovePlayer } from "../../items/cooldowns";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
+import { tools } from "../../tools";
 import {
 	changeEntityHealth,
 	clearEntityEquippable,
@@ -23,15 +23,7 @@ import { deathMessageFromEvent } from "../../tools/game/textFormatting";
 import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import {
-	type KillTrackerSettings,
-	killTrackerAddDimension,
-	killTrackerRemovePlayer,
-} from "../../tools/trackers/killTracker";
-import {
-	projectileTrackerAddDimension,
-	projectileTrackerRemovePlayer,
-} from "../../tools/trackers/projectileTracker";
+import type { KillTrackerSettings } from "../../tools/trackers/killTracker";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
@@ -71,16 +63,16 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		],
 	});
 	room.onLeave.subscribe((event: RoomTransferEvent) => {
-		killTrackerRemovePlayer(event.player);
-		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(event.player.id, event.room.dimensionId);
+		tools.killTracker.removePlayer(event.player);
+		tools.itemCooldowns.removePlayer(event.player);
+		tools.projectileTracker.removePlayer(event.player);
 		kitReset(event.player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
 	room.localHub.onJoin.subscribe((event: LocalHubTransferEvent): void => {
-		killTrackerRemovePlayer(event.player);
-		itemCooldownRemovePlayer(event.player);
-		projectileTrackerRemovePlayer(event.player.id, event.localHub.dimensionId);
+		tools.killTracker.removePlayer(event.player);
+		tools.itemCooldowns.removePlayer(event.player);
+		tools.projectileTracker.removePlayer(event.player);
 		kitReset(event.player);
 		hubEffectHelper(event.player);
 		event.player.setGameMode(GameMode.Adventure);
@@ -94,7 +86,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			inventory.container.setItem(5, itemTeleporter());
 		}
 	});
-	const killTracker: KillTrackerSettings = killTrackerAddDimension(room.dimensionId);
+	const killTracker: KillTrackerSettings = tools.killTracker.addDimension(room.dimensionId);
 	killTracker.onKill.subscribe((event: EntityDieAfterEvent): void => {
 		room.sendMessage(deathMessageFromEvent(event));
 		if (event.damageSource.damagingEntity?.isValid) {
@@ -108,7 +100,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			}, 1);
 		}
 	});
-	projectileTrackerAddDimension(room.dimensionId, [
+	tools.projectileTracker.addDimension(room.dimensionId, [
 		MinecraftEntityTypes.ThrownTrident,
 		MinecraftEntityTypes.SmallFireball,
 	]);

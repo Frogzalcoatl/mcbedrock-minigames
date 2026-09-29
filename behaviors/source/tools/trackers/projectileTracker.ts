@@ -1,5 +1,4 @@
 import {
-	type Dimension,
 	type Entity,
 	EntityComponentTypes,
 	type EntityLoadAfterEvent,
@@ -7,27 +6,28 @@ import {
 	type EntityRemoveBeforeEvent,
 	type EntitySpawnAfterEvent,
 	Player,
-	type PlayerLeaveAfterEvent,
-	World,
+	type PlayerLeaveBeforeEvent,
 	world,
 } from "@minecraft/server";
-import { minigames } from "..";
-import { dimensionTracker } from "./dimensionTracker";
 
 export class ProjectileTracker {
-	private readonly _dimensions: Map<Dimension, string[]>; // values are projectileTypeIds
+	public readonly dimensions: Map<string, string[]>; // values are projectileTypeIds
 	private readonly _projectiles: Map<string, string>; // [projectileId, playerId]
 	private readonly propertyId: string;
 
 	public constructor() {
-		this._dimensions = new Map<Dimension, string[]>();
+		this.dimensions = new Map<string, string[]>();
 		this._projectiles = new Map<string, string>();
 		this.propertyId = "tracked_projectile";
 	}
 
-	public removePlayer(playerId: string): void {
+	public addDimension(dimensionId: string, projectileTypeIds: string[]): void {
+		this.dimensions.set(dimensionId, projectileTypeIds);
+	}
+
+	public removePlayer(player: Player): void {
 		for (const [projectileId, currentPlayerId] of this._projectiles) {
-			if (playerId !== currentPlayerId) {
+			if (player.id !== currentPlayerId) {
 				continue;
 			}
 			const entity: Entity | undefined = world.getEntity(projectileId);
@@ -45,7 +45,9 @@ export class ProjectileTracker {
 		if (!event.entity.isValid) {
 			return;
 		}
-		const projectileTypeIds: string[] | undefined = this._dimensions.get(event.entity.dimension);
+		const projectileTypeIds: string[] | undefined = this.dimensions.get(
+			event.entity.dimension.id,
+		);
 		if (projectileTypeIds === undefined) {
 			return;
 		}
@@ -58,29 +60,26 @@ export class ProjectileTracker {
 	};
 
 	private entityLoad = (event: EntityLoadAfterEvent): void => {
-		if (
-			event.entity.isValid &&
-			event.entity.getDynamicProperty(this.propertyId) !== undefined
-		) {
+		if (event.entity.isValid && event.entity.getDynamicProperty(this.propertyId) !== undefined) {
 			event.entity.remove();
 		}
-	}
+	};
 
-	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
-		this.removePlayer(event.playerId);
-	}
+	private playerLeave = (event: PlayerLeaveBeforeEvent): void => {
+		this.removePlayer(event.player);
+	};
 
 	public init(): void {
 		world.beforeEvents.entityRemove.subscribe(this.entityRemove);
 		world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
 		world.afterEvents.entityLoad.subscribe(this.entityLoad);
-		world.afterEvents.playerLeave.subscribe(this.playerLeave);
+		world.beforeEvents.playerLeave.subscribe(this.playerLeave);
 	}
 
 	public shutdown(): void {
 		world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
 		world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
 		world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
-		world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
+		world.beforeEvents.playerLeave.unsubscribe(this.playerLeave);
 	}
 }

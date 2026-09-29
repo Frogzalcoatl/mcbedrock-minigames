@@ -1,5 +1,6 @@
 import {
 	type Dimension,
+	type Player,
 	type PlayerDimensionChangeAfterEvent,
 	type PlayerLeaveAfterEvent,
 	type PlayerSpawnAfterEvent,
@@ -36,6 +37,14 @@ world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => 
 	}, 3);
 });
 
-export function dimensionTracker(playerId: string): Dimension | null {
+export function dimensionTrackerById(playerId: string): Dimension | null {
 	return dimensions.get(playerId) ?? null;
+}
+
+export function dimensionTracker(player: Player): Dimension | null {
+	if (player.isValid) {
+		return player.dimension;
+	} else {
+		return dimensions.get(player.id) ?? null;
+	}
 }

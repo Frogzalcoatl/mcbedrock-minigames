@@ -11,11 +11,10 @@ import {
 } from "@minecraft/server";
 import { loadStructure } from "../../structures/load";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
+import { tools } from "..";
 import { ejectFromMount } from "../actions/mount";
 import { Game } from "../game/game";
-import { dimensionTracker } from "../trackers/dimensionTracker";
-import { killTrackerHasDimension } from "../trackers/killTracker";
-import { projectileTrackerHasDimension } from "../trackers/projectileTracker";
+import { dimensionTrackerById } from "../trackers/dimensionTracker";
 import type { LocalHub } from "./localHub";
 import { isInitialSpawnTransfer } from "./roomType";
 
@@ -62,7 +61,7 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {
 	// player.dimension is not accessible in this event as of 1.26.50
-	const playerDimension: Dimension | null = dimensionTracker(event.player.id);
+	const playerDimension: Dimension | null = dimensionTrackerById(event.player.id);
 	if (playerDimension === null) {
 		return;
 	}
@@ -270,8 +269,8 @@ Players: §e${this.playerCount}§r
 Local Hub: §e${this.localHub !== null}§r
 
 Trackers:
-Projectile Tracker: §e${projectileTrackerHasDimension(this.dimensionId)}§r
-Kill Tracker: §e${killTrackerHasDimension(this.dimensionId)}§r
+Projectile Tracker: §e${tools.projectileTracker.dimensions.has(this.dimensionId)}§r
+Kill Tracker: §e${tools.killTracker.dimensions.has(this.dimensionId)}§r
 `.trim();
 		const game: Game | undefined = Game.get(this.dimensionId);
 		if (game === undefined) {

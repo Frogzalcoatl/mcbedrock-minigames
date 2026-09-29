@@ -10,10 +10,10 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { tools } from "../../../tools";
 import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
 import { beamParticles } from "../../../tools/particles/beam";
 import { beamFrom } from "../../../tools/projectiles/beam";
-import { killTrackerSetCombat } from "../../../tools/trackers/killTracker";
 import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.EndRod;
@@ -59,7 +59,7 @@ world.afterEvents.entityHurt.subscribe((event) => {
 	if (thrower === undefined || !thrower.isValid || thrower.id === event.hurtEntity.id) {
 		return;
 	}
-	killTrackerSetCombat(event.hurtEntity, thrower);
+	tools.killTracker.setCombat(event.hurtEntity, thrower);
 });
 
 itemUseMap.set(nameTag, {

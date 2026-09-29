@@ -8,7 +8,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { spreadParticles } from "../../tools/particles/spread";
-import { killTrackerSetCombat } from "../../tools/trackers/killTracker";
+import { tools } from "..";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);
@@ -28,7 +28,7 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 		}
 		entity.addEffect(MinecraftEffectTypes.Poison, 20 * 10, { amplifier: 4 });
 		if (entity instanceof Player) {
-			killTrackerSetCombat(entity, thrower);
+			tools.killTracker.setCombat(entity, thrower);
 		}
 	}
 }

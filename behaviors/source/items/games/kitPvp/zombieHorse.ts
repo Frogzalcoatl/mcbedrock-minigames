@@ -7,19 +7,19 @@ import {
 	system,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { tools } from "../../../tools";
 import { spawnTemporaryMount } from "../../../tools/actions/mount";
 import { defaultItemStackFunc } from "../../../tools/componentHelpers";
-import { itemCooldownCheck, itemCooldownSet } from "../../cooldowns";
 import { itemUseMap } from "../../events";
 
 const typeId: string = MinecraftItemTypes.ZombieHorseSpawnEgg;
 const nameTag: string = "§r§dZombie Horse §7(Use)";
-itemCooldownSet(nameTag, typeId, 20 * 15, true);
+tools.itemCooldowns.set(nameTag, typeId, 20 * 15, true);
 const horseRideDurationTicks: number = 20 * 8;
 
 itemUseMap.set(nameTag, {
 	callback: (event: ItemUseAfterEvent): void => {
-		if (!itemCooldownCheck(event.source, event.itemStack)) {
+		if (!tools.itemCooldowns.check(event.source, event.itemStack)) {
 			return;
 		}
 		const entity: Entity | null = spawnTemporaryMount(
