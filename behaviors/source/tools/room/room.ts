@@ -12,9 +12,9 @@ import {
 import { loadStructure } from "../../structures/load";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { tools } from "..";
-import { ejectFromMount } from "../actions/mount";
 import { Game } from "../game/game";
-import { dimensionTrackerById } from "../trackers/dimensionTracker";
+import { ejectFromMount } from "../misc/actions";
+import { dimensionTrackerById } from "../trackers";
 import type { LocalHub } from "./localHub";
 import { isInitialSpawnTransfer } from "./roomType";
 

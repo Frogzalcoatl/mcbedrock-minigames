@@ -10,10 +10,10 @@ import {
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { tools } from "../../tools";
-import { clearEntityEquippable } from "../../tools/componentHelpers";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
-import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/game/textFormatting";
+import { clearEntityEquippable } from "../../tools/misc/componentHelpers";
+import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/misc/textFormatting";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import type { KillTrackerSettings } from "../../tools/trackers/killTracker";

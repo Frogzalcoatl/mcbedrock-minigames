@@ -12,7 +12,7 @@ import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../../constants";
 import { showFormKits } from "../../../forms/kits";
 import { joinKitPvpArena } from "../../../games/kitPvp/joinArena";
-import { itemUseMap } from "../../events";
+import { itemUseMap } from "../../itemUse";
 
 const typeId: string = MinecraftItemTypes.TotemOfUndying;
 const nameTag: string = "§r§eKit Select §7(Use)";

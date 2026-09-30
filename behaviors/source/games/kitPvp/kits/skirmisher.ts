@@ -1,6 +1,5 @@
 import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { applyEnchant, giveItemToEntity, setDurability } from "../../../tools/componentHelpers";
 import {
 	type Kit,
 	kitArmorDurability,
@@ -8,6 +7,11 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../tools/game/kits";
+import {
+	applyEnchant,
+	giveItemToEntity,
+	setDurability,
+} from "../../../tools/misc/componentHelpers";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 4);

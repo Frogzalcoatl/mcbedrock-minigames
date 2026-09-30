@@ -1,8 +1,7 @@
+import "./misc/projectiles/iceBomb";
+
 import { ItemCooldownManager } from "./itemCooldownManager";
-import "./events/index";
-import "./projectiles/iceBomb";
-import { KillTracker } from "./trackers/killTracker";
-import { ProjectileTracker } from "./trackers/projectileTracker";
+import { KillTracker, ProjectileTracker } from "./trackers";
 
 export interface MinigamesTools {
 	readonly itemCooldowns: ItemCooldownManager;

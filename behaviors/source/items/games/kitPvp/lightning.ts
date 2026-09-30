@@ -11,10 +11,10 @@ import {
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../../tools";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
-import { beamParticles } from "../../../tools/particles/beam";
-import { beamFrom } from "../../../tools/projectiles/beam";
-import { itemUseMap } from "../../events";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/misc/componentHelpers";
+import { beamParticles } from "../../../tools/misc/particles";
+import { beamFrom } from "../../../tools/misc/projectiles/beam";
+import { itemUseMap } from "../../itemUse";
 
 const typeId: string = MinecraftItemTypes.EndRod;
 const nameTag: string = "§r§bLightning§7 (Use)";

@@ -46,10 +46,7 @@ export class ItemCooldownManager {
 			return true;
 		}
 		const itemInfo: ItemCooldownInfo | undefined = this._items.get(item.nameTag);
-		if (itemInfo === undefined) {
-			return true;
-		}
-		if (itemInfo.typeId !== item.typeId) {
+		if (itemInfo === undefined || itemInfo.typeId !== item.typeId) {
 			return true;
 		}
 		let cooldownData: PlayerItemCooldown[] | undefined = this._players.get(player.id);

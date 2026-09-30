@@ -13,13 +13,13 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { tools } from "../../tools";
+import { kitReset, kits } from "../../tools/game/kits";
 import {
 	changeEntityHealth,
 	clearEntityEquippable,
 	hubEffectHelper,
-} from "../../tools/componentHelpers";
-import { kitReset, kits } from "../../tools/game/kits";
-import { deathMessageFromEvent } from "../../tools/game/textFormatting";
+} from "../../tools/misc/componentHelpers";
+import { deathMessageFromEvent } from "../../tools/misc/textFormatting";
 import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";

@@ -22,11 +22,11 @@ import {
 	clearEntityEquippable,
 	clearEntityInventory,
 	hubEffectHelper,
-} from "../componentHelpers";
+} from "../misc/componentHelpers";
+import { getPlayerName } from "../misc/textFormatting";
 import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
 import { Team, type TeamEliminationEvent } from "./team";
-import { getPlayerName } from "./textFormatting";
 
 interface TeamOrdersValue {
 	colorCode: string;

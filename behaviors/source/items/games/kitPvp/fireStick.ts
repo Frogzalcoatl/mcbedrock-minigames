@@ -1,18 +1,35 @@
-import type { Entity, ItemStack } from "@minecraft/server";
+import {
+	EntityComponentTypes,
+	type EntityEquippableComponent,
+	type EntityHitEntityAfterEvent,
+	EquipmentSlot,
+	type ItemStack,
+	world,
+} from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "../../../tools/componentHelpers";
-import { itemEntityHitMap } from "../../events";
+import { defaultItemStackFunc } from "../../../tools/misc/componentHelpers";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;
 const nameTag: string = "§r§eFire Stick";
 
-itemEntityHitMap.set(nameTag, {
-	callback: (_mainhandItem: ItemStack, _damagingEntity: Entity, hitEntity: Entity): void => {
-		if (hitEntity.isValid) {
-			hitEntity.setOnFire(10, false);
-		}
-	},
-	typeId: typeId,
+world.afterEvents.entityHitEntity.subscribe((event: EntityHitEntityAfterEvent) => {
+	const equippable: EntityEquippableComponent | undefined = event.damagingEntity.getComponent(
+		EntityComponentTypes.Equippable,
+	);
+	if (equippable === undefined) {
+		return;
+	}
+	const mainhandItem: ItemStack | undefined = equippable.getEquipment(EquipmentSlot.Mainhand);
+	if (mainhandItem === undefined) {
+		return;
+	}
+	if (
+		mainhandItem.typeId === typeId &&
+		mainhandItem.nameTag === nameTag &&
+		event.hitEntity.isValid
+	) {
+		event.hitEntity.setOnFire(10, false);
+	}
 });
 
 export function itemFireStick(): ItemStack {

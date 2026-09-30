@@ -13,7 +13,7 @@ import {
 	TeamDistributionMode,
 	type TeleportLocation,
 } from "../../types";
-import { deathLocationTracker } from "../trackers/deathLocationTracker";
+import { deathLocationTracker } from "../trackers";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {

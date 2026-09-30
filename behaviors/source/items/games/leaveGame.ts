@@ -9,9 +9,9 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
-import { defaultItemStackFunc } from "../../tools/componentHelpers";
+import { defaultItemStackFunc } from "../../tools/misc/componentHelpers";
 import { RoomType } from "../../tools/room/roomType";
-import { itemUseMap } from "../events";
+import { itemUseMap } from "../itemUse";
 
 const typeId: string = MinecraftItemTypes.RedDye;
 const nameTag: string = "§r§cLeave";

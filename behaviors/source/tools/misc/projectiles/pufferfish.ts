@@ -7,8 +7,8 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../../tools/particles/spread";
-import { tools } from "..";
+import { tools } from "../..";
+import { spreadParticles } from "../particles";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
 	dimension.playSound("random.fizz", pos);

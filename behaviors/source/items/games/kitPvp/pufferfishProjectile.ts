@@ -1,8 +1,8 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/componentHelpers";
-import { pufferfishProjectile } from "../../../tools/projectiles/pufferfish";
-import { itemUseMap } from "../../events";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/misc/componentHelpers";
+import { pufferfishProjectile } from "../../../tools/misc/projectiles/pufferfish";
+import { itemUseMap } from "../../itemUse";
 
 const typeId: string = MinecraftItemTypes.Pufferfish;
 const nameTag: string = "§r§aPufferfish§7 (Use)";

@@ -9,7 +9,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showFormTeleporter } from "../../../forms/teleporter";
-import { itemUseMap } from "../../events";
+import { itemUseMap } from "../../itemUse";
 
 const typeId: string = MinecraftItemTypes.Compass;
 const nameTag: string = "§r§dTeleporter §7(Use)";

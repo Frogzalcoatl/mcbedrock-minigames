@@ -1,7 +1,6 @@
 import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemBreezeLeap } from "../../../items/games/kitPvp/breezeLeap";
-import { applyEnchant, giveItemToEntity, setDurability } from "../../../tools/componentHelpers";
 import {
 	type Kit,
 	kitArmorDurability,
@@ -9,6 +8,11 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../tools/game/kits";
+import {
+	applyEnchant,
+	giveItemToEntity,
+	setDurability,
+} from "../../../tools/misc/componentHelpers";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 1);

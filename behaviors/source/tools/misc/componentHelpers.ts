@@ -18,7 +18,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../constants";
+import { MAX_EFFECT_DURATION } from "../../constants";
 
 const CONTAINER_TYPE_ID: string = "mg:container";
 

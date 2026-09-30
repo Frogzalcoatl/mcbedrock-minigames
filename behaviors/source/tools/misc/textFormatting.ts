@@ -5,7 +5,7 @@ import {
 	Player,
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
-import { playerNameTracker } from "../trackers/playerNameTracker";
+import { playerNameTracker } from "../trackers";
 
 export function getPlayerName(player: Player): string {
 	if (!player.isValid) {

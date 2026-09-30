@@ -1,21 +1,189 @@
 import {
 	type Dimension,
 	type Entity,
+	EntityComponentTypes,
 	EntityDamageCause,
 	type EntityDamageSource,
 	type EntityDieAfterEvent,
 	type EntityHurtAfterEvent,
+	type EntityLoadAfterEvent,
+	type EntityProjectileComponent,
+	type EntityRemoveBeforeEvent,
+	type EntitySpawnAfterEvent,
 	Player,
+	type PlayerDimensionChangeAfterEvent,
+	type PlayerJoinAfterEvent,
+	type PlayerLeaveAfterEvent,
+	type PlayerLeaveBeforeEvent,
+	type PlayerSpawnAfterEvent,
 	system,
+	type Vector3,
 	world,
 } from "@minecraft/server";
-import { EventSignal } from "../../types";
-import { kitEntityDieHandler } from "../game/kits";
-import { dimensionTracker } from "./dimensionTracker";
+import { EventSignal } from "../types";
+import { kitEntityDieHandler } from "./game/kits";
 
-interface HitMapValue {
+interface KillTrackerValue {
 	lastHitterId: string;
 	timestamp: number;
+}
+
+// Death Location Tracker
+// Used to teleport players to death location on respawn
+const deathLocations = new Map<string, Vector3>();
+
+world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
+	if (event.deadEntity instanceof Player === false || !event.deadEntity.isValid) {
+		return;
+	}
+	deathLocations.set(event.deadEntity.id, event.deadEntity.location);
+});
+
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent) => {
+	deathLocations.delete(event.playerId);
+});
+
+// Dimension Tracker
+// Since player.dimension is no longer accessible during PlayerLeaveBeforeEvent
+// Use this to get player's dimension on leave and run onLeave callbacks
+const playerDimensions = new Map<string, Dimension>();
+
+world.afterEvents.worldLoad.subscribe((): void => {
+	for (const p of world.getAllPlayers()) {
+		playerDimensions.set(p.id, p.dimension);
+	}
+});
+
+world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent): void => {
+	if (event.initialSpawn) {
+		playerDimensions.set(event.player.id, event.player.dimension);
+	}
+});
+
+world.afterEvents.playerDimensionChange.subscribe(
+	(event: PlayerDimensionChangeAfterEvent): void => {
+		playerDimensions.set(event.player.id, event.player.dimension);
+	},
+);
+
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {
+	system.runTimeout(() => {
+		playerDimensions.delete(event.playerId);
+	}, 3);
+});
+
+// Player Name Tracker
+// player.name is no longer accessible during PlayerLeaveBeforeEvent
+const playerNames = new Map<string, string>(); // key is playerId
+
+world.afterEvents.worldLoad.subscribe((): void => {
+	for (const p of world.getAllPlayers()) {
+		playerNames.set(p.id, p.name);
+	}
+});
+
+world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent): void => {
+	playerNames.set(event.playerId, event.playerName);
+});
+
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {
+	system.runTimeout(() => {
+		playerNames.delete(event.playerId);
+	}, 3);
+});
+
+export function deathLocationTracker(player: Player): Vector3 | null {
+	return deathLocations.get(player.id) ?? null;
+}
+
+export function dimensionTrackerById(playerId: string): Dimension | null {
+	return playerDimensions.get(playerId) ?? null;
+}
+
+export function dimensionTracker(player: Player): Dimension | null {
+	if (player.isValid) {
+		return player.dimension;
+	} else {
+		return playerDimensions.get(player.id) ?? null;
+	}
+}
+
+export function playerNameTracker(playerId: string): string {
+	return playerNames.get(playerId) ?? "UnknownPlayer";
+}
+
+export class ProjectileTracker {
+	public readonly dimensions: Map<string, string[]>; // values are projectileTypeIds
+	private readonly _projectiles: Map<string, string>; // [projectileId, playerId]
+	private readonly propertyId: string;
+
+	public constructor() {
+		this.dimensions = new Map<string, string[]>();
+		this._projectiles = new Map<string, string>();
+		this.propertyId = "tracked_projectile";
+	}
+
+	public addDimension(dimensionId: string, projectileTypeIds: string[]): void {
+		this.dimensions.set(dimensionId, projectileTypeIds);
+	}
+
+	public removePlayer(player: Player): void {
+		for (const [projectileId, currentPlayerId] of this._projectiles) {
+			if (player.id !== currentPlayerId) {
+				continue;
+			}
+			const entity: Entity | undefined = world.getEntity(projectileId);
+			if (entity?.isValid) {
+				entity.remove();
+			}
+		}
+	}
+
+	private entityRemove = (event: EntityRemoveBeforeEvent): void => {
+		this._projectiles.delete(event.removedEntity.id);
+	};
+
+	private entitySpawn = (event: EntitySpawnAfterEvent): void => {
+		if (!event.entity.isValid) {
+			return;
+		}
+		const projectileTypeIds: string[] | undefined = this.dimensions.get(
+			event.entity.dimension.id,
+		);
+		if (projectileTypeIds === undefined) {
+			return;
+		}
+		const projectileComponent: EntityProjectileComponent | undefined = event.entity.getComponent(
+			EntityComponentTypes.Projectile,
+		);
+		if (projectileComponent?.owner && projectileComponent.owner instanceof Player) {
+			this._projectiles.set(event.entity.id, projectileComponent.owner.id);
+		}
+	};
+
+	private entityLoad = (event: EntityLoadAfterEvent): void => {
+		if (event.entity.isValid && event.entity.getDynamicProperty(this.propertyId) !== undefined) {
+			event.entity.remove();
+		}
+	};
+
+	private playerLeave = (event: PlayerLeaveBeforeEvent): void => {
+		this.removePlayer(event.player);
+	};
+
+	public init(): void {
+		world.beforeEvents.entityRemove.subscribe(this.entityRemove);
+		world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
+		world.afterEvents.entityLoad.subscribe(this.entityLoad);
+		world.beforeEvents.playerLeave.subscribe(this.playerLeave);
+	}
+
+	public shutdown(): void {
+		world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
+		world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
+		world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
+		world.beforeEvents.playerLeave.unsubscribe(this.playerLeave);
+	}
 }
 
 export interface KillTrackerSettings {
@@ -28,13 +196,13 @@ export class KillTracker {
 	public hitCooldownTicks: number;
 	public readonly dimensions: Map<string, KillTrackerSettings>;
 	private readonly _intervalIds: Map<string, number>;
-	private readonly _hitMap: Map<string, HitMapValue>; // key is entityId
+	private readonly _hitMap: Map<string, KillTrackerValue>; // key is entityId
 
 	public constructor(hitCooldownTicks: number) {
 		this.hitCooldownTicks = hitCooldownTicks;
 		this.dimensions = new Map<string, KillTrackerSettings>();
 		this._intervalIds = new Map<string, number>();
-		this._hitMap = new Map<string, HitMapValue>();
+		this._hitMap = new Map<string, KillTrackerValue>();
 	}
 
 	public addDimension(dimensionId: string): KillTrackerSettings {
@@ -56,7 +224,7 @@ export class KillTracker {
 		if (dimension === null || !this.dimensions.has(dimension.id)) {
 			return false;
 		}
-		const value: HitMapValue | undefined = this._hitMap.get(player.id);
+		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
 		if (value === undefined) {
 			return false;
 		}
@@ -86,7 +254,7 @@ export class KillTracker {
 		if (dimension === null || !this.dimensions.has(dimension.id)) {
 			return null;
 		}
-		const value: HitMapValue | undefined = this._hitMap.get(player.id);
+		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
 		if (value === undefined) {
 			return null;
 		}
@@ -119,7 +287,7 @@ export class KillTracker {
 	}
 
 	public combatTimeTicks(player: Player): number {
-		const value: HitMapValue | undefined = this._hitMap.get(player.id);
+		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
 		if (value === undefined) {
 			return -1;
 		}
