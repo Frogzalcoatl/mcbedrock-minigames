@@ -21,7 +21,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { EventSignal } from "../types";
-import { kitEntityDieHandler } from "./game/kits";
+import { tools } from "./index";
 
 interface KillTrackerValue {
 	lastHitterId: string;
@@ -206,13 +206,13 @@ export class KillTracker {
 	}
 
 	public addDimension(dimensionId: string): KillTrackerSettings {
-		const settings: KillTrackerSettings = {
+		const ktSettings: KillTrackerSettings = {
 			onKill: new EventSignal<EntityDieAfterEvent>(),
 			showCombatTime: new EventSignal<Player>(),
 			showCombatTimeTickInterval: 0,
 		};
-		this.dimensions.set(dimensionId, settings);
-		return settings;
+		this.dimensions.set(dimensionId, ktSettings);
+		return ktSettings;
 	}
 
 	private inCombatCondition(timestamp: number): boolean {
@@ -272,13 +272,13 @@ export class KillTracker {
 		if (this.inCombat(player)) {
 			const dimension: Dimension | null = dimensionTracker(player);
 			if (dimension !== null) {
-				const settings: KillTrackerSettings | undefined = this.dimensions.get(dimension.id);
-				if (settings !== undefined) {
+				const ktSettings: KillTrackerSettings | undefined = this.dimensions.get(dimension.id);
+				if (ktSettings !== undefined) {
 					const event: EntityDieAfterEvent = this.createDeathEvent(
 						player,
 						EntityDamageCause.override,
 					);
-					settings.onKill.triggerEvent(event);
+					ktSettings.onKill.triggerEvent(event);
 				}
 			}
 		}
@@ -327,13 +327,13 @@ export class KillTracker {
 
 	private showCombatTime(player: Player): void {
 		this.clearInterval(player);
-		const settings: KillTrackerSettings | undefined = this.dimensions.get(player.dimension.id);
-		if (settings === undefined) {
+		const ktSettings: KillTrackerSettings | undefined = this.dimensions.get(player.dimension.id);
+		if (ktSettings === undefined) {
 			return;
 		}
 		system.run(() => {
 			if (player.isValid) {
-				settings.showCombatTime.triggerEvent(player);
+				ktSettings.showCombatTime.triggerEvent(player);
 			}
 		});
 		const intervalId: number = system.runInterval(() => {
@@ -341,7 +341,7 @@ export class KillTracker {
 				this.clearInterval(player);
 				return;
 			}
-		}, settings.showCombatTimeTickInterval);
+		}, ktSettings.showCombatTimeTickInterval);
 		this._intervalIds.set(player.id, intervalId);
 	}
 
@@ -356,10 +356,10 @@ export class KillTracker {
 			return;
 		}
 		const deadPlayer: Player = event.deadEntity;
-		const settings: KillTrackerSettings | undefined = this.dimensions.get(
+		const ktSettings: KillTrackerSettings | undefined = this.dimensions.get(
 			deadPlayer.dimension.id,
 		);
-		if (settings === undefined) {
+		if (ktSettings === undefined) {
 			return;
 		}
 		if (event.damageSource.damagingEntity === undefined) {
@@ -370,8 +370,8 @@ export class KillTracker {
 		if (event.damageSource.damagingEntity !== undefined) {
 			this._hitMap.delete(event.damageSource.damagingEntity.id);
 		}
-		settings.onKill.triggerEvent(event);
-		kitEntityDieHandler(event);
+		ktSettings.onKill.triggerEvent(event);
+		tools.kitManager.entityDie(event);
 	};
 
 	public init(): void {

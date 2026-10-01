@@ -13,7 +13,7 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { tools } from "../../tools";
-import { kitReset, kits } from "../../tools/game/kits";
+import type { Kit } from "../../tools/game/kits";
 import {
 	changeEntityHealth,
 	clearEntityEquippable,
@@ -23,7 +23,7 @@ import { deathMessageFromEvent } from "../../tools/misc/textFormatting";
 import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import type { KillTrackerSettings } from "../../tools/trackers/killTracker";
+import type { KillTrackerSettings } from "../../tools/trackers";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";
@@ -32,19 +32,6 @@ import { getKitPoseidon } from "./kits/poseidon";
 import { getKitRabbit } from "./kits/rabbit";
 import { getKitSkirmisher } from "./kits/skirmisher";
 import { getKitSnowman } from "./kits/snowman";
-
-world.afterEvents.worldLoad.subscribe(() => {
-	kits.set(roomTypeIds.kitPvp, [
-		getKitBlaze(),
-		getKitBreeze(),
-		getKitSnowman(),
-		getKitFisherman(),
-		getKitPoseidon(),
-		getKitRabbit(),
-		getKitSkirmisher(),
-		getKitLancer(),
-	]);
-});
 
 const healthAddedOnKill: number = 10;
 
@@ -66,14 +53,14 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		tools.killTracker.removePlayer(event.player);
 		tools.itemCooldowns.removePlayer(event.player);
 		tools.projectileTracker.removePlayer(event.player);
-		kitReset(event.player);
+		tools.kitManager.reset(event.player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
 	room.localHub.onJoin.subscribe((event: LocalHubTransferEvent): void => {
 		tools.killTracker.removePlayer(event.player);
 		tools.itemCooldowns.removePlayer(event.player);
 		tools.projectileTracker.removePlayer(event.player);
-		kitReset(event.player);
+		tools.kitManager.reset(event.player);
 		hubEffectHelper(event.player);
 		event.player.setGameMode(GameMode.Adventure);
 		clearEntityEquippable(event.player);
@@ -115,3 +102,18 @@ new RoomType({
 	roomCreatorFunc: creator,
 	typeId: roomTypeIds.kitPvp,
 });
+
+world.afterEvents.worldLoad.subscribe(() => {
+	kitPvpKits.push(
+		getKitBlaze(),
+		getKitBreeze(),
+		getKitSnowman(),
+		getKitFisherman(),
+		getKitPoseidon(),
+		getKitRabbit(),
+		getKitSkirmisher(),
+		getKitLancer(),
+	);
+});
+
+export const kitPvpKits: Kit[] = [];

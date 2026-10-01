@@ -5,8 +5,9 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION, roomTypeIds } from "../../constants";
-import { type Kit, kitGive } from "../../tools/game/kits";
+import { MAX_EFFECT_DURATION } from "../../constants";
+import { tools } from "../../tools";
+import type { Kit } from "../../tools/game/kits";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
@@ -14,7 +15,7 @@ import {
 } from "../../tools/misc/componentHelpers";
 import { Room } from "../../tools/room/room";
 
-export function joinKitPvpArena(player: Player, selectedKitIndex: number): void {
+export function joinKitPvpArena(player: Player, kit: Kit): void {
 	player.setGameMode(GameMode.Adventure);
 	const health: EntityHealthComponent | undefined = player.getComponent(
 		EntityComponentTypes.Health,
@@ -29,10 +30,8 @@ export function joinKitPvpArena(player: Player, selectedKitIndex: number): void 
 	});
 	clearEntityEquippable(player);
 	clearEntityInventory(player);
-	const givenKit: Kit | undefined = kitGive(player, roomTypeIds.kitPvp, selectedKitIndex);
-	if (givenKit !== undefined) {
-		player.sendMessage(`§7Selected Kit: ${givenKit.name}`);
-	}
+	tools.kitManager.set(player, kit);
+	player.sendMessage(`§7Selected Kit: ${kit.name}`);
 	player.teleport({ x: 323, y: 9, z: 204 });
 	const room: Room | undefined = Room.findPlayer(player);
 	room?.localHub?.leave(player);
