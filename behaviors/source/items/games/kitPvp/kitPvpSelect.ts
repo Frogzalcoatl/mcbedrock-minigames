@@ -19,7 +19,6 @@ const typeId: string = MinecraftItemTypes.TotemOfUndying;
 const nameTag: string = "§r§eKit Select §7(Use)";
 
 async function callback(player: Player): Promise<void> {
-	world.sendMessage(`${kitPvpKits.length}`);
 	const selectedKit: Kit | undefined = await tools.kitManager.form(kitPvpKits, player);
 	if (selectedKit !== undefined) {
 		joinKitPvpArena(player, selectedKit);
