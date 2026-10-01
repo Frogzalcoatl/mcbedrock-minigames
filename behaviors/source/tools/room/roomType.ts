@@ -13,7 +13,7 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { safeActionFormShow } from "../../forms/safeShow";
 import { GameState, QueueMode } from "../../types";
 import { Game } from "../game/game";
-import { Room } from "./room";
+import { propertyInitialSpawnTransfer, Room } from "./room";
 
 system.beforeEvents.startup.subscribe((event: StartupEvent) => {
 	for (const type of RoomType.getAll()) {
@@ -43,8 +43,6 @@ world.afterEvents.worldLoad.subscribe(() => {
 	}
 });
 
-const propertyInitialSpawnTransfer: string = "initial_spawn_room_transfer";
-
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (!event.initialSpawn) {
 		return;
@@ -55,24 +53,22 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 		return;
 	}
 	const hub: Room | undefined = hubRoomType.rooms[0];
+	// Simulated players join the room they are initially spawned in while regular players always join hub 1
 	if (event.player instanceof SimulatedPlayer) {
-		// Spawn sim players in same room as origin and run room.join as if they joined from hub
-		const room: Room | undefined = Room.get(event.player.dimension.id);
-		if (room?.join(event.player, hub)) {
-			return;
+		const initialRoom: Room | undefined = Room.get(event.player.dimension.id);
+		if (initialRoom !== undefined) {
+			if (hub !== undefined && hub.dimensionId === initialRoom.dimensionId) {
+				// Make sure next room transfer is not incorrectly recognized as an initial room transfer
+				event.player.setDynamicProperty(propertyInitialSpawnTransfer, undefined);
+			}
+			if (initialRoom.join(event.player, hub)) {
+				return;
+			}
 		}
+		// Fallback to joining hub if room.join returns false
 	}
 	hub?.join(event.player, hub);
 });
-
-export function isInitialSpawnTransfer(player: Player): boolean {
-	if (player.getDynamicProperty(propertyInitialSpawnTransfer) !== undefined) {
-		player.setDynamicProperty(propertyInitialSpawnTransfer, undefined);
-		return true;
-	} else {
-		return false;
-	}
-}
 
 export type RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string) => Room;
 

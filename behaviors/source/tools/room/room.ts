@@ -16,7 +16,6 @@ import { Game } from "../game/game";
 import { ejectFromMount } from "../misc/actions";
 import { dimensionTrackerById } from "../trackers";
 import type { LocalHub } from "./localHub";
-import { isInitialSpawnTransfer } from "./roomType";
 
 // Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.
 // If a player is teleported using /tp, Room.join is run and their teleported position is maintained.
@@ -24,6 +23,8 @@ import { isInitialSpawnTransfer } from "./roomType";
 // With my implementation, this would be incorrectly recognized as a /tp dimension change and trigger a leave event in the dimension the player was on before last leaving the world.
 // To avoid this, we detect it using a dynamic property set on initial spawn.
 
+// biome-ignore lint/style/useExportsLast: Makes more sense for this line to be here
+export const propertyInitialSpawnTransfer: string = "initial_spawn_room_transfer";
 const propertyRoomTransfer: string = "transferring_room";
 
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
@@ -32,7 +33,9 @@ world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeA
 	const triggeredByRoomTransfer: boolean =
 		event.player.getDynamicProperty(propertyRoomTransfer) !== undefined;
 	event.player.setDynamicProperty(propertyRoomTransfer, undefined);
-	const isInitialSpawn: boolean = isInitialSpawnTransfer(event.player);
+	const isInitialSpawn: boolean =
+		event.player.getDynamicProperty(propertyInitialSpawnTransfer) !== undefined;
+	event.player.setDynamicProperty(propertyInitialSpawnTransfer, undefined);
 
 	const newRoom: Room | undefined = Room.get(event.toDimension.id);
 	if (newRoom === undefined) {
