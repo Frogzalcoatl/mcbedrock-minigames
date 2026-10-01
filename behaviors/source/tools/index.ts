@@ -20,5 +20,5 @@ export const tools: MinigamesTools = {
 };
 
 tools.itemCooldowns.init();
-tools.killTracker.init();
+tools.killTracker.init(tools.kitManager);
 tools.projectileTracker.init();

@@ -21,7 +21,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { EventSignal } from "../types";
-import { tools } from "./index";
+import type { KitManager } from "./game/kits";
 
 interface KillTrackerValue {
 	lastHitterId: string;
@@ -197,12 +197,14 @@ export class KillTracker {
 	public readonly dimensions: Map<string, KillTrackerSettings>;
 	private readonly _intervalIds: Map<string, number>;
 	private readonly _hitMap: Map<string, KillTrackerValue>; // key is entityId
+	private kitManager: KitManager | null;
 
 	public constructor(hitCooldownTicks: number) {
 		this.hitCooldownTicks = hitCooldownTicks;
 		this.dimensions = new Map<string, KillTrackerSettings>();
 		this._intervalIds = new Map<string, number>();
 		this._hitMap = new Map<string, KillTrackerValue>();
+		this.kitManager = null;
 	}
 
 	public addDimension(dimensionId: string): KillTrackerSettings {
@@ -371,12 +373,17 @@ export class KillTracker {
 			this._hitMap.delete(event.damageSource.damagingEntity.id);
 		}
 		ktSettings.onKill.triggerEvent(event);
-		tools.kitManager.entityDie(event);
+		if (this.kitManager !== null) {
+			this.kitManager.entityDie(event);
+		}
 	};
 
-	public init(): void {
+	public init(kitManager?: KitManager): void {
 		world.afterEvents.entityHurt.subscribe(this.enitityHurt);
 		world.afterEvents.entityDie.subscribe(this.entityDie);
+		if (kitManager !== undefined) {
+			this.kitManager = kitManager;
+		}
 	}
 
 	public shutdown(): void {
