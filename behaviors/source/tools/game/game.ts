@@ -229,7 +229,7 @@ export class Game {
 		}
 	}
 
-	public addSpectator(player: Player): void {
+	public addSpectator(player: Player, runTeleport = true, sendJoinMessage = true): void {
 		const dimension: Dimension | undefined = this.room.dimension;
 		if (dimension === undefined) {
 			player.sendMessage("§cUnable to join due to invalid dimension");
@@ -239,11 +239,15 @@ export class Game {
 		clearEntityInventory(player);
 		clearEntityEquippable(player);
 		player.setGameMode(GameMode.Spectator);
-		player.teleport(this.spectatorPos, { dimension: dimension });
+		if (runTeleport) {
+			player.teleport(this.spectatorPos, { dimension: dimension });
+		}
 		if (!this.spectators.includes(player)) {
 			this.spectators.push(player);
 		}
-		this.sendMessage(`${getPlayerName(player)}§r§7 is spectating`);
+		if (sendJoinMessage) {
+			this.sendMessage(`${getPlayerName(player)}§r§7 is spectating`);
+		}
 	}
 
 	public clearPlayers(): void {
@@ -444,6 +448,10 @@ Active: §e${this._activeIntervalId}§r
 	private teamEliminationCallback = (event: TeamEliminationEvent): void => {
 		if (event.player.isValid) {
 			event.player.onScreenDisplay.setTitle("§cDEFEAT!");
+			if (this.players.includes(event.player)) {
+				arrRemoveSwap(this.players, event.player);
+				this.addSpectator(event.player, false, false);
+			}
 		}
 		this.onElimination.triggerEvent({ game: this, player: event.player, team: event.team });
 		if (this.teamsRemaining <= 1) {
