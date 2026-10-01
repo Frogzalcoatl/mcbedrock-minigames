@@ -15,7 +15,7 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/game/kits";
+} from "../../../tools/kits";
 import { applyEnchant, giveItem, setDurability } from "../../../tools/misc/componentHelpers";
 
 function onKill(kitUser: Entity, _dead: Entity): void {

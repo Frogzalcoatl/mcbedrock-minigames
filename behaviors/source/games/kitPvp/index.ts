@@ -13,7 +13,7 @@ import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/games/mainHub/teleporter";
 import { tools } from "../../tools";
-import type { Kit } from "../../tools/game/kits";
+import type { Kit } from "../../tools/kits";
 import {
 	changeEntityHealth,
 	clearEntityEquippable,

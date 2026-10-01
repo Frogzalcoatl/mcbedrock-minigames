@@ -20,4 +20,3 @@ export class TickingAreaQueue {
 
 	private update(): void {}
 }
-export const tickingAreaQueue = new TickingAreaQueue();

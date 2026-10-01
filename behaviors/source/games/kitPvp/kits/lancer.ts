@@ -8,7 +8,7 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/game/kits";
+} from "../../../tools/kits";
 import { applyEnchant, setDurability } from "../../../tools/misc/componentHelpers";
 
 export function getKitLancer(): Kit {

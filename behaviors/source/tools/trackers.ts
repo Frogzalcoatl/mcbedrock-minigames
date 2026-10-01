@@ -21,7 +21,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { EventSignal } from "../types";
-import type { KitManager } from "./game/kits";
+import type { KitManager } from "./kits";
 
 interface KillTrackerValue {
 	lastHitterId: string;

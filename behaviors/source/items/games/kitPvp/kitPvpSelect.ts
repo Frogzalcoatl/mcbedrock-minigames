@@ -12,7 +12,7 @@ import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { kitPvpKits } from "../../../games/kitPvp";
 import { joinKitPvpArena } from "../../../games/kitPvp/joinArena";
 import { tools } from "../../../tools";
-import type { Kit } from "../../../tools/game/kits";
+import type { Kit } from "../../../tools/kits";
 import { itemUseMap } from "../../itemUse";
 
 const typeId: string = MinecraftItemTypes.TotemOfUndying;

@@ -7,7 +7,7 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/game/kits";
+} from "../../../tools/kits";
 import {
 	applyEnchant,
 	giveItemToEntity,
