@@ -17,8 +17,7 @@ import { deathLocationTracker } from "../trackers";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {
-		event.player.nameTag = event.player.name;
-		event.player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
+		resetPlayerName(event.player);
 	} else {
 		const team: Team | null = Team.findPlayer(event.player);
 		if (team !== null) {
@@ -29,10 +28,15 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 
 world.afterEvents.worldLoad.subscribe(() => {
 	for (const p of world.getAllPlayers()) {
-		p.nameTag = p.name;
-		p.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
+		resetPlayerName(p);
 	}
 });
+
+export function resetPlayerName(player: Player): void {
+	player.nameTag = player.name;
+	player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
+	player.chatNameSuffix = "";
+}
 
 export interface TeamEliminationEvent {
 	player: Player;
@@ -157,8 +161,7 @@ export class Team {
 
 	public remove(player: Player, triggerEliminationEvent = true): boolean {
 		if (player.isValid) {
-			player.nameTag = player.name;
-			player.chatNamePrefix = DEFAULT_CHATNAME_PREFIX;
+			resetPlayerName(player);
 		}
 		if (
 			!(
@@ -176,9 +179,9 @@ export class Team {
 		return true;
 	}
 
-	public clearPlayers(triggerEvents = false): void {
+	public clearPlayers(triggerEliminationEvents = false): void {
 		for (const p of this.activePlayers) {
-			this.remove(p, triggerEvents);
+			this.remove(p, triggerEliminationEvents);
 		}
 	}
 
