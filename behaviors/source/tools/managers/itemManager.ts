@@ -9,7 +9,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { arrRemoveSwap } from "./types";
+import { arrRemoveSwap } from "../types";
 
 interface ItemUseValue {
 	callback: (event: ItemUseAfterEvent) => void;

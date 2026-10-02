@@ -16,7 +16,7 @@ import {
 	getDimensionFromOrigin,
 	getLocationFromOrigin,
 	getPlayerFromOrigin,
-} from "../tools/misc/helpers/commandOrigin";
+} from "../tools/helpers/commandOrigin";
 import { commandEnums } from "./enums";
 
 export function registerCommandExistingSave(registry: CustomCommandRegistry): void {

@@ -1,10 +1,11 @@
-import "./misc/index";
+import "./events";
+import "./projectiles/index";
 
-import { ItemManager } from "./itemManager";
-import { KitManager } from "./kits";
-import { StructureSchemaManager } from "./structureSchemaManager";
-import { TickingAreaQueue } from "./tickingAreaQueue";
-import { KillTracker, ProjectileTracker } from "./trackers";
+import { ItemManager } from "./managers/itemManager";
+import { KitManager } from "./managers/kits";
+import { StructureSchemaManager } from "./managers/structureSchemaManager";
+import { TickingAreaQueue } from "./managers/tickingAreaQueue";
+import { KillTracker, ProjectileTracker } from "./managers/trackers";
 
 export interface MinigamesTools {
 	readonly items: ItemManager;

@@ -11,8 +11,8 @@ import {
 } from "@minecraft/server";
 import { tools } from "..";
 import { Game } from "../game/game";
-import { ejectFromMount } from "../misc/helpers/actions";
-import { dimensionTrackerById } from "../trackers";
+import { ejectFromMount } from "../helpers/actions";
+import { dimensionTrackerById } from "../managers/trackers";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../types";
 import type { LocalHub } from "./localHub";
 

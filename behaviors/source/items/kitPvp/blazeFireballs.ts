@@ -1,11 +1,8 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
-import {
-	decrementMainhandItem,
-	defaultItemStackFunc,
-} from "../../tools/misc/helpers/entityComponents";
-import { throwFireballFromEntity } from "../../tools/misc/projectiles/fireball";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/helpers/entityComponents";
+import { throwFireballFromEntity } from "../../tools/projectiles/fireball";
 
 const typeId: string = MinecraftItemTypes.FireCharge;
 const nameTag: string = "§rBlaze Fireball";

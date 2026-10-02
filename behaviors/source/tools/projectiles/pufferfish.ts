@@ -7,7 +7,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { tools } from "../..";
+import { tools } from "..";
 import { spreadParticles } from "../helpers/particles";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {

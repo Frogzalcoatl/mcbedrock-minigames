@@ -1,8 +1,8 @@
 import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
-import { entityLeap } from "../../tools/misc/helpers/actions";
-import { defaultItemStackFunc } from "../../tools/misc/helpers/entityComponents";
+import { entityLeap } from "../../tools/helpers/actions";
+import { defaultItemStackFunc } from "../../tools/helpers/entityComponents";
 
 const typeId: string = MinecraftItemTypes.BreezeRod;
 const nameTag: string = "§r§bBreeze Leap §7(Use)";

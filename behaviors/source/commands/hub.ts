@@ -9,7 +9,7 @@ import {
 	system,
 } from "@minecraft/server";
 import { PACK_NAMESPACE, roomTypeIds } from "../tools/constants";
-import { getPlayerFromOrigin } from "../tools/misc/helpers/commandOrigin";
+import { getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
 import type { LocalHub } from "../tools/room/localHub";
 import { Room } from "../tools/room/room";
 import { RoomType } from "../tools/room/roomType";

@@ -7,7 +7,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../constants";
-import { deathLocationTracker } from "../trackers";
+import { deathLocationTracker } from "../managers/trackers";
 import { arrRemoveSwap, EventSignal, TeamDistributionMode, type TeleportLocation } from "../types";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {

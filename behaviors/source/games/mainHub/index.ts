@@ -2,7 +2,7 @@ import { EntityComponentTypes, type EntityInventoryComponent, GameMode } from "@
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { itemTeleporter } from "../../items/teleporter";
 import { roomTypeIds } from "../../tools/constants";
-import { clearEntityEquippable, hubEffectHelper } from "../../tools/misc/helpers/entityComponents";
+import { clearEntityEquippable, hubEffectHelper } from "../../tools/helpers/entityComponents";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import { QueueMode } from "../../tools/types";

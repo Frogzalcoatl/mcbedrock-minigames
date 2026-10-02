@@ -1,6 +1,6 @@
 import { type Dimension, type Entity, type Vector3, world } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { ICE_BOMB_ID } from "../../constants";
+import { ICE_BOMB_ID } from "../constants";
 import { spreadParticles } from "../helpers/particles";
 
 function iceBomb(dimension: Dimension, at: Vector3, source: Entity | undefined): void {

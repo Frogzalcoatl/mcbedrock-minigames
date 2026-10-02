@@ -10,7 +10,7 @@ import {
 } from "@minecraft/server";
 import { showFormTeleporter } from "../forms/teleporter";
 import { PACK_NAMESPACE } from "../tools/constants";
-import { getPlayerFromOrigin } from "../tools/misc/helpers/commandOrigin";
+import { getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
 import { RoomType } from "../tools/room/roomType";
 import { commandEnums } from "./enums";
 

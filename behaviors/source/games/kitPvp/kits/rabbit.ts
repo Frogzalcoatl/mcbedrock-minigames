@@ -3,17 +3,17 @@ import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanill
 import { itemRabbitGoldenCarrot } from "../../../items/kitPvp/rabbitBuff";
 import { itemRabbitLeap } from "../../../items/kitPvp/rabbitLeap";
 import {
+	applyEnchant,
+	giveItemToEntity,
+	setDurability,
+} from "../../../tools/helpers/entityComponents";
+import {
 	type Kit,
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/kits";
-import {
-	applyEnchant,
-	giveItemToEntity,
-	setDurability,
-} from "../../../tools/misc/helpers/entityComponents";
+} from "../../../tools/managers/kits";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const rabbitBuff: ItemStack = itemRabbitGoldenCarrot();

@@ -12,7 +12,7 @@ import {
 } from "@minecraft/server";
 import { tools } from "../tools";
 import { PACK_NAMESPACE } from "../tools/constants";
-import { getDimensionFromOrigin, getLocationFromOrigin } from "../tools/misc/helpers/commandOrigin";
+import { getDimensionFromOrigin, getLocationFromOrigin } from "../tools/helpers/commandOrigin";
 import { commandEnums } from "./enums";
 
 export function registerCommandLoad(registry: CustomCommandRegistry): void {

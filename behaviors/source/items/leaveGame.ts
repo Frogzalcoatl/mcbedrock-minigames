@@ -7,7 +7,7 @@ import {
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../tools";
 import { roomTypeIds } from "../tools/constants";
-import { defaultItemStackFunc } from "../tools/misc/helpers/entityComponents";
+import { defaultItemStackFunc } from "../tools/helpers/entityComponents";
 import { RoomType } from "../tools/room/roomType";
 
 const typeId: string = MinecraftItemTypes.RedDye;

@@ -12,7 +12,7 @@ import {
 } from "@minecraft/server";
 import { tools } from "../tools";
 import { PACK_NAMESPACE } from "../tools/constants";
-import { getDimensionFromOrigin, getPlayerFromOrigin } from "../tools/misc/helpers/commandOrigin";
+import { getDimensionFromOrigin, getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
 
 export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

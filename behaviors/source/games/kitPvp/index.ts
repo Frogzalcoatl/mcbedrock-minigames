@@ -13,17 +13,17 @@ import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/teleporter";
 import { tools } from "../../tools";
 import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
-import type { Kit } from "../../tools/kits";
 import {
 	changeEntityHealth,
 	clearEntityEquippable,
 	hubEffectHelper,
-} from "../../tools/misc/helpers/entityComponents";
-import { deathMessageFromEvent } from "../../tools/misc/helpers/textFormatting";
+} from "../../tools/helpers/entityComponents";
+import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
+import type { Kit } from "../../tools/managers/kits";
+import type { KillTrackerSettings } from "../../tools/managers/trackers";
 import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import type { KillTrackerSettings } from "../../tools/trackers";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";

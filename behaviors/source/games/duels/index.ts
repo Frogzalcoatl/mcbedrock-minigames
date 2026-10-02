@@ -12,11 +12,11 @@ import { tools } from "../../tools";
 import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
-import { clearEntityEquippable } from "../../tools/misc/helpers/entityComponents";
-import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/misc/helpers/textFormatting";
+import { clearEntityEquippable } from "../../tools/helpers/entityComponents";
+import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/helpers/textFormatting";
+import type { KillTrackerSettings } from "../../tools/managers/trackers";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import type { KillTrackerSettings } from "../../tools/trackers";
 import { GameState, QueueMode, type TeleportLocation } from "../../tools/types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {

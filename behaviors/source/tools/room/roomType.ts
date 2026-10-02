@@ -11,7 +11,7 @@ import { SimulatedPlayer } from "@minecraft/server-gametest";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import { Game } from "../game/game";
-import { safeActionFormShow } from "../misc/helpers/safeShow";
+import { safeActionFormShow } from "../helpers/safeShow";
 import { GameState, QueueMode } from "../types";
 import { propertyInitialSpawnTransfer, Room } from "./room";
 
