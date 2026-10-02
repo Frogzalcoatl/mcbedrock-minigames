@@ -9,9 +9,9 @@ import {
 } from "@minecraft/server";
 import { SimulatedPlayer } from "@minecraft/server-gametest";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { safeActionFormShow } from "../../forms/safeShow";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import { Game } from "../game/game";
+import { safeActionFormShow } from "../misc/helpers/safeShow";
 import { GameState, QueueMode } from "../types";
 import { propertyInitialSpawnTransfer, Room } from "./room";
 

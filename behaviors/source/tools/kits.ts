@@ -10,8 +10,8 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { safeActionFormShow } from "../forms/safeShow";
 import { applyEnchant, setDurability } from "./misc/helpers/entityComponents";
+import { safeActionFormShow } from "./misc/helpers/safeShow";
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 
