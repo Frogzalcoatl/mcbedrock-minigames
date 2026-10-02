@@ -11,17 +11,17 @@
 		"watch": "pnpm run clean && node tools/esbuild.mjs --watch"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.13",
+		"@biomejs/biome": "^2.5.15",
 		"@felixarntz/biome": "^0.2.0",
 		"@minecraft/server": "2.11.0-beta.1.26.50-stable",
 		"@minecraft/server-gametest": "1.0.0-beta.1.26.50-stable",
 		"@minecraft/server-ui": "2.3.0-beta.1.26.50-stable",
-		"@minecraft/vanilla-data": "^1.26.50",
+		"@minecraft/vanilla-data": "^1.26.52",
 		"@total-typescript/ts-reset": "^0.6.1",
 		"archiver": "^8.0.0",
 		"biome-plugin-no-type-assertion": "^1.1.1",
 		"esbuild": "^0.28.2",
 		"typescript": "^7.0.2"
 	},
-	"packageManager": "pnpm@11.4.0"
+	"packageManager": "pnpm@12.8.1"
 }
