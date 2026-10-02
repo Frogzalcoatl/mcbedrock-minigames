@@ -8,15 +8,8 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { roomTypeIds } from "../../constants";
 import { itemLeaveGame } from "../../items/leaveGame";
-import {
-	arrRemoveSwap,
-	EventSignal,
-	GameState,
-	gameStateToString,
-	TeamDistributionMode,
-} from "../../types";
+import { roomTypeIds } from "../constants";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
@@ -26,6 +19,13 @@ import {
 import { getPlayerName } from "../misc/helpers/textFormatting";
 import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
+import {
+	arrRemoveSwap,
+	EventSignal,
+	GameState,
+	gameStateToString,
+	TeamDistributionMode,
+} from "../types";
 import { Team, type TeamEliminationEvent } from "./team";
 
 interface TeamOrdersValue {

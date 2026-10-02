@@ -9,10 +9,10 @@ import {
 } from "@minecraft/server";
 import { SimulatedPlayer } from "@minecraft/server-gametest";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { safeActionFormShow } from "../../forms/safeShow";
-import { GameState, QueueMode } from "../../types";
+import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import { Game } from "../game/game";
+import { GameState, QueueMode } from "../types";
 import { propertyInitialSpawnTransfer, Room } from "./room";
 
 system.beforeEvents.startup.subscribe((event: StartupEvent) => {

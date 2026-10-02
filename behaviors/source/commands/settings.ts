@@ -7,8 +7,8 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../constants";
 import { showFormSettings } from "../forms/settings";
+import { PACK_NAMESPACE } from "../tools/constants";
 import { getPlayerFromOrigin } from "../tools/misc/helpers/commandOrigin";
 
 export function registerCommandSettings(registry: CustomCommandRegistry): void {

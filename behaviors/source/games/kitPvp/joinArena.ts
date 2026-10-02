@@ -5,8 +5,8 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../../constants";
 import { tools } from "../../tools";
+import { MAX_EFFECT_DURATION } from "../../tools/constants";
 import type { Kit } from "../../tools/kits";
 import {
 	clearEntityEffects,

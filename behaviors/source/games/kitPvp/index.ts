@@ -9,10 +9,10 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
 import { itemTeleporter } from "../../items/teleporter";
 import { tools } from "../../tools";
+import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
 import type { Kit } from "../../tools/kits";
 import {
 	changeEntityHealth,

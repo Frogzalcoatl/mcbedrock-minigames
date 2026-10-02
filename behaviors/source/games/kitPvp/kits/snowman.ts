@@ -7,7 +7,7 @@ import {
 	Player,
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { ICE_BOMB_ID } from "../../../constants";
+import { ICE_BOMB_ID } from "../../../tools/constants";
 import {
 	type Kit,
 	kitArmorDurability,

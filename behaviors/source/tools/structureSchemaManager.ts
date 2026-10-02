@@ -1,5 +1,5 @@
 import { type Dimension, StructureAnimationMode, type Vector3, world } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../constants";
+import { PACK_NAMESPACE } from "./constants";
 
 const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/normal`;
 const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;

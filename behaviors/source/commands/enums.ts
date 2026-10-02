@@ -1,6 +1,6 @@
 import { type CustomCommandRegistry, StructureAnimationMode } from "@minecraft/server";
-import { PACK_NAMESPACE, roomTypeIds } from "../constants";
 import { tools } from "../tools";
+import { PACK_NAMESPACE, roomTypeIds } from "../tools/constants";
 
 export const commandEnums = {
 	animationMode: `${PACK_NAMESPACE}:animationMode`,

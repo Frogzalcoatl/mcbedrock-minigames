@@ -1,11 +1,11 @@
 import { EntityComponentTypes, type EntityInventoryComponent, GameMode } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
-import { roomTypeIds } from "../../constants";
 import { itemTeleporter } from "../../items/teleporter";
+import { roomTypeIds } from "../../tools/constants";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/misc/helpers/entityComponents";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import { QueueMode } from "../../types";
+import { QueueMode } from "../../tools/types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({

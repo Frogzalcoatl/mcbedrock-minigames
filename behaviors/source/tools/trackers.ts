@@ -20,8 +20,8 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { EventSignal } from "../types";
 import type { KitManager } from "./kits";
+import { EventSignal } from "./types";
 
 interface KillTrackerValue {
 	lastHitterId: string;

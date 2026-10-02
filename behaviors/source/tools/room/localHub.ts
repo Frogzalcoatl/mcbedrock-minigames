@@ -1,5 +1,5 @@
 import { type Dimension, type DimensionLocation, type Player, world } from "@minecraft/server";
-import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../../types";
+import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../types";
 
 export interface LocalHubTransferEvent {
 	localHub: LocalHub;

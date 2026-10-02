@@ -6,14 +6,9 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
-import {
-	arrRemoveSwap,
-	EventSignal,
-	TeamDistributionMode,
-	type TeleportLocation,
-} from "../../types";
+import { DEFAULT_CHATNAME_PREFIX } from "../constants";
 import { deathLocationTracker } from "../trackers";
+import { arrRemoveSwap, EventSignal, TeamDistributionMode, type TeleportLocation } from "../types";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {

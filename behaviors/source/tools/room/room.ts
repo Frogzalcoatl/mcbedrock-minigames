@@ -9,11 +9,11 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { tools } from "..";
 import { Game } from "../game/game";
 import { ejectFromMount } from "../misc/helpers/actions";
 import { dimensionTrackerById } from "../trackers";
+import { EventSignal, type TeleportLocation, teleportLocationToString } from "../types";
 import type { LocalHub } from "./localHub";
 
 // Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.

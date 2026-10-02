@@ -12,7 +12,7 @@ import {
 } from "@minecraft/server";
 import { spawnSimulatedPlayer } from "@minecraft/server-gametest";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
-import { PACK_NAMESPACE } from "../constants";
+import { PACK_NAMESPACE } from "../tools/constants";
 import { getDimensionFromOrigin } from "../tools/misc/helpers/commandOrigin";
 
 export function registerCommandSim(registry: CustomCommandRegistry): void {

@@ -8,16 +8,16 @@ import {
 	system,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
 import { tools } from "../../tools";
+import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
 import { clearEntityEquippable } from "../../tools/misc/helpers/entityComponents";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/misc/helpers/textFormatting";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
-import type { KillTrackerSettings } from "../../tools/trackers/killTracker";
-import { GameState, QueueMode, type TeleportLocation } from "../../types";
+import type { KillTrackerSettings } from "../../tools/trackers";
+import { GameState, QueueMode, type TeleportLocation } from "../../tools/types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {
 	const room = new Room({
