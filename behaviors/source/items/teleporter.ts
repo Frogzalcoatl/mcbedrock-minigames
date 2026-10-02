@@ -1,11 +1,8 @@
 import {
-	EntitySwingSource,
-	HeldItemOption,
 	ItemLockMode,
 	ItemStack,
 	type ItemUseAfterEvent,
 	type PlayerSwingStartAfterEvent,
-	world,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { showFormTeleporter } from "../forms/teleporter";
@@ -18,18 +15,9 @@ tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	showFormTeleporter(event.source);
 });
 
-world.afterEvents.playerSwingStart.subscribe(
-	(event: PlayerSwingStartAfterEvent) => {
-		if (
-			event.heldItemStack !== undefined &&
-			event.heldItemStack.typeId === typeId &&
-			event.heldItemStack.nameTag === nameTag
-		) {
-			showFormTeleporter(event.player);
-		}
-	},
-	{ heldItemOption: HeldItemOption.AnyItem, swingSource: EntitySwingSource.Attack },
-);
+tools.items.itemSwingSet(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
+	showFormTeleporter(event.player);
+});
 
 export function itemTeleporter(): ItemStack {
 	const item = new ItemStack(typeId);
