@@ -9,7 +9,7 @@ import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { kitPvpKits } from "../../games/kitPvp";
 import { joinKitPvpArena } from "../../games/kitPvp/joinArena";
 import { tools } from "../../tools";
-import type { Kit } from "../../tools/kits";
+import type { Kit } from "../../tools/managers/kits";
 
 const typeId: string = MinecraftItemTypes.TotemOfUndying;
 const nameTag: string = "§r§eKit Select §7(Use)";
