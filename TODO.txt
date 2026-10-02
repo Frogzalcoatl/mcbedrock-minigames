@@ -1,16 +1,9 @@
 * Add duels and the tools necessary to recreate similar gamemodes
 
-* Spawnpoint needs to be reset after leaving hub. Determine whether you need to refactor LocalHub class.
+* Spawnpoint needs to be reset after leaving hub.
 
-* Fix room join callback when teleporting a player after initial spawn
+* Full code read through
 
-* Just look through all the new code from the past few days in general
-	- Its all stress code meaning its likely illogical but redeemable. Figure out your mental stuf then come back to this.
+* Should you be using game.state setters inside game class like that?
 
-* Determine whether you should be using the Game.state setter inside Game class funcs at all.
-	- My intiution tells me this makes things more confusing, but theres probably a lot of confusing stuff going on rn.
-	- I have a headache and its late i need to stop.
-
-* Come up with a better way to handle spectator teleports
-
-* Investigate why running /tp @a @s changes the user's head rotation
+* Fix errors that occur when you queue two simulated players in duels and run clearsim
