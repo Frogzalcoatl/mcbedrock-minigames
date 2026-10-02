@@ -13,8 +13,12 @@ import {
 import { PACK_NAMESPACE } from "../constants";
 import { structureIds } from "../structures/data";
 import { placeStructureBlocksFor } from "../structures/save";
-import { commandEnums } from "./utils/enums";
-import { getDimensionFromOrigin, getLocationFromOrigin, getPlayerFromOrigin } from "./utils/origin";
+import {
+	getDimensionFromOrigin,
+	getLocationFromOrigin,
+	getPlayerFromOrigin,
+} from "../tools/misc/helpers/commandOrigin";
+import { commandEnums } from "./enums";
 
 export function registerCommandExistingSave(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

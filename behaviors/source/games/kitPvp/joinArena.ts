@@ -12,7 +12,7 @@ import {
 	clearEntityEffects,
 	clearEntityEquippable,
 	clearEntityInventory,
-} from "../../tools/misc/componentHelpers";
+} from "../../tools/misc/helpers/entityComponents";
 import { Room } from "../../tools/room/room";
 
 export function joinKitPvpArena(player: Player, kit: Kit): void {

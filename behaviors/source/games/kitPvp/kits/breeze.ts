@@ -12,7 +12,7 @@ import {
 	applyEnchant,
 	giveItemToEntity,
 	setDurability,
-} from "../../../tools/misc/componentHelpers";
+} from "../../../tools/misc/helpers/entityComponents";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const windCharges = new ItemStack(MinecraftItemTypes.WindCharge, 1);

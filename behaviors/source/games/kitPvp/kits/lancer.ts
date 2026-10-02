@@ -9,7 +9,7 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../tools/kits";
-import { applyEnchant, setDurability } from "../../../tools/misc/componentHelpers";
+import { applyEnchant, setDurability } from "../../../tools/misc/helpers/entityComponents";
 
 export function getKitLancer(): Kit {
 	const kit: Kit = {

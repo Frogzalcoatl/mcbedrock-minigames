@@ -11,7 +11,7 @@ import {
 } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { safeActionFormShow } from "../forms/safeShow";
-import { applyEnchant, setDurability } from "./misc/componentHelpers";
+import { applyEnchant, setDurability } from "./misc/helpers/entityComponents";
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 

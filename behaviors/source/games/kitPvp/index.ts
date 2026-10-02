@@ -18,8 +18,8 @@ import {
 	changeEntityHealth,
 	clearEntityEquippable,
 	hubEffectHelper,
-} from "../../tools/misc/componentHelpers";
-import { deathMessageFromEvent } from "../../tools/misc/textFormatting";
+} from "../../tools/misc/helpers/entityComponents";
+import { deathMessageFromEvent } from "../../tools/misc/helpers/textFormatting";
 import { LocalHub, type LocalHubTransferEvent } from "../../tools/room/localHub";
 import { Room, type RoomTransferEvent } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";

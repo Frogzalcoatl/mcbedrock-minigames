@@ -13,7 +13,7 @@ import { loadStructure } from "../../structures/load";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { tools } from "..";
 import { Game } from "../game/game";
-import { ejectFromMount } from "../misc/actions";
+import { ejectFromMount } from "../misc/helpers/actions";
 import { dimensionTrackerById } from "../trackers";
 import type { LocalHub } from "./localHub";
 

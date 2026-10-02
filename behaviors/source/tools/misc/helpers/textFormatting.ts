@@ -4,8 +4,8 @@ import {
 	type EntityDieAfterEvent,
 	Player,
 } from "@minecraft/server";
-import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
-import { playerNameTracker } from "../trackers";
+import { DEFAULT_CHATNAME_PREFIX } from "../../../constants";
+import { playerNameTracker } from "../../trackers";
 
 export function getPlayerName(player: Player): string {
 	if (!player.isValid) {

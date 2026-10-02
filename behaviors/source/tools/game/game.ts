@@ -22,8 +22,8 @@ import {
 	clearEntityEquippable,
 	clearEntityInventory,
 	hubEffectHelper,
-} from "../misc/componentHelpers";
-import { getPlayerName } from "../misc/textFormatting";
+} from "../misc/helpers/entityComponents";
+import { getPlayerName } from "../misc/helpers/textFormatting";
 import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
 import { Team, type TeamEliminationEvent } from "./team";

@@ -12,7 +12,7 @@ import {
 	applyEnchant,
 	giveItemToEntity,
 	setDurability,
-} from "../../../tools/misc/componentHelpers";
+} from "../../../tools/misc/helpers/entityComponents";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const pufferFish: ItemStack = itemPufferfishProjectile();
