@@ -9,7 +9,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { roomTypeIds } from "../../constants";
-import { itemLeaveGame } from "../../items/games/leaveGame";
+import { itemLeaveGame } from "../../items/leaveGame";
 import {
 	arrRemoveSwap,
 	EventSignal,

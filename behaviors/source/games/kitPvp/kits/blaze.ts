@@ -1,7 +1,7 @@
 import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemBlazeFireball } from "../../../items/games/kitPvp/blazeFireballs";
-import { itemFireStick } from "../../../items/games/kitPvp/fireStick";
+import { itemBlazeFireball } from "../../../items/kitPvp/blazeFireballs";
+import { itemFireStick } from "../../../items/kitPvp/fireStick";
 import {
 	type Kit,
 	kitArmorDurability,

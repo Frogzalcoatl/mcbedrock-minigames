@@ -10,8 +10,8 @@ import {
 } from "@minecraft/server";
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE, roomTypeIds } from "../../constants";
-import { itemKitPvpSelect } from "../../items/games/kitPvp/kitPvpSelect";
-import { itemTeleporter } from "../../items/games/mainHub/teleporter";
+import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
+import { itemTeleporter } from "../../items/teleporter";
 import { tools } from "../../tools";
 import type { Kit } from "../../tools/kits";
 import {
@@ -51,14 +51,14 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 	});
 	room.onLeave.subscribe((event: RoomTransferEvent) => {
 		tools.killTracker.removePlayer(event.player);
-		tools.itemCooldowns.removePlayer(event.player);
+		tools.items.cooldowns.removePlayer(event.player);
 		tools.projectileTracker.removePlayer(event.player);
 		tools.kitManager.reset(event.player);
 	});
 	room.localHub = new LocalHub(room.dimensionId, room.spawn);
 	room.localHub.onJoin.subscribe((event: LocalHubTransferEvent): void => {
 		tools.killTracker.removePlayer(event.player);
-		tools.itemCooldowns.removePlayer(event.player);
+		tools.items.cooldowns.removePlayer(event.player);
 		tools.projectileTracker.removePlayer(event.player);
 		tools.kitManager.reset(event.player);
 		hubEffectHelper(event.player);

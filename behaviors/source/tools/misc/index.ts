@@ -1,3 +1,2 @@
 import "./events";
-import "./projectiles/iceBomb";
-import "./projectiles/pufferfish";
+import "./projectiles/index";

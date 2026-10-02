@@ -1,12 +1,12 @@
 import "./misc/index";
 
-import { ItemCooldownManager } from "./itemCooldownManager";
+import { ItemManager } from "./itemManager";
 import { KitManager } from "./kits";
 import { TickingAreaQueue } from "./tickingAreaQueue";
 import { KillTracker, ProjectileTracker } from "./trackers";
 
 export interface MinigamesTools {
-	readonly itemCooldowns: ItemCooldownManager;
+	readonly items: ItemManager;
 	readonly killTracker: KillTracker;
 	readonly kitManager: KitManager;
 	readonly projectileTracker: ProjectileTracker;
@@ -15,13 +15,13 @@ export interface MinigamesTools {
 
 // biome-ignore lint/style/useExportsLast: Gotta init properties
 export const tools: MinigamesTools = {
-	itemCooldowns: new ItemCooldownManager(),
+	items: new ItemManager(),
 	killTracker: new KillTracker(140),
 	kitManager: new KitManager(),
 	projectileTracker: new ProjectileTracker(),
 	tickingAreaQueue: new TickingAreaQueue(),
 };
 
-tools.itemCooldowns.init();
+tools.items.init();
 tools.killTracker.init(tools.kitManager);
 tools.projectileTracker.init();

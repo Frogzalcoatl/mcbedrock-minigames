@@ -10,11 +10,10 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { tools } from "../../../tools";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../../tools/misc/componentHelpers";
-import { beamParticles } from "../../../tools/misc/particles";
-import { beamFrom } from "../../../tools/misc/projectiles/beam";
-import { itemUseMap } from "../../itemUse";
+import { tools } from "../../tools";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/misc/componentHelpers";
+import { beamParticles } from "../../tools/misc/particles";
+import { beamFrom } from "../../tools/misc/projectiles/beam";
 
 const typeId: string = MinecraftItemTypes.EndRod;
 const nameTag: string = "§r§bLightning§7 (Use)";
@@ -62,18 +61,12 @@ world.afterEvents.entityHurt.subscribe((event) => {
 	tools.killTracker.setCombat(event.hurtEntity, thrower);
 });
 
-itemUseMap.set(nameTag, {
-	callback: (event: ItemUseAfterEvent): void => {
-		if (event.source.getGameMode() !== GameMode.Creative) {
-			decrementMainhandItem(event.source);
-		}
-		beamFrom(event.source, 128, onHit);
-		event.source.dimension.playSound(
-			"cauldron_drip.water.pointed_dripstone",
-			event.source.location,
-		);
-	},
-	typeId: typeId,
+tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+	if (event.source.getGameMode() !== GameMode.Creative) {
+		decrementMainhandItem(event.source);
+	}
+	beamFrom(event.source, 128, onHit);
+	event.source.dimension.playSound("cauldron_drip.water.pointed_dripstone", event.source.location);
 });
 
 export function itemLightning(): ItemStack {

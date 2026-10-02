@@ -7,8 +7,8 @@ import {
 	Player,
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { itemLightning } from "../../../items/games/kitPvp/lightning";
-import { itemPoseidonBuff } from "../../../items/games/kitPvp/poseidonBuff";
+import { itemLightning } from "../../../items/kitPvp/lightning";
+import { itemPoseidonBuff } from "../../../items/kitPvp/poseidonBuff";
 import {
 	type Kit,
 	kitArmorDurability,

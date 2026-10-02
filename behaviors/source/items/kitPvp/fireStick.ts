@@ -7,7 +7,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { defaultItemStackFunc } from "../../../tools/misc/componentHelpers";
+import { defaultItemStackFunc } from "../../tools/misc/componentHelpers";
 
 const typeId: string = MinecraftItemTypes.BlazeRod;
 const nameTag: string = "§r§eFire Stick";
