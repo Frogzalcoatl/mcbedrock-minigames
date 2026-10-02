@@ -1,6 +1,6 @@
 import { rmSync } from "node:fs";
 
-const FILES_TO_CLEAN = ["./scripts", "./_temp_mcpack_directory", "./addon.mcpack"];
+const FILES_TO_CLEAN = ["./scripts", "./_temp_mcpack_directory", "./addon.mcaddon"];
 
 for (const path of FILES_TO_CLEAN) {
 	rmSync(path, {
