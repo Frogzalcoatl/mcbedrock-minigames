@@ -144,8 +144,8 @@ export class Room {
 		return this._dimension;
 	}
 
-	public get playerCount(): number | null {
-		return this._dimension?.getPlayers().length ?? null;
+	public get playerCount(): number {
+		return this._dimension?.getPlayers().length ?? 0;
 	}
 
 	public get spawn(): TeleportLocation {

@@ -145,6 +145,14 @@ export class RoomType {
 		}
 	}
 
+	public get playerCount(): number {
+		let count = 0;
+		for (const room of this.rooms) {
+			count += room.playerCount;
+		}
+		return count;
+	}
+
 	private joinGameWithPlayersWaiting(player: Player): boolean {
 		const hasPlayersWaiting: Room[] = [];
 		for (let i = 0; i < this.rooms.length; i++) {

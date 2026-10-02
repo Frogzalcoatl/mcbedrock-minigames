@@ -4,11 +4,13 @@ import {
 	type EntityInventoryComponent,
 	GameMode,
 	type Player,
+	PlayerPermissionLevel,
 	system,
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { itemLeaveGame } from "../../items/leaveGame";
+import { itemSettings } from "../../items/settings";
 import { roomTypeIds } from "../constants";
 import {
 	clearEntityEffects,
@@ -286,8 +288,8 @@ Players Per Team: §e${this.playersPerTeam}§r`;
 		info += `
 
 Interval Ids:
-Open: §e${this._openIntervalId}§r
-Active: §e${this._activeIntervalId}§r
+GameState.Open: §e${this._openIntervalId}§r
+GameState.Active: §e${this._activeIntervalId}§r
 `;
 		return info;
 	}
@@ -419,6 +421,9 @@ Active: §e${this._activeIntervalId}§r
 		if (inventory !== undefined) {
 			inventory.container.clearAll();
 			inventory.container.setItem(8, itemLeaveGame());
+			if (event.player.playerPermissionLevel === PlayerPermissionLevel.Operator) {
+				inventory.container.setItem(0, itemSettings());
+			}
 		}
 		this.sendMessage(
 			`${getPlayerName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,

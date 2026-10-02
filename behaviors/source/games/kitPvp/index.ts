@@ -5,11 +5,13 @@ import {
 	type EntityInventoryComponent,
 	GameMode,
 	Player,
+	PlayerPermissionLevel,
 	system,
 	world,
 } from "@minecraft/server";
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
+import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { tools } from "../../tools";
 import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
@@ -71,6 +73,9 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			inventory.container.clearAll();
 			inventory.container.setItem(3, itemKitPvpSelect());
 			inventory.container.setItem(5, itemTeleporter());
+			if (event.player.playerPermissionLevel === PlayerPermissionLevel.Operator) {
+				inventory.container.setItem(0, itemSettings());
+			}
 		}
 	});
 	const killTracker: KillTrackerSettings = tools.killTracker.addDimension(room.dimensionId);

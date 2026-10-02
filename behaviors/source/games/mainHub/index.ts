@@ -1,5 +1,11 @@
-import { EntityComponentTypes, type EntityInventoryComponent, GameMode } from "@minecraft/server";
+import {
+	EntityComponentTypes,
+	type EntityInventoryComponent,
+	GameMode,
+	PlayerPermissionLevel,
+} from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
+import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { roomTypeIds } from "../../tools/constants";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/helpers/entityComponents";
@@ -28,6 +34,9 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		if (inventory !== undefined) {
 			inventory.container.clearAll();
 			inventory.container.setItem(4, itemTeleporter());
+			if (event.player.playerPermissionLevel === PlayerPermissionLevel.Operator) {
+				inventory.container.setItem(0, itemSettings());
+			}
 		}
 	});
 	return room;

@@ -8,7 +8,11 @@ export async function showFormTeleporter(player: Player): Promise<void> {
 	form.title("§0Teleporter");
 	const roomTypes: RoomType[] = RoomType.getAll();
 	for (const type of roomTypes) {
-		form.button(type.displayName, type.icon);
+		const playerCount: number = type.playerCount;
+		form.button(
+			`${type.displayName}§r\n${playerCount} Player${playerCount !== 1 ? "s" : ""}`,
+			type.icon,
+		);
 	}
 	const resp: ActionFormResponse = await safeActionFormShow(form, player);
 	if (!player.isValid || resp.selection === undefined) {

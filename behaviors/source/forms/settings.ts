@@ -143,7 +143,7 @@ async function loadAllStructuresConfirmation(player: Player): Promise<void> {
 
 async function showGeneral(player: Player): Promise<void> {
 	const form = new ActionFormData();
-	form.title("§0Room Management");
+	form.title("§0Settings");
 	form.button("Back");
 	const backButtonIndex: number = 0;
 	form.button("Load All Structures");
@@ -181,7 +181,11 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 	const backButtonIndex: number = 0;
 	const roomsStartingIndex: number = 1;
 	for (const room of roomType.rooms) {
-		form.button(room.displayName, room.icon);
+		const playerCount: number = room.playerCount;
+		form.button(
+			`${room.displayName}§r\n ${playerCount} Player${playerCount !== 1 ? "s" : ""}`,
+			room.icon,
+		);
 	}
 	const resp: ActionFormResponse = await safeActionFormShow(form, player);
 	if (!player.isValid || resp.selection === undefined) {
@@ -203,13 +207,17 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 
 export async function showFormSettings(player: Player): Promise<void> {
 	const form = new ActionFormData();
-	form.title("§0Room Management");
+	form.title("§0Settings");
 	form.button("General", "textures/ui/settings_glyph_color_2x.png");
 	const generalButtonIndex: number = 0;
 	const roomTypesStartingIndex: number = 1;
 	const roomTypes = RoomType.getAll();
 	for (const type of roomTypes) {
-		form.button(type.displayName, type.icon);
+		const playerCount: number = type.playerCount;
+		form.button(
+			`${type.displayName}§r\n${playerCount} Player${playerCount !== 1 ? "s" : ""}`,
+			type.icon,
+		);
 	}
 	const resp: ActionFormResponse = await safeActionFormShow(form, player);
 	if (!player.isValid || resp.selection === undefined) {
