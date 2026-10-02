@@ -11,8 +11,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { structureIds } from "../structures/data";
-import { placeStructureBlocksFor } from "../structures/save";
+import { tools } from "../tools";
 import {
 	getDimensionFromOrigin,
 	getLocationFromOrigin,
@@ -53,7 +52,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 				}
 				at = originLocation;
 			}
-			if (!structureIds.includes(structureId)) {
+			if (!tools.structures.ids.includes(structureId)) {
 				return {
 					message: `Invalid structure id "${structureId}"`,
 					status: CustomCommandStatus.Failure,
@@ -61,7 +60,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 			}
 			const player: Player | null = getPlayerFromOrigin(origin);
 			system.run(() => {
-				placeStructureBlocksFor(structureId, at, dimension);
+				tools.structures.placeStructureBlocksFor(structureId, at, dimension);
 				if (player?.isValid) {
 					player.sendMessage(
 						"§6You probably need to change the structure block sizes. There is no feasible way for me to edit them through scripting",

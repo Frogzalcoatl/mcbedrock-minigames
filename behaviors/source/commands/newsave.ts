@@ -11,7 +11,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { placeStructureBlocks } from "../structures/save";
+import { tools } from "../tools";
 import { getDimensionFromOrigin, getPlayerFromOrigin } from "../tools/misc/helpers/commandOrigin";
 
 export function registerCommandNewSave(registry: CustomCommandRegistry): void {
@@ -58,7 +58,7 @@ export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 				}
 			}
 			system.run(() => {
-				placeStructureBlocks(from, to, dimension);
+				tools.structures.placeStructureBlocks(from, to, dimension);
 			});
 			return {
 				status: CustomCommandStatus.Success,

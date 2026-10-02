@@ -11,8 +11,7 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { PACK_NAMESPACE } from "../constants";
-import { structureIds } from "../structures/data";
-import { loadStructure } from "../structures/load";
+import { tools } from "../tools";
 import { getDimensionFromOrigin, getLocationFromOrigin } from "../tools/misc/helpers/commandOrigin";
 import { commandEnums } from "./enums";
 
@@ -55,7 +54,7 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 				}
 				to = originLocation;
 			}
-			if (!structureIds.includes(id)) {
+			if (!tools.structures.ids.includes(id)) {
 				return {
 					message: `Invalid structure id "${id}"`,
 					status: CustomCommandStatus.Failure,
@@ -76,7 +75,9 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 					status: CustomCommandStatus.Failure,
 				};
 			}
-			system.run(() => loadStructure(id, to, dimension, animationMode, animationSeconds));
+			system.run(() =>
+				tools.structures.load(id, to, dimension, animationMode, animationSeconds),
+			);
 			return {
 				status: CustomCommandStatus.Success,
 			};

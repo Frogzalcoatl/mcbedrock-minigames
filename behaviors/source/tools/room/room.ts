@@ -9,7 +9,6 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { loadStructure } from "../../structures/load";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../../types";
 import { tools } from "..";
 import { Game } from "../game/game";
@@ -242,12 +241,12 @@ export class Room {
 		}
 		if (index === "all") {
 			for (const s of this.structures) {
-				loadStructure(s.id, s.pos, this._dimension);
+				tools.structures.load(s.id, s.pos, this._dimension);
 			}
 		} else {
 			const structure: RoomStructure | undefined = this.structures[index];
 			if (structure !== undefined) {
-				loadStructure(structure.id, structure.pos, this._dimension);
+				tools.structures.load(structure.id, structure.pos, this._dimension);
 			}
 		}
 	}

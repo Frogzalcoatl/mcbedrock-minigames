@@ -1,3 +1,4 @@
+import { tools } from "../tools";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
 	type: "json",
@@ -19,12 +20,7 @@ import ghostlyShop from "./json/ghostly/shop.json" with { type: "json" };
 import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
-// [structureId, relativeX, relativeY, relativeZ]
-// structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/ (.mcstructure not included)
-type JsonStructureEntry = [string, number, number, number];
-
-// unknown required here, value type StructureSchema does not work.
-const structureSchemas = new Map<string, unknown>([
+tools.structures.addSchemas([
 	["ghostly/spawn", ghostlySpawn],
 	["ghostly/shop", ghostlyShop],
 	["ghostly/shopNoChests", ghostlyShopNoChests],
@@ -37,10 +33,7 @@ const structureSchemas = new Map<string, unknown>([
 	["frogzalcoatl/lobby/haroldsRealm", frogzalcoatlLobbyHaroldsRealm],
 ]);
 
-export type StructureSchema = JsonStructureEntry[];
-
-export const structureIds: string[] = [
-	...structureSchemas.keys(),
+tools.structures.addIds([
 	"ghostly/crates",
 	"ghostly/tree",
 	"ghostly/mountain",
@@ -62,14 +55,4 @@ export const structureIds: string[] = [
 	"frogzalcoatl/bedwars/template/base",
 	"frogzalcoatl/bedwars/template/diamonds",
 	"frogzalcoatl/bedwars/template/mid",
-];
-
-export function getStructureSchema(name: string): StructureSchema | null {
-	const schema: unknown | undefined = structureSchemas.get(name);
-	if (schema === undefined) {
-		return null;
-	} else {
-		// Type assertion required here. All imported schema's should be valid since we type them ourselves.
-		return schema as StructureSchema;
-	}
-}
+]);

@@ -1,6 +1,6 @@
 import { type CustomCommandRegistry, StructureAnimationMode } from "@minecraft/server";
 import { PACK_NAMESPACE, roomTypeIds } from "../constants";
-import { structureIds } from "../structures/data";
+import { tools } from "../tools";
 
 export const commandEnums = {
 	animationMode: `${PACK_NAMESPACE}:animationMode`,
@@ -9,7 +9,7 @@ export const commandEnums = {
 } as const;
 
 export function registerCommandEnums(registry: CustomCommandRegistry): void {
-	registry.registerEnum(commandEnums.structureIds, structureIds);
+	registry.registerEnum(commandEnums.structureIds, tools.structures.ids);
 	registry.registerEnum(commandEnums.animationMode, Object.values(StructureAnimationMode));
 	registry.registerEnum(commandEnums.roomTypeId, Object.values(roomTypeIds));
 }
