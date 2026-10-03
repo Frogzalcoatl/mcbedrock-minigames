@@ -23,5 +23,5 @@
 		"esbuild": "^0.28.2",
 		"typescript": "^7.0.2"
 	},
-	"packageManager": "pnpm@12.8.1"
+	"packageManager": "pnpm@11.4.0"
 }
