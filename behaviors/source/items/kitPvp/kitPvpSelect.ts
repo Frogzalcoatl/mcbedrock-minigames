@@ -20,11 +20,11 @@ async function callback(player: Player): Promise<void> {
 		joinKitPvpArena(player, selectedKit);
 	}
 }
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	callback(event.source);
 });
 
-tools.items.itemSwingSet(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
+tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
 	callback(event.player);
 });
 

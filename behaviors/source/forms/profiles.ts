@@ -1,6 +1,6 @@
 import { type Player, system, world } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { safeActionFormShow } from "../tools/helpers/safeShow";
+import { safeActionFormShow } from "../tools/helpers/safeFormShow";
 import { Room } from "../tools/room/room";
 
 export async function showFormPlayerProfile(

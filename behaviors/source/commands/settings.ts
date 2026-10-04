@@ -25,12 +25,6 @@ export function registerCommandSettings(registry: CustomCommandRegistry): void {
 					message: "No valid player for ui",
 					status: CustomCommandStatus.Failure,
 				};
-			} else if (player.commandPermissionLevel === CommandPermissionLevel.Any) {
-				// No "/execute as <selector>" tomfoolery
-				return {
-					message: "Only operators can view this form",
-					status: CustomCommandStatus.Failure,
-				};
 			}
 			system.run(() => {
 				showFormSettings(player);

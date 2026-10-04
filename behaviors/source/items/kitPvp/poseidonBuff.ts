@@ -8,7 +8,7 @@ const nameTag: string = "§r§bPoseidon Buff §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absoprtionDurationTicks: number = 20 * 120;
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	if (event.source.getGameMode() !== GameMode.Creative) {
 		decrementMainhandItem(event.source);
 	}

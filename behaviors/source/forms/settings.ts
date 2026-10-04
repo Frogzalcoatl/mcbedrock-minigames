@@ -1,11 +1,11 @@
-import { type Player, system, world } from "@minecraft/server";
+import { type Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
 import {
 	ActionFormData,
 	type ActionFormResponse,
 	MessageFormData,
 	type MessageFormResponse,
 } from "@minecraft/server-ui";
-import { safeActionFormShow, safeMessageFormShow } from "../tools/helpers/safeShow";
+import { safeActionFormShow, safeMessageFormShow } from "../tools/helpers/safeFormShow";
 import type { Room, RoomStructure } from "../tools/room/room";
 import { RoomType } from "../tools/room/roomType";
 
@@ -188,10 +188,10 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 		);
 	}
 	const resp: ActionFormResponse = await safeActionFormShow(form, player);
-	if (!player.isValid || resp.selection === undefined) {
+	if (!player.isValid) {
 		return;
 	}
-	if (resp.selection === backButtonIndex) {
+	if (resp.selection === undefined || resp.selection === backButtonIndex) {
 		system.run(() => {
 			showFormSettings(player);
 		});
@@ -206,6 +206,10 @@ async function showRoomType(player: Player, roomType: RoomType): Promise<void> {
 }
 
 export async function showFormSettings(player: Player): Promise<void> {
+	if (player.playerPermissionLevel !== PlayerPermissionLevel.Operator) {
+		player.sendMessage(`§cOnly operators can view this menu`);
+		return;
+	}
 	const form = new ActionFormData();
 	form.title("§0Settings");
 	form.button("General", "textures/ui/settings_glyph_color_2x.png");

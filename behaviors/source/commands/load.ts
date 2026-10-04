@@ -54,7 +54,7 @@ export function registerCommandLoad(registry: CustomCommandRegistry): void {
 				}
 				to = originLocation;
 			}
-			if (!tools.structures.ids.includes(id)) {
+			if (!tools.structures.ids.has(id)) {
 				return {
 					message: `Invalid structure id "${id}"`,
 					status: CustomCommandStatus.Failure,

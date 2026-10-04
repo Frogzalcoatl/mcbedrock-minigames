@@ -242,7 +242,13 @@ export class Game {
 		clearEntityEquippable(player);
 		player.setGameMode(GameMode.Spectator);
 		if (runTeleport) {
-			player.teleport(this.spectatorPos, { dimension: dimension });
+			let pos: Vector3;
+			if (this._state === GameState.Open) {
+				pos = this.room.spawn.pos;
+			} else {
+				pos = this.spectatorPos;
+			}
+			player.teleport(pos, { dimension: dimension });
 		}
 		if (!this.spectators.includes(player)) {
 			this.spectators.push(player);
@@ -274,8 +280,13 @@ export class Game {
 Game:
 State: §e${gameStateToString(this._state)}§r
 Active Players: §e${this.players.length}/${this.maxPlayers}§r
-Spectators: §e${this.spectators.length}§r
-Game Duration: §e${this.gameDurationSeconds}s§r`.trimStart();
+Spectators: §e${this.spectators.length}§r`.trimStart();
+		if (this._state === GameState.Open) {
+			info += `\nPlayers to Start: §e${this.playersToStart}§r`;
+			info += `\nStart Time: §e${this.startTimeSeconds}s§r`;
+		} else {
+			info += `\nGame Duration: §e${this.gameDurationSeconds}s§r`;
+		}
 		if (this._openIntervalId !== null || this._activeIntervalId !== null) {
 			info += `\nTime Remaining: §e${this.secondsRemaining}s§r`;
 		}

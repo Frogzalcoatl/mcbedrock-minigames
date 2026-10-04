@@ -7,7 +7,7 @@ import { pufferfishProjectile } from "../../tools/projectiles/pufferfish";
 const typeId: string = MinecraftItemTypes.Pufferfish;
 const nameTag: string = "§r§aPufferfish§7 (Use)";
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	if (event.source.getGameMode() !== GameMode.Creative) {
 		decrementMainhandItem(event.source);
 	}

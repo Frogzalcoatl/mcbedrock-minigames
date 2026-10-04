@@ -13,11 +13,11 @@ import { RoomType } from "../tools/room/roomType";
 const typeId: string = MinecraftItemTypes.RedDye;
 const nameTag: string = "§r§cLeave";
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	RoomType.join(roomTypeIds.hub, event.source);
 });
 
-tools.items.itemSwingSet(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
+tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
 	RoomType.join(roomTypeIds.hub, event.player);
 });
 

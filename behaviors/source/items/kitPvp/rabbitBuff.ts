@@ -8,7 +8,7 @@ const nameTag: string = "§r§eGolden Carrot §7(Use)";
 const effectDurationTicks: number = 20 * 10;
 const absorptionDurationTicks: number = 20 * 180;
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	decrementMainhandItem(event.source);
 	event.source.addEffect(MinecraftEffectTypes.Speed, effectDurationTicks, { amplifier: 4 });
 	event.source.addEffect(MinecraftEffectTypes.JumpBoost, effectDurationTicks, {

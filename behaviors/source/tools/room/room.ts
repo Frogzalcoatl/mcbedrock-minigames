@@ -16,49 +16,33 @@ import { dimensionTrackerById } from "../managers/trackers";
 import { EventSignal, type TeleportLocation, teleportLocationToString } from "../types";
 import type { LocalHub } from "./localHub";
 
-// Rotation is not accessible before or during dimension change, so we teleport players facing the proper direction after.
-// If a player is teleported using /tp, Room.join is run and their teleported position is maintained.
-// A room transfer is triggered on initialSpawn in roomType.ts.
-// With my implementation, this would be incorrectly recognized as a /tp dimension change and trigger a leave event in the dimension the player was on before last leaving the world.
-// To avoid this, we detect it using a dynamic property set on initial spawn.
-
-// biome-ignore lint/style/useExportsLast: Makes more sense for this line to be here
-export const propertyInitialSpawnTransfer: string = "initial_spawn_room_transfer";
 const propertyRoomTransfer: string = "transferring_room";
 
 world.afterEvents.playerDimensionChange.subscribe((event: PlayerDimensionChangeAfterEvent) => {
 	event.player.stopSound("portal.travel");
-
 	const triggeredByRoomTransfer: boolean =
 		event.player.getDynamicProperty(propertyRoomTransfer) !== undefined;
 	event.player.setDynamicProperty(propertyRoomTransfer, undefined);
-	const isInitialSpawn: boolean =
-		event.player.getDynamicProperty(propertyInitialSpawnTransfer) !== undefined;
-	event.player.setDynamicProperty(propertyInitialSpawnTransfer, undefined);
-
 	const newRoom: Room | undefined = Room.get(event.toDimension.id);
 	if (newRoom === undefined) {
 		return;
 	}
-
-	if (triggeredByRoomTransfer || isInitialSpawn) {
-		// Set rotation after player has changed dimensions
-		let spawn: TeleportLocation;
-		if (newRoom.localHub?.isActive) {
-			spawn = newRoom.localHub.spawn;
-		} else {
-			spawn = newRoom.spawn;
-		}
+	if (triggeredByRoomTransfer) {
+		// facingLocation is not set when a player transfers dimensions
+		// Set facingLocation after player has transferred dimensions instead
+		const spawn: TeleportLocation = newRoom.localHub?.isActive
+			? newRoom.localHub.spawn
+			: newRoom.spawn;
 		event.player.teleport(spawn.pos, { facingLocation: spawn.facing });
-		return;
+	} else {
+		// Transferred dimensions due to /tp command
+		// Maintain teleported position and run join/leave callbacks
+		const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
+		const teleportLocation: Vector3 = Object.create(event.player.location);
+		newRoom.join(event.player, previousRoom, true);
+		event.player.setDynamicProperty(propertyRoomTransfer, undefined);
+		event.player.teleport(teleportLocation);
 	}
-
-	// Joined from /tp. Maintain teleported position and run join/leave callbacks
-	const previousRoom: Room | undefined = Room.get(event.fromDimension.id);
-	const teleportLocation: Vector3 = Object.create(event.player.location);
-	newRoom.join(event.player, previousRoom, true);
-	event.player.setDynamicProperty(propertyRoomTransfer, undefined);
-	event.player.teleport(teleportLocation);
 });
 
 world.beforeEvents.playerLeave.subscribe((event: PlayerLeaveBeforeEvent) => {

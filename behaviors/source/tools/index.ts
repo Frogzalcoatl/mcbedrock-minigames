@@ -16,7 +16,7 @@ export interface MinigamesTools {
 	readonly tickingAreaQueue: TickingAreaQueue;
 }
 
-// biome-ignore lint/style/useExportsLast: Gotta init properties
+// biome-ignore lint/style/useExportsLast: Have to run init on some properties below declaration
 export const tools: MinigamesTools = {
 	items: new ItemManager(),
 	killTracker: new KillTracker(140),

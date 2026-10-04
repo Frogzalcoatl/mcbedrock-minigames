@@ -9,7 +9,7 @@ export const commandEnums = {
 } as const;
 
 export function registerCommandEnums(registry: CustomCommandRegistry): void {
-	registry.registerEnum(commandEnums.structureIds, tools.structures.ids);
+	registry.registerEnum(commandEnums.structureIds, [...tools.structures.ids]);
 	registry.registerEnum(commandEnums.animationMode, Object.values(StructureAnimationMode));
 	registry.registerEnum(commandEnums.roomTypeId, Object.values(roomTypeIds));
 }

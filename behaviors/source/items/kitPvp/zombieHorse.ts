@@ -17,7 +17,7 @@ const horseRideDurationTicks: number = 20 * 8;
 
 tools.items.cooldowns.set(nameTag, typeId, 20 * 15, true);
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	if (!tools.items.cooldowns.check(event.source, event.itemStack)) {
 		return;
 	}

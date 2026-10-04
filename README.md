@@ -45,25 +45,25 @@ Structures built by contributors should be exported to .mcstructure files using 
 
 1. Determine the structure file's path relative to `behaviors/structures/mg/` (Example: "ghostly/crates").
 
-2. Add that value to the structureIds array in: `behaviors/source/structures/data.ts`.
+2. Add that value to the addIds array in: `behaviors/source/structures/index.ts`.
 
 **Multiple files needed:**
 
 1. Store position offsets of each structure file in a json file at: `behaviors/source/structures/json/`.
 	- When choosing a json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
-	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/structures/data.ts) for json formatting in: `behaviors/source/structures/data.ts`.
+	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/tools/managers/structureSchemaManager.ts) for json formatting in: `behaviors/source/structures/data.ts`.
 	- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
 
-2. Import the json file in data.ts. Example Import:
+2. Import the json file in structures/index.ts. Example Import:
 ```ts
 import usernameMyStructure from "./json/username/myStructure" with { type: "json" };
 ```
 
-3. Add your structure to the structureSchemas map. The key (left value) represents its in game id. Please set it to the structure's relative file path for consistency. Example:
+3. Add your structure to the addSchemas map. The key (left value) represents its in game id. Please set this to the structure's relative file path for consistency. Example:
 ```ts
 import usernameMyStructure from "./json/username/myStructure" with { type: "json" };
 
-const structureSchemas = new Map<string, unknown>([
+tools.structures.addSchemas([
 	// ...
 	["username/myStructure", usernameMyStructure],
 ]);
@@ -107,7 +107,7 @@ Use the **/settings** command to manage rooms in game.
 `/clearsim` - Clear simulated players.
 
 ### Custom Items
-Custom items on this world are currently just renamed vanilla items.
+Custom items on this world are currently just renamed vanilla items that trigger callbacks on ItemUse and/or PlayerSwing events.
 I would like to learn about adding custom items through resource packs, especially if we decide to give players anvil access in a future gamemode.
 As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
 

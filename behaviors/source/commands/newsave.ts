@@ -50,7 +50,8 @@ export function registerCommandNewSave(registry: CustomCommandRegistry): void {
 			}
 			const player: Player | null = getPlayerFromOrigin(origin);
 			if (from.y === dimension.heightRange.min || to.y === dimension.heightRange.min) {
-				// Load structure blocks with y offset of 0 instead of the usual 1.
+				// When structure is at worldheight min, structure blocks are within bounds of save.
+				// Just sending message as a warning
 				if (player) {
 					player.sendMessage(
 						"§6You should increase your min y value so that structure blocks are not included in your save",

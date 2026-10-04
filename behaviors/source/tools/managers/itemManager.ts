@@ -142,7 +142,7 @@ export class ItemManager {
 		this._itemSwingValues = [];
 	}
 
-	public itemUseSet(
+	public onUse(
 		nameTag: string,
 		typeId: string,
 		callback: (event: ItemUseAfterEvent) => void,
@@ -150,11 +150,11 @@ export class ItemManager {
 		this._itemUseMap.set(nameTag, { callback: callback, typeId: typeId });
 	}
 
-	public itemUseRemove(nameTag: string): void {
+	public removeOnUse(nameTag: string): void {
 		this._itemUseMap.delete(nameTag);
 	}
 
-	public itemSwingSet(
+	public onSwing(
 		nameTag: string,
 		typeId: string,
 		callback: (event: PlayerSwingStartAfterEvent) => void,
@@ -174,7 +174,7 @@ export class ItemManager {
 		}
 	}
 
-	public itemSwingRemove(nameTag: string): void {
+	public removeOnSwing(nameTag: string): void {
 		const foundIndex: number = this._itemSwingValues.findIndex(
 			(entry) => entry.nameTag === nameTag,
 		);

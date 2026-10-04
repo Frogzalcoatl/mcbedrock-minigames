@@ -11,28 +11,24 @@ export type StructureSchema = JsonStructureEntry[];
 
 export class StructureSchemaManager {
 	private readonly _schemas: Map<string, StructureSchema>;
-	public readonly ids: string[];
+	public readonly ids: Set<string>;
 
 	public constructor() {
 		this._schemas = new Map<string, StructureSchema>();
-		this.ids = [];
+		this.ids = new Set<string>();
 	}
 
 	public addSchemas(schemas: [string, unknown][]): void {
 		for (const s of schemas) {
 			// Im still not sure how to avoid type assertion when importing json schemas in ts
 			this._schemas.set(s[0], s[1] as StructureSchema);
-			if (!this.ids.includes(s[0])) {
-				this.ids.push(s[0]);
-			}
+			this.ids.add(s[0]);
 		}
 	}
 
 	public addIds(ids: string[]): void {
 		for (const id of ids) {
-			if (!this.ids.includes(id)) {
-				this.ids.push(id);
-			}
+			this.ids.add(id);
 		}
 	}
 

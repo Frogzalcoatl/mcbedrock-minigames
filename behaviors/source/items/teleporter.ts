@@ -11,11 +11,11 @@ import { tools } from "../tools";
 const typeId: string = MinecraftItemTypes.Compass;
 const nameTag: string = "§r§dTeleporter §7(Use)";
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	showFormTeleporter(event.source);
 });
 
-tools.items.itemSwingSet(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
+tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
 	showFormTeleporter(event.player);
 });
 

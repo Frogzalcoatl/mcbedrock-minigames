@@ -11,11 +11,11 @@ import { tools } from "../tools";
 const typeId: string = MinecraftItemTypes.Comparator;
 const nameTag: string = "§r§bWorld Settings §7(Use)";
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	showFormSettings(event.source);
 });
 
-tools.items.itemSwingSet(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
+tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
 	showFormSettings(event.player);
 });
 

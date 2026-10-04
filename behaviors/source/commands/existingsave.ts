@@ -52,7 +52,7 @@ export function registerCommandExistingSave(registry: CustomCommandRegistry): vo
 				}
 				at = originLocation;
 			}
-			if (!tools.structures.ids.includes(structureId)) {
+			if (!tools.structures.ids.has(structureId)) {
 				return {
 					message: `Invalid structure id "${structureId}"`,
 					status: CustomCommandStatus.Failure,

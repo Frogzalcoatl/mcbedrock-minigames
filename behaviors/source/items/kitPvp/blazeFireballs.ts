@@ -8,7 +8,7 @@ const typeId: string = MinecraftItemTypes.FireCharge;
 const nameTag: string = "§rBlaze Fireball";
 const blazeFireballSpeed: number = 4;
 
-tools.items.itemUseSet(nameTag, typeId, (event: ItemUseAfterEvent): void => {
+tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
 	if (event.source.getGameMode() !== GameMode.Creative) {
 		decrementMainhandItem(event.source);
 	}
