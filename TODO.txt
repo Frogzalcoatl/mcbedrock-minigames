@@ -1,12 +1,8 @@
 * Add duels and the tools necessary to recreate similar gamemodes
 
-* Full code read through
-
 * Should you be using game.state setters inside game class like that?
 
 * Fix errors that occur when you queue two simulated players in duels and run clearsim
 	* Additionally handle ties properly
-
-* Make giveItem function to run Container.find first
 
 * Fix spectator teleport location when joining while game is active

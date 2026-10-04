@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/style/useExportsLast: Helper functions in between exports. */
+
 import {
 	type Container,
 	type Dimension,
@@ -94,23 +96,86 @@ export function decrementMainhandItem(entity: Entity): void {
 	}
 }
 
+function addItem(
+	item: ItemStack,
+	container: Container,
+	containerLocation: Vector3,
+	containerDimension: Dimension,
+	spawnOverflowItems: boolean,
+): void {
+	const leftoverItem: ItemStack | undefined = container.addItem(item);
+	if (spawnOverflowItems && leftoverItem !== undefined) {
+		containerDimension.spawnItem(leftoverItem, {
+			x: containerLocation.x,
+			y: containerLocation.y,
+			z: containerLocation.z,
+		});
+	}
+}
+
 // spawnOverflowItems: When true, spawns item as entity if container is full
 export function giveItem(
 	item: ItemStack,
 	container: Container,
-	location: Vector3,
-	dimension: Dimension,
+	containerLocation: Vector3,
+	containerDimension: Dimension,
 	spawnOverflowItems: boolean,
 ): void {
-	const overflow: ItemStack | undefined = container.addItem(item);
-	if (spawnOverflowItems && overflow !== undefined && dimension.isChunkLoaded(location)) {
-		// Avoids LocationOutOfWorldBoundariesError
-		const spawnLocation: Vector3 = {
-			x: location.x,
-			y: dimension.heightRange.min,
-			z: location.z,
-		};
-		dimension.spawnItem(overflow, spawnLocation).teleport(location);
+	const existingIndex: number | undefined = container.find(item);
+	if (!existingIndex) {
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
+		return;
+	}
+	const existingItem: ItemStack | undefined = container.getItem(existingIndex);
+	if (existingItem === undefined) {
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
+		return;
+	}
+	const newItemAmount: number = existingItem.amount + item.amount;
+	if (existingItem.maxAmount >= newItemAmount) {
+		existingItem.amount = newItemAmount;
+		container.setItem(existingIndex, existingItem);
+	} else {
+		existingItem.amount = existingItem.maxAmount;
+		container.setItem(existingIndex, existingItem);
+		existingItem.amount = newItemAmount - existingItem.maxAmount;
+		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
+	}
+}
+
+export function giveItemToEntity(
+	item: ItemStack,
+	entity: Entity,
+	spawnOverflowItems: boolean,
+): void {
+	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
+		EntityComponentTypes.Inventory,
+	);
+	if (inventory === undefined) {
+		return;
+	}
+	giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
+}
+
+export function clearEntityEquippable(entity: Entity): void {
+	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
+		EntityComponentTypes.Equippable,
+	);
+	if (equippable !== undefined) {
+		equippable.setEquipment(EquipmentSlot.Head, undefined);
+		equippable.setEquipment(EquipmentSlot.Chest, undefined);
+		equippable.setEquipment(EquipmentSlot.Legs, undefined);
+		equippable.setEquipment(EquipmentSlot.Feet, undefined);
+		equippable.setEquipment(EquipmentSlot.Offhand, undefined);
+	}
+}
+
+export function clearEntityInventory(entity: Entity): void {
+	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
+		EntityComponentTypes.Inventory,
+	);
+	if (inventory !== undefined) {
+		inventory.container.clearAll();
 	}
 }
 
@@ -175,42 +240,6 @@ export function changeEntityHealth(entity: Entity, by: number): void {
 		health.resetToMinValue();
 	} else {
 		health.setCurrentValue(newValue);
-	}
-}
-
-export function giveItemToEntity(
-	item: ItemStack,
-	entity: Entity,
-	spawnOverflowItems: boolean,
-): void {
-	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
-		EntityComponentTypes.Inventory,
-	);
-	if (inventory === undefined) {
-		return;
-	}
-	giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
-}
-
-export function clearEntityEquippable(entity: Entity): void {
-	const equippable: EntityEquippableComponent | undefined = entity.getComponent(
-		EntityComponentTypes.Equippable,
-	);
-	if (equippable !== undefined) {
-		equippable.setEquipment(EquipmentSlot.Head, undefined);
-		equippable.setEquipment(EquipmentSlot.Chest, undefined);
-		equippable.setEquipment(EquipmentSlot.Legs, undefined);
-		equippable.setEquipment(EquipmentSlot.Feet, undefined);
-		equippable.setEquipment(EquipmentSlot.Offhand, undefined);
-	}
-}
-
-export function clearEntityInventory(entity: Entity): void {
-	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
-		EntityComponentTypes.Inventory,
-	);
-	if (inventory !== undefined) {
-		inventory.container.clearAll();
 	}
 }
 
