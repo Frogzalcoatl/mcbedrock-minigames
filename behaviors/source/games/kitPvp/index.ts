@@ -57,7 +57,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		tools.projectileTracker.removePlayer(event.player);
 		tools.kitManager.reset(event.player);
 	});
-	room.localHub = new LocalHub(room.dimensionId, room.spawn);
+	room.localHub = new LocalHub(room, room.spawn);
 	room.localHub.onJoin.subscribe((event: LocalHubTransferEvent): void => {
 		tools.killTracker.removePlayer(event.player);
 		tools.items.cooldowns.removePlayer(event.player);

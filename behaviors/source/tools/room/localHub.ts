@@ -1,5 +1,6 @@
 import { type Dimension, type DimensionLocation, type Player, world } from "@minecraft/server";
 import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../types";
+import type { Room } from "./room";
 
 export interface LocalHubTransferEvent {
 	localHub: LocalHub;
@@ -7,20 +8,21 @@ export interface LocalHubTransferEvent {
 }
 
 export class LocalHub {
-	public readonly dimensionId: string;
 	public readonly onJoin: EventSignal<LocalHubTransferEvent>;
 	public readonly onLeave: EventSignal<LocalHubTransferEvent>;
 	public readonly players: Player[];
 	private _spawn: TeleportLocation;
 	private _isActive: boolean;
+	private _owningRoom: Room;
 
-	public constructor(dimensionId: string, spawn: TeleportLocation) {
-		this.dimensionId = dimensionId;
-		this._spawn = spawn;
-		this._isActive = true;
+	public constructor(owningRoom: Room, spawn: TeleportLocation) {
 		this.players = [];
 		this.onJoin = new EventSignal<LocalHubTransferEvent>();
 		this.onLeave = new EventSignal<LocalHubTransferEvent>();
+		this._spawn = spawn;
+		this._isActive = true;
+		this._owningRoom = owningRoom;
+		owningRoom.localHub = this;
 	}
 
 	public get isActive(): boolean {
@@ -40,7 +42,7 @@ export class LocalHub {
 
 	public set spawn(val: TeleportLocation) {
 		this._spawn = val;
-		const dimension: Dimension = world.getDimension(this.dimensionId);
+		const dimension: Dimension = world.getDimension(this._owningRoom.dimensionId);
 		const location: DimensionLocation = {
 			dimension: dimension,
 			x: val.pos.x,
@@ -64,7 +66,7 @@ export class LocalHub {
 		if (!this.players.includes(player)) {
 			this.players.push(player);
 		}
-		const dimension: Dimension = world.getDimension(this.dimensionId);
+		const dimension: Dimension = world.getDimension(this._owningRoom.dimensionId);
 		player.teleport(this._spawn.pos, {
 			dimension: dimension,
 			facingLocation: this._spawn.facing,
@@ -83,6 +85,15 @@ export class LocalHub {
 			return;
 		}
 		arrRemoveSwap(this.players, player);
+		const dimension: Dimension | undefined = this._owningRoom.dimension;
+		if (dimension !== undefined) {
+			player.setSpawnPoint({
+				dimension: dimension,
+				x: this._owningRoom.spawn.pos.x,
+				y: this._owningRoom.spawn.pos.y,
+				z: this._owningRoom.spawn.pos.z,
+			});
+		}
 		this.onLeave.triggerEvent({ localHub: this, player: player });
 	}
 }
