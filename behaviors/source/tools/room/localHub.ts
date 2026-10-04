@@ -85,14 +85,16 @@ export class LocalHub {
 			return;
 		}
 		arrRemoveSwap(this.players, player);
-		const dimension: Dimension | undefined = this._owningRoom.dimension;
-		if (dimension !== undefined) {
-			player.setSpawnPoint({
-				dimension: dimension,
-				x: this._owningRoom.spawn.pos.x,
-				y: this._owningRoom.spawn.pos.y,
-				z: this._owningRoom.spawn.pos.z,
-			});
+		if (player.isValid) {
+			const dimension: Dimension | undefined = this._owningRoom.dimension;
+			if (dimension !== undefined) {
+				player.setSpawnPoint({
+					dimension: dimension,
+					x: this._owningRoom.spawn.pos.x,
+					y: this._owningRoom.spawn.pos.y,
+					z: this._owningRoom.spawn.pos.z,
+				});
+			}
 		}
 		this.onLeave.triggerEvent({ localHub: this, player: player });
 	}

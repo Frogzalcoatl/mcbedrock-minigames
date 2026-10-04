@@ -148,7 +148,7 @@ export class Room {
 			z: val.pos.z,
 		};
 		for (const player of this._dimension.getPlayers()) {
-			if (this.localHub?.has(player)) {
+			if (this.localHub?.has(player) || !player.isValid) {
 				continue;
 			}
 			player.setSpawnPoint(location);
