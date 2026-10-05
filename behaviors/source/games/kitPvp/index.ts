@@ -4,7 +4,7 @@ import {
 	type EntityDieAfterEvent,
 	type EntityInventoryComponent,
 	GameMode,
-	Player,
+	type Player,
 	PlayerPermissionLevel,
 	system,
 	world,
@@ -85,12 +85,9 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 			const killer: Entity = event.damageSource.damagingEntity;
 			system.run(() => changeEntityHealth(killer, healthAddedOnKill));
 		}
-		if (event.deadEntity instanceof Player && event.deadEntity.isValid) {
-			const dead: Player = event.deadEntity;
-			system.runTimeout(() => {
-				room.localHub?.join(dead);
-			}, 1);
-		}
+	});
+	killTracker.onRespawn.subscribe((player: Player) => {
+		room.localHub?.join(player);
 	});
 	tools.projectileTracker.addDimension(room.dimensionId, [
 		MinecraftEntityTypes.ThrownTrident,

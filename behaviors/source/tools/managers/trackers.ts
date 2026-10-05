@@ -188,6 +188,7 @@ export class ProjectileTracker {
 
 export interface KillTrackerSettings {
 	readonly onKill: EventSignal<EntityDieAfterEvent>;
+	readonly onRespawn: EventSignal<Player>;
 	readonly showCombatTime: EventSignal<Player>;
 	showCombatTimeTickInterval: number;
 }
@@ -210,6 +211,7 @@ export class KillTracker {
 	public addDimension(dimensionId: string): KillTrackerSettings {
 		const ktSettings: KillTrackerSettings = {
 			onKill: new EventSignal<EntityDieAfterEvent>(),
+			onRespawn: new EventSignal<Player>(),
 			showCombatTime: new EventSignal<Player>(),
 			showCombatTimeTickInterval: 0,
 		};
@@ -278,6 +280,7 @@ export class KillTracker {
 				if (ktSettings !== undefined) {
 					const event: EntityDieAfterEvent = this.createDeathEvent(
 						player,
+						this.getLastHitter(player),
 						EntityDamageCause.override,
 					);
 					ktSettings.onKill.triggerEvent(event);
@@ -300,8 +303,11 @@ export class KillTracker {
 		return (value.timestamp - now) / 50 + this.hitCooldownTicks;
 	}
 
-	private createDeathEvent(deadPlayer: Player, cause: EntityDamageCause): EntityDieAfterEvent {
-		const lastHitter: Entity | null = this.getLastHitter(deadPlayer);
+	private createDeathEvent(
+		deadPlayer: Player,
+		lastHitter: Entity | null,
+		cause: EntityDamageCause,
+	): EntityDieAfterEvent {
 		let source: EntityDamageSource;
 		if (lastHitter !== null) {
 			source = {
@@ -366,7 +372,11 @@ export class KillTracker {
 		}
 		if (event.damageSource.damagingEntity === undefined) {
 			// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
-			event = this.createDeathEvent(deadPlayer, event.damageSource.cause);
+			event = this.createDeathEvent(
+				deadPlayer,
+				this.getLastHitter(event.deadEntity),
+				event.damageSource.cause,
+			);
 		}
 		this._hitMap.delete(event.deadEntity.id);
 		if (event.damageSource.damagingEntity !== undefined) {
@@ -378,9 +388,22 @@ export class KillTracker {
 		}
 	};
 
+	private playerSpawn = (event: PlayerSpawnAfterEvent): void => {
+		if (event.initialSpawn || !event.player.isValid) {
+			return;
+		}
+		const ktSettings: KillTrackerSettings | undefined = this.dimensions.get(
+			event.player.dimension.id,
+		);
+		if (ktSettings !== undefined) {
+			ktSettings.onRespawn.triggerEvent(event.player);
+		}
+	};
+
 	public init(kitManager?: KitManager): void {
 		world.afterEvents.entityHurt.subscribe(this.enitityHurt);
 		world.afterEvents.entityDie.subscribe(this.entityDie);
+		world.afterEvents.playerSpawn.subscribe(this.playerSpawn);
 		if (kitManager !== undefined) {
 			this.kitManager = kitManager;
 		}
@@ -389,5 +412,6 @@ export class KillTracker {
 	public shutdown(): void {
 		world.afterEvents.entityHurt.unsubscribe(this.enitityHurt);
 		world.afterEvents.entityDie.unsubscribe(this.entityDie);
+		world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
 	}
 }
