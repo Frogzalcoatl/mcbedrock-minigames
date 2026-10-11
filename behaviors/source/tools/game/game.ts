@@ -329,7 +329,9 @@ GameState.Active: §e${this._activeIntervalId}§r
 				this.state = GameState.Active;
 				return;
 			}
-			this.setActionBar(`Game starting in §l${Math.ceil(this.secondsRemaining)} §rseconds`);
+			this.setActionBar(
+				`Game starting in §l${Math.ceil(this.secondsRemaining)} §rsecond${this.secondsRemaining !== 1 ? "s" : ""}`,
+			);
 			if (playSoundDuring.includes(this.secondsRemaining)) {
 				for (const p of this.players) {
 					p.playSound("random.click");
