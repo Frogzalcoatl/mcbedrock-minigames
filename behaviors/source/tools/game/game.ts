@@ -18,7 +18,7 @@ import {
 	clearEntityInventory,
 	hubEffectHelper,
 } from "../helpers/entityComponents";
-import { getPlayerName } from "../helpers/textFormatting";
+import { playerDisplayName } from "../helpers/textFormatting";
 import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
 import { RoomType } from "../room/roomType";
 import {
@@ -254,7 +254,7 @@ export class Game {
 			this.spectators.push(player);
 		}
 		if (sendJoinMessage) {
-			this.sendMessage(`${getPlayerName(player)}§r§7 is spectating`);
+			this.sendMessage(`${playerDisplayName(player)}§r§7 is spectating`);
 		}
 	}
 
@@ -437,7 +437,7 @@ GameState.Active: §e${this._activeIntervalId}§r
 			}
 		}
 		this.sendMessage(
-			`${getPlayerName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
+			`${playerDisplayName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
 		);
 	};
 
@@ -448,7 +448,7 @@ GameState.Active: §e${this._activeIntervalId}§r
 		if (team !== null) {
 			team.remove(event.player, this._state === GameState.Active);
 		}
-		const leaveMessage: string = `${getPlayerName(event.player)}§r§7 left the game`;
+		const leaveMessage: string = `${playerDisplayName(event.player)}§r§7 left the game`;
 		if (this._state !== GameState.Open) {
 			this.sendMessage(leaveMessage);
 			return;

@@ -12,7 +12,7 @@ import {
 	MinecraftEntityTypes,
 	MinecraftItemTypes,
 } from "@minecraft/vanilla-data";
-import { getPlayerName } from "./helpers/textFormatting";
+import { playerDisplayName } from "./helpers/textFormatting";
 
 const chatTimestamps = new Map<string, number>();
 const chatCooldownMs: number = 500;
@@ -25,7 +25,7 @@ world.beforeEvents.chatSend.subscribe((event: ChatSendBeforeEvent) => {
 		return;
 	}
 	world.sendMessage(
-		`${getPlayerName(event.sender)} §r§l§7»§r ${event.sender.chatMessagePrefix ?? ""}${event.message}`,
+		`${playerDisplayName(event.sender)} §r§l§7»§r ${event.sender.chatMessagePrefix ?? ""}${event.message}`,
 	);
 	chatTimestamps.set(event.sender.id, Date.now());
 });

@@ -7,16 +7,16 @@ import {
 import { DEFAULT_CHATNAME_PREFIX } from "../constants";
 import { playerNameTracker } from "../managers/trackers";
 
-export function getPlayerName(player: Player): string {
+export function playerDisplayName(player: Player): string {
 	if (!player.isValid) {
-		return `§7${playerNameTracker(player.id)}`;
+		return `${DEFAULT_CHATNAME_PREFIX}${playerNameTracker(player.id)}`;
 	}
 	return `${player.chatNamePrefix ?? DEFAULT_CHATNAME_PREFIX}${player.name}${player.chatNameSuffix ?? ""}`;
 }
 
-export function getEntityName(entity: Entity): string {
+export function entityDisplayName(entity: Entity): string {
 	if (entity instanceof Player) {
-		return getPlayerName(entity);
+		return playerDisplayName(entity);
 	} else {
 		return entity.nameTag ? entity.nameTag : entity.typeId;
 	}
@@ -42,10 +42,10 @@ export function deathMessageFormat(
 }
 
 export function deathMessageFromEvent(event: EntityDieAfterEvent, colorCode = "§7"): string {
-	const deadName: string = getEntityName(event.deadEntity);
+	const deadName: string = entityDisplayName(event.deadEntity);
 	let killerName: string | null = null;
 	if (event.damageSource.damagingEntity?.isValid) {
-		killerName = getEntityName(event.damageSource.damagingEntity);
+		killerName = entityDisplayName(event.damageSource.damagingEntity);
 	}
 	return deathMessageFormat(deadName, killerName, event.damageSource.cause, colorCode);
 }
