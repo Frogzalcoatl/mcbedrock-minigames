@@ -7,7 +7,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../constants";
-import { deathLocationTracker } from "../managers/trackers";
+import { deathLocationTracker, playerNameTracker } from "../managers/trackers";
 import { arrRemoveSwap, EventSignal, TeamDistributionMode, type TeleportLocation } from "../types";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
@@ -120,7 +120,8 @@ export class Team {
 		if (this.maxPlayers === 1) {
 			const player: Player | undefined = this.activePlayers[0];
 			if (player !== undefined) {
-				return `${this.colorCode}${player.name}§r`;
+				const playerName: string = player.isValid ? player.name : playerNameTracker(player.id);
+				return `${this.colorCode}${playerName}§r`;
 			}
 		}
 		return `${this.colorCode}${this.name}§r`;
