@@ -14,7 +14,6 @@ import {
 	type PlayerDimensionChangeAfterEvent,
 	type PlayerJoinAfterEvent,
 	type PlayerLeaveAfterEvent,
-	type PlayerLeaveBeforeEvent,
 	type PlayerSpawnAfterEvent,
 	system,
 	type Vector3,
@@ -127,9 +126,9 @@ export class ProjectileTracker {
 		this.dimensions.set(dimensionId, projectileTypeIds);
 	}
 
-	public removePlayer(player: Player): void {
+	public removePlayer(playerId: string): void {
 		for (const [projectileId, currentPlayerId] of this._projectiles) {
-			if (player.id !== currentPlayerId) {
+			if (playerId !== currentPlayerId) {
 				continue;
 			}
 			const entity: Entity | undefined = world.getEntity(projectileId);
@@ -167,22 +166,22 @@ export class ProjectileTracker {
 		}
 	};
 
-	private playerLeave = (event: PlayerLeaveBeforeEvent): void => {
-		this.removePlayer(event.player);
+	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
+		this.removePlayer(event.playerId);
 	};
 
 	public init(): void {
 		world.beforeEvents.entityRemove.subscribe(this.entityRemove);
 		world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
 		world.afterEvents.entityLoad.subscribe(this.entityLoad);
-		world.beforeEvents.playerLeave.subscribe(this.playerLeave);
+		world.afterEvents.playerLeave.subscribe(this.playerLeave);
 	}
 
 	public shutdown(): void {
 		world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
 		world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
 		world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
-		world.beforeEvents.playerLeave.unsubscribe(this.playerLeave);
+		world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
 	}
 }
 
