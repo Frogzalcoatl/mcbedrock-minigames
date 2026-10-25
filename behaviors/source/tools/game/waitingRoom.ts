@@ -1,4 +1,5 @@
 import { type Player, system } from "@minecraft/server";
+import { playerNameTracker } from "../managers/trackers";
 import { EventSignal } from "../types";
 
 export class WaitingRoom {
@@ -95,6 +96,10 @@ export class WaitingRoom {
 		if (this._intervalId === null) {
 			this.startInterval();
 		}
+		const message: string = `§7${player.name}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`;
+		for (const p of this.players) {
+			p.sendMessage(message);
+		}
 	}
 
 	public leave(playerId: string): void {
@@ -108,6 +113,15 @@ export class WaitingRoom {
 		}
 		this.players[index] = lastPlayer;
 		this.players.pop();
+		if (this.players.length === 0 && this._intervalId !== null) {
+			system.clearRun(this._intervalId);
+			this._intervalId = null;
+		} else {
+			const message: string = `§7${playerNameTracker(playerId)}§r§7 left the game`;
+			for (const p of this.players) {
+				p.sendMessage(message);
+			}
+		}
 	}
 
 	public reset(): void {
