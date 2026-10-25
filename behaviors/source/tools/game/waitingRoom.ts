@@ -24,7 +24,7 @@ export class WaitingRoom {
 	public onStart: EventSignal<Player[]>;
 
 	// 1 second runInterval for countdown
-	private intervalId: number | null;
+	private _intervalId: number | null;
 
 	public constructor(
 		playersToStart: number,
@@ -39,7 +39,7 @@ export class WaitingRoom {
 		this.startTimeSeconds = startTimeSeconds;
 		this.secondsRemaining = startTimeSeconds;
 		this.onStart = new EventSignal<Player[]>();
-		this.intervalId = null;
+		this._intervalId = null;
 	}
 
 	private startInterval(): void {
@@ -62,7 +62,7 @@ export class WaitingRoom {
 			}
 			if (this.secondsRemaining <= 0) {
 				system.clearRun(intervalId);
-				this.intervalId = null;
+				this._intervalId = null;
 				this.onStart.triggerEvent(this.players);
 				return;
 			}
@@ -78,12 +78,12 @@ export class WaitingRoom {
 			}
 			this.secondsRemaining--;
 		}, 20);
-		this.intervalId = intervalId;
+		this._intervalId = intervalId;
 	}
 
 	private clearInterval(): void {
-		if (this.intervalId !== null) {
-			system.clearRun(this.intervalId);
+		if (this._intervalId !== null) {
+			system.clearRun(this._intervalId);
 		}
 	}
 
@@ -92,7 +92,7 @@ export class WaitingRoom {
 			return;
 		}
 		this.players.push(player);
-		if (this.intervalId === null) {
+		if (this._intervalId === null) {
 			this.startInterval();
 		}
 	}
