@@ -98,8 +98,8 @@ export class WaitingRoom {
 	}
 
 	public leave(playerId: string): void {
-		const index: number | undefined = this.players.findIndex((p) => p.id === playerId);
-		if (index === undefined) {
+		const index: number = this.players.findIndex((p) => p.id === playerId);
+		if (index === -1) {
 			return;
 		}
 		const lastPlayer: Player | undefined = this.players[this.players.length - 1];
