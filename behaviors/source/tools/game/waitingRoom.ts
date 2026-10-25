@@ -1,0 +1,118 @@
+import { type Player, system } from "@minecraft/server";
+import { EventSignal } from "../types";
+
+export class WaitingRoom {
+	public readonly players: Player[];
+
+	// Amonunt of players required to start the countdown
+	public playersToStart: number;
+
+	// Minimum amount of players required to start the game.
+	// Should be less than or equal to playersToStart
+	public minPlayers: number;
+
+	// Maximum amount of players required to start the game
+	public maxPlayers: number;
+
+	// Length of countdown
+	public startTimeSeconds: number;
+
+	// Seconds remaining to start the game
+	public secondsRemaining: number;
+
+	// Event triggers when countdown finishes
+	public onStart: EventSignal<Player[]>;
+
+	// 1 second runInterval for countdown
+	private intervalId: number | null;
+
+	public constructor(
+		playersToStart: number,
+		minPlayers: number,
+		maxPlayers: number,
+		startTimeSeconds = 30,
+	) {
+		this.players = [];
+		this.playersToStart = playersToStart;
+		this.minPlayers = minPlayers;
+		this.maxPlayers = maxPlayers;
+		this.startTimeSeconds = startTimeSeconds;
+		this.secondsRemaining = startTimeSeconds;
+		this.onStart = new EventSignal<Player[]>();
+		this.intervalId = null;
+	}
+
+	private startInterval(): void {
+		this.clearInterval();
+		const playSoundDuring: number[] = [60, 39, 29, 10, 5, 4, 3, 2, 1];
+		if (!playSoundDuring.includes(this.startTimeSeconds)) {
+			playSoundDuring.push(this.startTimeSeconds);
+		}
+		this.secondsRemaining = this.startTimeSeconds;
+		const intervalId: number = system.runInterval(() => {
+			if (this.players.length < this.minPlayers) {
+				this.secondsRemaining = this.startTimeSeconds;
+				const playersNeeded: number = this.playersToStart - this.players.length;
+				for (const p of this.players) {
+					p.onScreenDisplay.setActionBar(
+						`Waiting for §l${playersNeeded}§r more player${playersNeeded !== 1 ? "s" : ""}...`,
+					);
+				}
+				return;
+			}
+			if (this.secondsRemaining <= 0) {
+				system.clearRun(intervalId);
+				this.intervalId = null;
+				this.onStart.triggerEvent(this.players);
+				return;
+			}
+			for (const p of this.players) {
+				p.onScreenDisplay.setActionBar(
+					`Game starting in §l${this.secondsRemaining}§r second${this.secondsRemaining !== 1 ? "s" : ""}`,
+				);
+			}
+			if (playSoundDuring.includes(this.secondsRemaining)) {
+				for (const p of this.players) {
+					p.playSound("random.click");
+				}
+			}
+			this.secondsRemaining--;
+		}, 20);
+		this.intervalId = intervalId;
+	}
+
+	private clearInterval(): void {
+		if (this.intervalId !== null) {
+			system.clearRun(this.intervalId);
+		}
+	}
+
+	public join(player: Player): void {
+		if (this.players.includes(player)) {
+			return;
+		}
+		this.players.push(player);
+		if (this.intervalId === null) {
+			this.startInterval();
+		}
+	}
+
+	public leave(playerId: string): void {
+		const index: number | undefined = this.players.findIndex((p) => p.id === playerId);
+		if (index === undefined) {
+			return;
+		}
+		const lastPlayer: Player | undefined = this.players[this.players.length - 1];
+		if (lastPlayer === undefined) {
+			return;
+		}
+		this.players[index] = lastPlayer;
+		this.players.pop();
+	}
+
+	public reset(): void {
+		this.players.length = 0;
+		this.clearInterval();
+		this.secondsRemaining = this.startTimeSeconds;
+	}
+}
