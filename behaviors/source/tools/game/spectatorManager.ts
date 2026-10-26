@@ -2,13 +2,19 @@ import { type Dimension, GameMode, type Player } from "@minecraft/server";
 import { arrRemoveSwap, type TeleportLocation } from "../types";
 
 export class SpectatorManager {
-	public readonly spectators: Player[];
+	public readonly players: Player[];
 	public spawn: TeleportLocation;
 	public dimension: Dimension;
 
-	public constructor(dimension: Dimension, spawnPos: TeleportLocation) {
-		this.spectators = [];
-		this.spawn = spawnPos;
+	public constructor(
+		dimension: Dimension,
+		spawn: TeleportLocation = {
+			facing: { x: 0.5, y: 0, z: 0.5 },
+			pos: { x: 0.5, y: 0, z: 0.5 },
+		},
+	) {
+		this.players = [];
+		this.spawn = spawn;
 		this.dimension = dimension;
 	}
 
@@ -18,12 +24,12 @@ export class SpectatorManager {
 			dimension: this.dimension,
 			facingLocation: this.spawn.facing,
 		});
-		if (!this.spectators.includes(player)) {
-			this.spectators.push(player);
+		if (!this.players.includes(player)) {
+			this.players.push(player);
 		}
 	}
 
 	public remove(player: Player): void {
-		arrRemoveSwap(this.spectators, player);
+		arrRemoveSwap(this.players, player);
 	}
 }
