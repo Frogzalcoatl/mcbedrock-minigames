@@ -28,23 +28,7 @@ import {
 	gameStateToString,
 	TeamDistributionMode,
 } from "../types";
-import { Team, type TeamEliminationEvent } from "./team";
-
-interface TeamOrdersValue {
-	colorCode: string;
-	name: string;
-}
-
-const teamOrders: TeamOrdersValue[] = [
-	{ colorCode: "§c", name: "Red" },
-	{ colorCode: "§1", name: "Blue" },
-	{ colorCode: "§a", name: "Green" },
-	{ colorCode: "§e", name: "Yellow" },
-	{ colorCode: "§3", name: "Aqua" },
-	{ colorCode: "§f", name: "White" },
-	{ colorCode: "§d", name: "Pink" },
-	{ colorCode: "§8", name: "Gray" },
-];
+import { type PlayerEliminationEvent, Team } from "./team";
 
 export interface GameJoinEvent {
 	game: Game;
@@ -151,7 +135,7 @@ export class Game {
 			}
 		}
 		for (const t of this.teams) {
-			t.onElimination.subscribe(this.teamEliminationCallback);
+			t.onPlayerElimination.subscribe(this.teamEliminationCallback);
 		}
 	}
 
@@ -173,13 +157,13 @@ export class Game {
 			case GameState.Resetting: {
 				this.clearPlayers();
 				if (this.resetGame === null) {
-					this._state = GameState.Open;
+					this._state = GameState.AwaitingPlayers;
 				} else {
 					this.resetGame(this);
 				}
 				break;
 			}
-			case GameState.Open: {
+			case GameState.AwaitingPlayers: {
 				if (this.players.length > 0) {
 					this.whileOpen();
 				}
@@ -243,7 +227,7 @@ export class Game {
 		player.setGameMode(GameMode.Spectator);
 		if (runTeleport) {
 			let pos: Vector3;
-			if (this._state === GameState.Open) {
+			if (this._state === GameState.AwaitingPlayers) {
 				pos = this.room.spawn.pos;
 			} else {
 				pos = this.spectatorPos;
@@ -281,7 +265,7 @@ Game:
 State: §e${gameStateToString(this._state)}§r
 Active Players: §e${this.players.length}/${this.maxPlayers}§r
 Spectators: §e${this.spectators.length}§r`.trimStart();
-		if (this._state === GameState.Open) {
+		if (this._state === GameState.AwaitingPlayers) {
 			info += `\nPlayers to Start: §e${this.playersToStart}§r`;
 			info += `\nStart Time: §e${this.startTimeSeconds}s§r`;
 		} else {
@@ -415,7 +399,7 @@ GameState.Active: §e${this._activeIntervalId}§r
 	};
 
 	private roomOnJoin = (event: RoomTransferEvent): void => {
-		if (this._state !== GameState.Open || this.players.length >= this.maxPlayers) {
+		if (this._state !== GameState.AwaitingPlayers || this.players.length >= this.maxPlayers) {
 			this.addSpectator(event.player);
 			return;
 		}
@@ -448,10 +432,10 @@ GameState.Active: §e${this._activeIntervalId}§r
 		arrRemoveSwap(this.spectators, event.player);
 		const team: Team | null = Team.findPlayer(event.player);
 		if (team !== null) {
-			team.remove(event.player, this._state === GameState.Active);
+			team.remove(evenPlayerEliminationEvente === GameState.Active);
 		}
 		const leaveMessage: string = `${playerDisplayName(event.player)}§r§7 left the game`;
-		if (this._state !== GameState.Open) {
+		if (this._state !== GameState.AwaitingPlayers) {
 			this.sendMessage(leaveMessage);
 			return;
 		}
