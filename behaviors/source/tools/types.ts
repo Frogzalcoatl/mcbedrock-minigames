@@ -14,9 +14,10 @@ export function teleportLocationToString(spawn: TeleportLocation): string {
 
 export const GameState = {
 	Resetting: 0,
-	Open: 1,
-	Active: 2,
-	Ending: 3,
+	Queuing: 1,
+	Full: 2,
+	Active: 3,
+	Ending: 4,
 } as const;
 export type GameState = (typeof GameState)[keyof typeof GameState];
 
@@ -24,8 +25,10 @@ export function gameStateToString(state: GameState): string {
 	switch (state) {
 		case GameState.Resetting:
 			return "Resetting";
-		case GameState.Open:
-			return "Open";
+		case GameState.Queuing:
+			return "Queuing";
+		case GameState.Full:
+			return "Full";
 		case GameState.Active:
 			return "Active";
 		case GameState.Ending:

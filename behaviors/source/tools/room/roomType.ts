@@ -156,7 +156,7 @@ export class RoomType {
 			const game: Game | undefined = Game.get(room.dimensionId);
 			if (
 				game !== undefined &&
-				game.state === GameState.Open &&
+				game.state === GameState.Queuing &&
 				game.players.length > 0 &&
 				game.players.length < game.maxPlayers
 			) {
@@ -219,7 +219,7 @@ export class RoomType {
 			const game: Game | undefined = Game.get(room.dimensionId);
 			if (
 				game !== undefined &&
-				game.state === GameState.Open &&
+				game.state === GameState.Queuing &&
 				game.players.length < game.maxPlayers &&
 				room.join(player)
 			) {
@@ -242,7 +242,7 @@ export class RoomType {
 			const game: Game | undefined = Game.get(room.dimensionId);
 			if (
 				game !== undefined &&
-				game.state === GameState.Open &&
+				game.state === GameState.Queuing &&
 				game.players.length < game.maxPlayers &&
 				room.join(player)
 			) {

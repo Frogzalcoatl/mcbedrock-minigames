@@ -105,7 +105,7 @@ const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon
 		}, 100);
 	};
 	game.startTimeSeconds = 10;
-	game.state = GameState.Open;
+	game.state = GameState.AwaitingPlayers;
 	return room;
 };
 
