@@ -123,10 +123,4 @@ export class WaitingRoom {
 			}
 		}
 	}
-
-	public reset(): void {
-		this.players.length = 0;
-		this.clearInterval();
-		this.secondsRemaining = this.startTimeSeconds;
-	}
 }
