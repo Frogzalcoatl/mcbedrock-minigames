@@ -6,7 +6,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../tools";
-import { roomTypeIds } from "../tools/constants";
+import { gameIds } from "../tools/constants";
 import { defaultItemStackFunc } from "../tools/helpers/entityComponents";
 import { RoomType } from "../tools/room/roomType";
 
@@ -14,11 +14,11 @@ const typeId: string = MinecraftItemTypes.RedDye;
 const nameTag: string = "§r§cLeave";
 
 tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
-	RoomType.join(roomTypeIds.hub, event.source);
+	RoomType.join(gameIds.mainHub, event.source);
 });
 
 tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
-	RoomType.join(roomTypeIds.hub, event.player);
+	RoomType.join(gameIds.mainHub, event.player);
 });
 
 export function itemLeaveGame(): ItemStack {

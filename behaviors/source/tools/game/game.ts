@@ -1,463 +1,65 @@
+import { type Dimension, type Player, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
+import type { GameHub } from "../room/gameHub";
 import {
-	type Dimension,
-	EntityComponentTypes,
-	type EntityInventoryComponent,
-	GameMode,
-	type Player,
-	PlayerPermissionLevel,
-	system,
-	type Vector3,
-} from "@minecraft/server";
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { itemLeaveGame } from "../../items/leaveGame";
-import { itemSettings } from "../../items/settings";
-import { roomTypeIds } from "../constants";
-import {
-	clearEntityEffects,
-	clearEntityEquippable,
-	clearEntityInventory,
-	hubEffectHelper,
-} from "../helpers/entityComponents";
-import { playerDisplayName } from "../helpers/textFormatting";
-import type { Room, RoomBeforeJoinEvent, RoomTransferEvent } from "../room/room";
-import { RoomType } from "../room/roomType";
-import {
-	arrRemoveSwap,
-	EventSignal,
-	GameState,
-	gameStateToString,
-	TeamDistributionMode,
+	arrRemoveByCallback,
+	type GameJoinResult,
+	type TeleportLocation,
+	teleportLocationDefault,
 } from "../types";
-import { type PlayerEliminationEvent, Team } from "./team";
 
-export interface GameJoinEvent {
-	game: Game;
-	player: Player;
-}
+world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {
+	const game: Game | undefined = Game.findPlayer(event.playerId);
+	if (game !== undefined) {
+		game.leave(event.playerId);
+	}
+});
 
-export interface GameEliminationEvent {
-	game: Game;
-	player: Player;
-	team: Team;
-}
+export abstract class Game {
+	private static _globalPlayers = new Map<string, Game>(); // key is player id
 
-export interface GameConfig {
-	maxPlayers: number;
-	playersPerTeam: number;
-	playersToStart: number;
-	room: Room;
-	spectatorPos: Vector3;
-	teamCount: number;
-}
-
-export class Game {
-	private static _globalPlayers = new Map<string, Game>();
-
-	public static findPlayer(player: Player): Game | undefined {
-		return Game._globalPlayers.get(player.id);
+	public static findPlayer(playerId: string): Game | undefined {
+		return Game._globalPlayers.get(playerId);
 	}
 
-	private static _games = new Map<string, Game>(); // key is dimensionId
+	public readonly players: Player[];
+	public id: string;
+	public dimension: Dimension;
+	public spawn: TeleportLocation;
+	public hub: Game | null;
+	// Players join this on /hub if not null, otherwise queues main hub
 
-	public static get(dimensionId: string): Game | undefined {
-		return Game._games.get(dimensionId);
-	}
-
-	public readonly room: Room;
-	public readonly teams: Team[];
-
-	public readonly playersToStart: number;
-	public readonly maxPlayers: number;
-	public readonly playersPerTeam: number;
-
-	public spectatorPos: Vector3;
-
-	public secondsRemaining: number;
-	public startTimeSeconds: number;
-	public gameDurationSeconds: number;
-
-	// You should set this.state to GameState.Open when complete
-	public resetGame: ((game: Game) => void) | null;
-
-	public readonly onStart: EventSignal<Game>;
-	public readonly whileActive: EventSignal<Game>;
-	public readonly onElimination: EventSignal<GameEliminationEvent>;
-
-	// You should set this.state to GameState.Resetting when complete
-	public endGame: ((game: Game) => void) | null;
-
-	public players: Player[];
-	public spectators: Player[];
-	private _state: GameState;
-	private _openIntervalId: number | null;
-	private _activeIntervalId: number | null;
-
-	public constructor(config: GameConfig) {
-		Game._games.set(config.room.dimensionId, this);
-		this.room = config.room;
-		this.teams = [];
-		this.playersToStart = config.playersToStart;
-		this.maxPlayers = config.maxPlayers;
-		this.playersPerTeam = config.playersPerTeam;
-		this.spectatorPos = config.spectatorPos;
-		this.secondsRemaining = 0;
-		this.startTimeSeconds = 20;
-		this.gameDurationSeconds = 300; // 5 Minutes
-		this.resetGame = null;
-		this.onStart = new EventSignal<Game>();
-		this.whileActive = new EventSignal<Game>();
-		this.onElimination = new EventSignal<GameEliminationEvent>();
-		this.endGame = null;
+	public constructor(
+		id: string,
+		dimension: Dimension,
+		spawn: TeleportLocation = teleportLocationDefault(),
+	) {
 		this.players = [];
-		this.spectators = [];
-		this._state = GameState.Resetting;
-		this._openIntervalId = null;
-		this._activeIntervalId = null;
-		this.room.beforeJoin.subscribe(this.beforeJoin);
-		this.room.onJoin.subscribe(this.roomOnJoin);
-		this.room.onLeave.subscribe(this.roomOnLeave);
-		let teamsAdded = 0;
-		for (let i = 0; i < Math.min(config.teamCount, teamOrders.length); i++) {
-			const current: TeamOrdersValue | undefined = teamOrders[i];
-			if (current !== undefined) {
-				const team = new Team(current.name, { x: 0.5, y: 0, z: 0.5 }, config.playersPerTeam);
-				team.colorCode = current.colorCode;
-				this.teams.push(team);
-				teamsAdded++;
-			}
+		this.id = id;
+		this.dimension = dimension;
+		this.spawn = spawn;
+		this.hub = null;
+	}
+
+	protected addPlayer(player: Player): boolean {
+		if (this.players.includes(player)) {
+			return false;
 		}
-		if (teamsAdded < config.teamCount) {
-			const remaining: number = config.teamCount - teamsAdded;
-			for (let i = 1; i <= remaining; i++) {
-				this.teams.push(
-					new Team(`Extra-${i}`, { x: 0.5, y: 0, z: 0.5 }, config.playersPerTeam),
-				);
-			}
-		}
-		for (const t of this.teams) {
-			t.onPlayerElimination.subscribe(this.teamEliminationCallback);
+		Game._globalPlayers.set(player.id, this);
+		this.players.push(player);
+		return true;
+	}
+
+	protected removePlayer(playerId: string): void {
+		if (arrRemoveByCallback(this.players, (p) => p.id === playerId) !== undefined) {
+			Game._globalPlayers.delete(playerId);
 		}
 	}
 
-	public get state(): GameState {
-		return this._state;
-	}
+	public abstract canJoin(player: Player): GameJoinResult;
 
-	public set state(newState: GameState) {
-		if (this._openIntervalId !== null) {
-			system.clearRun(this._openIntervalId);
-			this._openIntervalId = null;
-		}
-		if (this._activeIntervalId !== null) {
-			system.clearRun(this._activeIntervalId);
-			this._activeIntervalId = null;
-		}
-		this._state = newState;
-		switch (newState) {
-			case GameState.Resetting: {
-				this.clearPlayers();
-				if (this.resetGame === null) {
-					this._state = GameState.AwaitingPlayers;
-				} else {
-					this.resetGame(this);
-				}
-				break;
-			}
-			case GameState.AwaitingPlayers: {
-				if (this.players.length > 0) {
-					this.whileOpen();
-				}
-				break;
-			}
-			case GameState.Active: {
-				this.startGame();
-				break;
-			}
-			case GameState.Ending: {
-				this.winMessage();
-				if (this.endGame === null) {
-					this.state = GameState.Resetting;
-				} else {
-					this.endGame(this);
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
+	public abstract join(player: Player): GameJoinResult;
 
-	public get teamsRemaining(): number {
-		let remaining = 0;
-		for (const t of this.teams) {
-			if (t.activePlayers.length > 0) {
-				remaining++;
-			}
-		}
-		return remaining;
-	}
+	public abstract leave(playerId: string): void;
 
-	public sendMessage(message: string): void {
-		for (const p of this.players) {
-			p.sendMessage(message);
-		}
-		for (const s of this.spectators) {
-			s.sendMessage(message);
-		}
-	}
-
-	public setActionBar(text: string): void {
-		for (const p of this.players) {
-			p.onScreenDisplay.setActionBar(text);
-		}
-		for (const s of this.spectators) {
-			s.onScreenDisplay.setActionBar(text);
-		}
-	}
-
-	public addSpectator(player: Player, runTeleport = true, sendJoinMessage = true): void {
-		const dimension: Dimension | undefined = this.room.dimension;
-		if (dimension === undefined) {
-			player.sendMessage("§cUnable to join due to invalid dimension");
-			return;
-		}
-		clearEntityEffects(player);
-		clearEntityInventory(player);
-		clearEntityEquippable(player);
-		player.setGameMode(GameMode.Spectator);
-		if (runTeleport) {
-			let pos: Vector3;
-			if (this._state === GameState.AwaitingPlayers) {
-				pos = this.room.spawn.pos;
-			} else {
-				pos = this.spectatorPos;
-			}
-			player.teleport(pos, { dimension: dimension });
-		}
-		if (!this.spectators.includes(player)) {
-			this.spectators.push(player);
-		}
-		if (sendJoinMessage) {
-			this.sendMessage(`${playerDisplayName(player)}§r§7 is spectating`);
-		}
-	}
-
-	public clearPlayers(): void {
-		const hubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
-		for (const t of this.teams) {
-			t.clearPlayers(false);
-		}
-		if (hubRoomType !== undefined) {
-			for (const p of this.players) {
-				hubRoomType.queue(p);
-			}
-			for (const s of this.spectators) {
-				hubRoomType.queue(s);
-			}
-		}
-		this.spectators.length = 0;
-		this.players.length = 0;
-	}
-
-	public info(): string {
-		let info = `
-Game:
-State: §e${gameStateToString(this._state)}§r
-Active Players: §e${this.players.length}/${this.maxPlayers}§r
-Spectators: §e${this.spectators.length}§r`.trimStart();
-		if (this._state === GameState.AwaitingPlayers) {
-			info += `\nPlayers to Start: §e${this.playersToStart}§r`;
-			info += `\nStart Time: §e${this.startTimeSeconds}s§r`;
-		} else {
-			info += `\nGame Duration: §e${this.gameDurationSeconds}s§r`;
-		}
-		if (this._openIntervalId !== null || this._activeIntervalId !== null) {
-			info += `\nTime Remaining: §e${this.secondsRemaining}s§r`;
-		}
-		info += `
-Teams: §e${this.teams.length}§r
-Players Per Team: §e${this.playersPerTeam}§r`;
-		if (this._state === GameState.Active) {
-			info += `\nTeams Remaining: §e${this.teamsRemaining}§r`;
-		}
-		info += `
-
-Interval Ids:
-GameState.Open: §e${this._openIntervalId}§r
-GameState.Active: §e${this._activeIntervalId}§r
-`;
-		return info;
-	}
-
-	private whileOpen(): void {
-		if (this._openIntervalId !== null) {
-			system.clearRun(this._openIntervalId);
-			this._openIntervalId = null;
-		}
-		const playSoundDuring: number[] = [60, 30, 20, 10, 5, 4, 3, 2, 1];
-		if (!playSoundDuring.includes(this.startTimeSeconds)) {
-			playSoundDuring.push(this.startTimeSeconds);
-		}
-		this.secondsRemaining = this.startTimeSeconds;
-		const intervalId: number = system.runInterval(() => {
-			if (this.players.length < this.playersToStart) {
-				this.secondsRemaining = this.startTimeSeconds;
-				const playersNeeded: number = this.playersToStart - this.players.length;
-				this.setActionBar(
-					`Waiting for §l${playersNeeded}§r more player${playersNeeded !== 1 ? "s" : ""}...`,
-				);
-				return;
-			}
-			if (this.secondsRemaining <= 0) {
-				system.clearRun(intervalId);
-				this.state = GameState.Active;
-				return;
-			}
-			this.setActionBar(
-				`Game starting in §l${Math.ceil(this.secondsRemaining)} §rsecond${this.secondsRemaining !== 1 ? "s" : ""}`,
-			);
-			if (playSoundDuring.includes(this.secondsRemaining)) {
-				for (const p of this.players) {
-					p.playSound("random.click");
-				}
-				for (const s of this.spectators) {
-					s.playSound("random.click");
-				}
-			}
-			this.secondsRemaining -= 1;
-		}, 20);
-		this._openIntervalId = intervalId;
-	}
-
-	private startGame(): void {
-		Team.distribute(this.teams, this.players, TeamDistributionMode.InOrder);
-		for (const t of this.teams) {
-			t.spawnPlayers();
-		}
-		for (const p of this.players) {
-			p.removeEffect(MinecraftEffectTypes.Weakness);
-		}
-		system.runTimeout(() => {
-			for (const p of this.players) {
-				p.playSound("random.orb");
-			}
-			for (const s of this.spectators) {
-				s.teleport(this.spectatorPos);
-				s.playSound("random.orb");
-			}
-		}, 1);
-		this.secondsRemaining = this.gameDurationSeconds;
-		this.onStart.triggerEvent(this);
-		if (this._activeIntervalId !== null) {
-			system.clearRun(this._activeIntervalId);
-			this._activeIntervalId = null;
-		}
-		const intervalId: number = system.runInterval(() => {
-			this.secondsRemaining--;
-			if (this.secondsRemaining <= 0) {
-				this.sendMessage("§cGame has run out of time and ended.");
-				this.state = GameState.Ending;
-				system.clearRun(intervalId);
-				this._activeIntervalId = null;
-				return;
-			}
-			this.whileActive.triggerEvent(this);
-		}, 20);
-		this._activeIntervalId = intervalId;
-	}
-
-	private winMessage(): void {
-		for (const t of this.teams) {
-			if (t.activePlayers.length === 0) {
-				continue;
-			}
-			this.sendMessage(`${t.displayName} §awon the game!`);
-			for (const p of t.activePlayers) {
-				p.playSound("random.levelup");
-				p.onScreenDisplay.setTitle("§6VICTORY!");
-			}
-		}
-	}
-
-	// Arrow functions because they seem to maintain context of "this"
-
-	private beforeJoin = (event: RoomBeforeJoinEvent): void => {
-		switch (this._state) {
-			case GameState.Resetting: {
-				event.player.sendMessage("§cUnable to join game: Game is resetting");
-				event.cancel = true;
-				break;
-			}
-			case GameState.Ending: {
-				event.player.sendMessage("§cUnable to join game: Game is ending");
-				event.cancel = true;
-				break;
-			}
-			default:
-				break;
-		}
-	};
-
-	private roomOnJoin = (event: RoomTransferEvent): void => {
-		if (this._state !== GameState.AwaitingPlayers || this.players.length >= this.maxPlayers) {
-			this.addSpectator(event.player);
-			return;
-		}
-		if (!this.players.includes(event.player)) {
-			this.players.push(event.player);
-		}
-		if (this.players.length === 1) {
-			this.whileOpen();
-		}
-		hubEffectHelper(event.player);
-		event.player.setGameMode(GameMode.Adventure);
-		clearEntityEquippable(event.player);
-		const inventory: EntityInventoryComponent | undefined = event.player.getComponent(
-			EntityComponentTypes.Inventory,
-		);
-		if (inventory !== undefined) {
-			inventory.container.clearAll();
-			inventory.container.setItem(8, itemLeaveGame());
-			if (event.player.playerPermissionLevel === PlayerPermissionLevel.Operator) {
-				inventory.container.setItem(0, itemSettings());
-			}
-		}
-		this.sendMessage(
-			`${playerDisplayName(event.player)}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`,
-		);
-	};
-
-	private roomOnLeave = (event: RoomTransferEvent): void => {
-		arrRemoveSwap(this.players, event.player);
-		arrRemoveSwap(this.spectators, event.player);
-		const team: Team | null = Team.findPlayer(event.player);
-		if (team !== null) {
-			team.remove(evenPlayerEliminationEvente === GameState.Active);
-		}
-		const leaveMessage: string = `${playerDisplayName(event.player)}§r§7 left the game`;
-		if (this._state !== GameState.AwaitingPlayers) {
-			this.sendMessage(leaveMessage);
-			return;
-		}
-		if (this.players.length === 0 && this._openIntervalId !== null) {
-			system.clearRun(this._openIntervalId);
-			this._openIntervalId = null;
-		} else {
-			this.sendMessage(`${leaveMessage} §8[${this.players.length}/${this.maxPlayers}]`);
-		}
-	};
-
-	private teamEliminationCallback = (event: TeamEliminationEvent): void => {
-		if (event.player.isValid) {
-			event.player.onScreenDisplay.setTitle("§cDEFEAT!");
-			if (this.players.includes(event.player)) {
-				arrRemoveSwap(this.players, event.player);
-				this.addSpectator(event.player, false, false);
-			}
-		}
-		this.onElimination.triggerEvent({ game: this, player: event.player, team: event.team });
-		if (this.teamsRemaining <= 1) {
-			this.state = GameState.Ending;
-		}
-	};
+	public abstract reset(): void;
 }

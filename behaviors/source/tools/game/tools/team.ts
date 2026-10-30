@@ -6,9 +6,14 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { DEFAULT_CHATNAME_PREFIX } from "../constants";
-import { deathLocationTracker } from "../managers/trackers";
-import { arrRemoveSwap, EventSignal, type TeleportLocation } from "../types";
+import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
+import { deathLocationTracker } from "../../helpers/deathLocationTracker";
+import {
+	arrRemoveByCallback,
+	arrRemoveSwap,
+	EventSignal,
+	type TeleportLocation,
+} from "../../types";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {
@@ -46,27 +51,25 @@ export class Team {
 	}
 
 	public join(player: Player): boolean {
-		if (this.activePlayers.length >= this.maxPlayers) {
+		if (this.activePlayers.length >= this.maxPlayers || this.activePlayers.includes(player)) {
 			return false;
 		}
-		if (!this.activePlayers.includes(player)) {
-			this.activePlayers.push(player);
-		}
+		this.activePlayers.push(player);
 		player.nameTag = `${this.colorCode}${player.name}§r`;
 		player.chatNamePrefix = this.colorCode;
 		player.sendMessage(`§7Joined team: ${this.displayName}`);
 		return true;
 	}
 
-	public leave(player: Player): boolean {
-		if (arrRemoveSwap(this.activePlayers, player)) {
-			if (player.isValid) {
-				resetPlayerName(player);
-			}
-			return true;
-		} else {
-			return false;
+	public leave(playerId: string): boolean {
+		const removedPlayer: Player | undefined = arrRemoveByCallback(
+			this.activePlayers,
+			(p) => p.id === playerId,
+		);
+		if (removedPlayer?.isValid) {
+			resetPlayerName(removedPlayer);
 		}
+		return removedPlayer !== undefined;
 	}
 
 	public reset(): void {
@@ -88,7 +91,7 @@ export class EliminatableTeam extends Team {
 	public onPlayerElimination: EventSignal<PlayerEliminationEvent>;
 	public onTeamElimination: EventSignal<EliminatableTeam>;
 	public eliminatedPlayers: Player[];
-	private _respawnIntervalIds: Map<Player, number>;
+	private _respawnIntervalIds: Map<string, number>; // key is playerId
 
 	public constructor(name: string, spawnPoint: Vector3, maxPlayers: number) {
 		super(name, maxPlayers);
@@ -110,7 +113,7 @@ export class EliminatableTeam extends Team {
 		this.onTeamElimination = new EventSignal<EliminatableTeam>();
 		this.activePlayers = [];
 		this.eliminatedPlayers = [];
-		this._respawnIntervalIds = new Map<Player, number>();
+		this._respawnIntervalIds = new Map<string, number>();
 	}
 
 	public override join(player: Player): boolean {
@@ -126,20 +129,34 @@ export class EliminatableTeam extends Team {
 		return true;
 	}
 
-	public override leave(player: Player): boolean {
-		this.clearRespawnInterval(player);
-		if (arrRemoveSwap(this.activePlayers, player)) {
-			this.onPlayerElimination.triggerEvent({ player: player, team: this });
+	public override leave(playerId: string): boolean {
+		this.clearRespawnInterval(playerId);
+		let removedPlayer: Player | undefined = arrRemoveByCallback(
+			this.activePlayers,
+			(p) => p.id === playerId,
+		);
+		if (removedPlayer !== undefined) {
+			this.onPlayerElimination.triggerEvent({ player: removedPlayer, team: this });
 			if (this.activePlayers.length === 0) {
 				this.onTeamElimination.triggerEvent(this);
 			}
+			if (removedPlayer.isValid) {
+				resetPlayerName(removedPlayer);
+			}
 			return true;
 		}
-		return arrRemoveSwap(this.eliminatedPlayers, player);
+		removedPlayer = arrRemoveByCallback(this.eliminatedPlayers, (p) => p.id === playerId);
+		if (removedPlayer !== undefined) {
+			if (removedPlayer.isValid) {
+				resetPlayerName(removedPlayer);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public eliminate(player: Player): void {
-		this.clearRespawnInterval(player);
+		this.clearRespawnInterval(player.id);
 		if (!arrRemoveSwap(this.activePlayers, player) || this.eliminatedPlayers.includes(player)) {
 			return;
 		}
@@ -167,7 +184,7 @@ export class EliminatableTeam extends Team {
 	}
 
 	public respawn(player: Player): void {
-		if (this._respawnIntervalIds.has(player) || this.activePlayers.indexOf(player) === -1) {
+		if (this._respawnIntervalIds.has(player.id) || this.activePlayers.indexOf(player) === -1) {
 			return;
 		}
 		if (!player.isValid) {
@@ -201,7 +218,7 @@ export class EliminatableTeam extends Team {
 					this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 				}
 				system.clearRun(intervalId);
-				this._respawnIntervalIds.delete(player);
+				this._respawnIntervalIds.delete(player.id);
 				return;
 			}
 			if (player.isValid) {
@@ -212,14 +229,14 @@ export class EliminatableTeam extends Team {
 			}
 			ticksRemaining--;
 		});
-		this._respawnIntervalIds.set(player, intervalId);
+		this._respawnIntervalIds.set(player.id, intervalId);
 	}
 
-	private clearRespawnInterval(player: Player): void {
-		const id: number | undefined = this._respawnIntervalIds.get(player);
+	private clearRespawnInterval(playerId: string): void {
+		const id: number | undefined = this._respawnIntervalIds.get(playerId);
 		if (id !== undefined) {
 			system.clearRun(id);
-			this._respawnIntervalIds.delete(player);
+			this._respawnIntervalIds.delete(playerId);
 		}
 	}
 }

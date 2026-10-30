@@ -9,12 +9,12 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
-import { PACK_NAMESPACE, roomTypeIds } from "../../tools/constants";
+import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
+import type { KillTrackerSettings } from "../../tools/helpers/deathLocationTracker";
 import { clearEntityEquippable } from "../../tools/helpers/entityComponents";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/helpers/textFormatting";
-import type { KillTrackerSettings } from "../../tools/managers/trackers";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
 import { GameState, QueueMode, type TeleportLocation } from "../../tools/types";
@@ -113,8 +113,8 @@ new RoomType({
 	defaultDimensionId: `${PACK_NAMESPACE}:duels`,
 	displayName: "Duels",
 	icon: "textures/items/iron_sword.png",
-	queueMode: QueueMode.GameRandom,
+	queueMode: QueueMode.RandomWhenNoPlayersWaiting,
 	roomCount: 3,
 	roomCreatorFunc: creator,
-	typeId: roomTypeIds.duels,
+	typeId: gameIds.duels,
 });

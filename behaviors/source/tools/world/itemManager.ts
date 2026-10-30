@@ -98,8 +98,8 @@ export class ItemCooldownManager {
 		}
 	}
 
-	public removePlayer(player: Player): void {
-		this._players.delete(player.id);
+	public removePlayer(playerId: string): void {
+		this._players.delete(playerId);
 	}
 
 	private sendCooldownMessage(player: Player, itemNameTag: string, delayTicks: number): void {

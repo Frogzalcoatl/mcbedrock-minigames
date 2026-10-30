@@ -1,5 +1,5 @@
 import { type Dimension, GameMode, type Player } from "@minecraft/server";
-import { arrRemoveSwap, type TeleportLocation } from "../types";
+import { arrRemoveByCallback, type TeleportLocation } from "../../types";
 
 export class SpectatorManager {
 	public readonly players: Player[];
@@ -18,7 +18,7 @@ export class SpectatorManager {
 		this.dimension = dimension;
 	}
 
-	public add(player: Player): void {
+	public addPlayer(player: Player): void {
 		player.setGameMode(GameMode.Spectator);
 		player.teleport(this.spawn.pos, {
 			dimension: this.dimension,
@@ -29,7 +29,7 @@ export class SpectatorManager {
 		}
 	}
 
-	public remove(player: Player): void {
-		arrRemoveSwap(this.players, player);
+	public removePlayer(playerId: string): void {
+		arrRemoveByCallback(this.players, (p) => p.id === playerId);
 	}
 }

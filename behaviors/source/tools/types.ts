@@ -12,9 +12,16 @@ export function teleportLocationToString(spawn: TeleportLocation): string {
 	return `${spawn.pos.x} ${spawn.pos.y} ${spawn.pos.z} (Facing ${spawn.facing.x} ${spawn.facing.y} ${spawn.facing.z})`;
 }
 
+export function teleportLocationDefault(): TeleportLocation {
+	return {
+		facing: { x: 0.5, y: 0, z: 0.5 },
+		pos: { x: 0.5, y: 0, z: 0.5 },
+	};
+}
+
 export const GameState = {
 	Resetting: 0,
-	Queuing: 1,
+	Open: 1,
 	Full: 2,
 	Active: 3,
 	Ending: 4,
@@ -25,14 +32,34 @@ export function gameStateToString(state: GameState): string {
 	switch (state) {
 		case GameState.Resetting:
 			return "Resetting";
-		case GameState.Queuing:
-			return "Queuing";
+		case GameState.Open:
+			return "Open";
 		case GameState.Full:
 			return "Full";
 		case GameState.Active:
 			return "Active";
 		case GameState.Ending:
 			return "Ending";
+		default:
+			return "Unknown";
+	}
+}
+
+export const WaitingRoomState = {
+	Closed: 0,
+	Open: 1,
+	Full: 2,
+};
+export type WaitingRoomState = (typeof WaitingRoomState)[keyof typeof WaitingRoomState];
+
+export function waitingRoomStateToString(state: WaitingRoomState): string {
+	switch (state) {
+		case WaitingRoomState.Closed:
+			return "Closed";
+		case WaitingRoomState.Open:
+			return "Open";
+		case WaitingRoomState.Full:
+			return "Full";
 		default:
 			return "Unknown";
 	}
@@ -45,13 +72,19 @@ export const TeamDistributionMode = {
 export type TeamDistributionMode = (typeof TeamDistributionMode)[keyof typeof TeamDistributionMode];
 
 export const QueueMode = {
-	Form: 0,
-	InOrder: 1,
-	Random: 2, // Doesnt check game states at all
-	GameInOrder: 3,
-	GameRandom: 4, // Is random when there are no games with players, awaiting more players
+	ShowForm: 0,
+	FirstOpenGame: 1,
+	FullyRandom: 2,
+	FindGameWithPlayersWaiting: 3,
 } as const;
 export type QueueMode = (typeof QueueMode)[keyof typeof QueueMode];
+
+export const GameJoinResult = {
+	Success: 0,
+	Failure: 1,
+	Spectator: 2,
+};
+export type GameJoinResult = (typeof GameJoinResult)[keyof typeof GameJoinResult];
 
 export class EventSignal<T> {
 	private _callbacks: ((event: T) => void)[];
@@ -96,4 +129,24 @@ export function arrRemoveSwap<T>(arr: T[], val: T): boolean {
 		arr.pop();
 	}
 	return true;
+}
+
+// Removes first index at which callback returns true
+// Returns removed value or undefined if no value was removed
+export function arrRemoveByCallback<T>(arr: T[], callback: (current: T) => boolean): T | undefined {
+	for (let i = 0; i < arr.length; i++) {
+		const current: T | undefined = arr[i];
+		if (current === undefined) {
+			continue;
+		}
+		if (callback(current)) {
+			const lastValue: T | undefined = arr[arr.length - 1];
+			if (lastValue !== undefined) {
+				arr[i] = lastValue;
+				arr.pop();
+			}
+			return current;
+		}
+	}
+	return undefined;
 }

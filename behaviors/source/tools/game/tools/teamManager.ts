@@ -1,5 +1,5 @@
 import { type Player, system } from "@minecraft/server";
-import { EventSignal, TeamDistributionMode } from "../types";
+import { EventSignal, TeamDistributionMode } from "../../types";
 import { EliminatableTeam, type PlayerEliminationEvent, Team } from "./team";
 
 interface TeamOrdersValue {

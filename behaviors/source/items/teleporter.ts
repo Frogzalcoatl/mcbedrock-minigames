@@ -5,18 +5,17 @@ import {
 	type PlayerSwingStartAfterEvent,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { showFormTeleporter } from "../forms/teleporter";
 import { tools } from "../tools";
 
 const typeId: string = MinecraftItemTypes.Compass;
 const nameTag: string = "§r§dTeleporter §7(Use)";
 
 tools.items.onUse(nameTag, typeId, (event: ItemUseAfterEvent): void => {
-	showFormTeleporter(event.source);
+	tools.games.form(event.source);
 });
 
 tools.items.onSwing(nameTag, typeId, (event: PlayerSwingStartAfterEvent): void => {
-	showFormTeleporter(event.player);
+	tools.games.form(event.player);
 });
 
 export function itemTeleporter(): ItemStack {

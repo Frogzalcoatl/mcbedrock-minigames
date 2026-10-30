@@ -1,18 +1,18 @@
 import { type Player, system } from "@minecraft/server";
-import { playerNameTracker } from "../managers/trackers";
-import { EventSignal } from "../types";
+import { playerNameTracker } from "../../helpers/playerNameTracker";
+import { arrRemoveByCallback, EventSignal, WaitingRoomState } from "../../types";
 
 export class WaitingRoom {
 	public readonly players: Player[];
 
-	// Amonunt of players required to start the countdown
+	// Amount of players required to start the countdown
 	public playersToStart: number;
 
 	// Minimum amount of players required to start the game.
 	// Should be less than or equal to playersToStart
 	public minPlayers: number;
 
-	// Maximum amount of players required to start the game
+	// Maximum amount of players allowed
 	public maxPlayers: number;
 
 	// Length of countdown
@@ -26,6 +26,9 @@ export class WaitingRoom {
 
 	// 1 second runInterval for countdown
 	private _intervalId: number | null;
+
+	// self explanatory
+	private _state: WaitingRoomState;
 
 	public constructor(
 		playersToStart: number,
@@ -41,6 +44,11 @@ export class WaitingRoom {
 		this.secondsRemaining = startTimeSeconds;
 		this.onStart = new EventSignal<Player[]>();
 		this._intervalId = null;
+		this._state = WaitingRoomState.Open;
+	}
+
+	public get state(): WaitingRoomState {
+		return this._state;
 	}
 
 	private startInterval(): void {
@@ -88,9 +96,15 @@ export class WaitingRoom {
 		}
 	}
 
-	public join(player: Player): void {
+	public addPlayer(player: Player): boolean {
+		if (this._state !== WaitingRoomState.Open) {
+			let message = `§cWaiting room is `;
+			message += this._state === WaitingRoomState.Closed ? "closed" : "full";
+			player.sendMessage(message);
+			return false;
+		}
 		if (this.players.includes(player)) {
-			return;
+			return false;
 		}
 		this.players.push(player);
 		if (this._intervalId === null) {
@@ -100,19 +114,11 @@ export class WaitingRoom {
 		for (const p of this.players) {
 			p.sendMessage(message);
 		}
+		return true;
 	}
 
-	public leave(playerId: string): void {
-		const index: number = this.players.findIndex((p) => p.id === playerId);
-		if (index === -1) {
-			return;
-		}
-		const lastPlayer: Player | undefined = this.players[this.players.length - 1];
-		if (lastPlayer === undefined) {
-			return;
-		}
-		this.players[index] = lastPlayer;
-		this.players.pop();
+	public removePlayer(playerId: string): void {
+		arrRemoveByCallback(this.players, (p) => p.id === playerId);
 		if (this.players.length === 0 && this._intervalId !== null) {
 			system.clearRun(this._intervalId);
 			this._intervalId = null;

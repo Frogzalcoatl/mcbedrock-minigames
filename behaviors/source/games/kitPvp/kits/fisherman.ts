@@ -2,17 +2,17 @@ import { type Entity, ItemLockMode, ItemStack, Player } from "@minecraft/server"
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { itemPufferfishProjectile } from "../../../items/kitPvp/pufferfishProjectile";
 import {
-	applyEnchant,
-	giveItemToEntity,
-	setDurability,
-} from "../../../tools/helpers/entityComponents";
-import {
 	type Kit,
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/managers/kits";
+} from "../../../tools/game/kits";
+import {
+	applyEnchant,
+	giveItemToEntity,
+	setDurability,
+} from "../../../tools/helpers/entityComponents";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const pufferFish: ItemStack = itemPufferfishProjectile();

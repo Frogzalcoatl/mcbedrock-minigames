@@ -8,9 +8,9 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { PACK_NAMESPACE, roomTypeIds } from "../tools/constants";
+import { gameIds, PACK_NAMESPACE } from "../tools/constants";
+import type { LocalHub } from "../tools/game/tools/localHub";
 import { getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
-import type { LocalHub } from "../tools/room/localHub";
 import { Room } from "../tools/room/room";
 import { RoomType } from "../tools/room/roomType";
 
@@ -38,7 +38,7 @@ export function registerCommandHub(registry: CustomCommandRegistry): void {
 				});
 				return;
 			}
-			const mainHubRoomType: RoomType | undefined = RoomType.get(roomTypeIds.hub);
+			const mainHubRoomType: RoomType | undefined = RoomType.get(gameIds.mainHub);
 			if (mainHubRoomType === undefined) {
 				return {
 					message: "No valid hubs found",

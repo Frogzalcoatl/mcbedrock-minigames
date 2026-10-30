@@ -12,7 +12,7 @@ import {
 	MinecraftEntityTypes,
 	MinecraftItemTypes,
 } from "@minecraft/vanilla-data";
-import { playerDisplayName } from "./helpers/textFormatting";
+import { playerDisplayName } from "./textFormatting";
 
 const chatTimestamps = new Map<string, number>();
 const chatCooldownMs: number = 500;

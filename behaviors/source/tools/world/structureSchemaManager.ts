@@ -5,7 +5,8 @@ const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBl
 const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
 
 // [structureId, relativeX, relativeY, relativeZ]
-// structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/ (.mcstructure not included)
+// structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/
+// (.mcstructure file extension not included)
 type JsonStructureEntry = [string, number, number, number];
 export type StructureSchema = JsonStructureEntry[];
 

@@ -1,5 +1,8 @@
 # Minigames
 
+This project is currently a jumbled mess as I am midway through completely refactoring how everything works. 
+To avoid burnout I am going to take a break from this project and work on something else.
+
 A collection of Minecraft Bedrock Edition minigames that can be played concurrently.
 Each minigame instance is split into its own custom dimension.
 
