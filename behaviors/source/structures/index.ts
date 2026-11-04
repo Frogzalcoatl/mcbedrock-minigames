@@ -1,5 +1,4 @@
-import { tools } from "../tools";
-import { structureSchemaManager } from "../tools/structures";
+import { structureSchemaManager } from "../tools";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
 	type: "json",

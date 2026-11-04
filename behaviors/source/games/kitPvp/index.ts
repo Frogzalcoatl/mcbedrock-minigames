@@ -29,7 +29,7 @@ import {
 	hubEffectHelper,
 } from "../../tools/helpers/entityComponents";
 import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
-import { structureSchemaManager } from "../../tools/structures";
+import { structureSchemaManager } from "../../tools/structureSchemas";
 import {
 	GameJoinResult,
 	QueueMode,

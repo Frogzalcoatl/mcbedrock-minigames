@@ -1,12 +1,10 @@
 import {
 	type ChatSendBeforeEvent,
-	type EntityDieAfterEvent,
 	GameMode,
 	type ItemCompleteUseAfterEvent,
 	type PlayerLeaveAfterEvent,
 	world,
 } from "@minecraft/server";
-import { SimulatedPlayer } from "@minecraft/server-gametest";
 import {
 	MinecraftEffectTypes,
 	MinecraftEntityTypes,
@@ -44,12 +42,6 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 world.afterEvents.projectileHitBlock.subscribe((event) => {
 	if (event.projectile.isValid && event.projectile.typeId === MinecraftEntityTypes.Arrow) {
 		event.projectile.remove();
-	}
-});
-
-world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
-	if (event.deadEntity instanceof SimulatedPlayer) {
-		event.deadEntity.respawn();
 	}
 });
 

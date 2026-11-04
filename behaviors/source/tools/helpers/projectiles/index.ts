@@ -1,2 +1,2 @@
-import "./iceBomb";
-import "./pufferfish";
+import "../../../items/projectiles/iceBomb";
+import "../../../items/projectiles/pufferfish";

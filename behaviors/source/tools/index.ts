@@ -1,9 +1,12 @@
 import "./helpers/index";
 
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import { PACK_NAMESPACE } from "./constants";
 import { GameManager } from "./game/gameManager";
 import { ProjectileTracker } from "./game/tools/projectileTracker";
-import type { StructureSchemaManager } from "./structures/structureSchemaManager";
+import { registerSimulatedPlayers } from "./simulatedPlayers";
+import { registerStructureCommands } from "./structureSchemas/comands";
+import { StructureSchemaManager } from "./structureSchemas/structureSchemaManager";
 import { ItemManager } from "./world/itemManager";
 import { KitManager } from "./world/kitManager";
 import { TickingAreaQueue } from "./world/tickingAreaQueue";
@@ -13,7 +16,6 @@ export interface MinigamesTools {
 	readonly items: ItemManager;
 	readonly kitManager: KitManager;
 	readonly projectileTracker: ProjectileTracker;
-	readonly structures: StructureSchemaManager;
 	readonly tickingAreaQueue: TickingAreaQueue;
 }
 
@@ -27,3 +29,11 @@ export const tools: MinigamesTools = {
 };
 
 tools.items.init();
+
+registerSimulatedPlayers({
+	autoRespawn: true,
+	namespace: PACK_NAMESPACE,
+});
+
+export const structureSchemaManager = new StructureSchemaManager(PACK_NAMESPACE);
+registerStructureCommands(structureSchemaManager);

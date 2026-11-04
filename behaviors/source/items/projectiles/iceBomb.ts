@@ -1,7 +1,6 @@
 import { type Dimension, type Entity, type Vector3, world } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { ICE_BOMB_ID } from "../constants";
-import { spreadParticles } from "../helpers/particles";
+import { spreadParticles } from "../../tools/shared/particles";
 
 function iceBomb(dimension: Dimension, at: Vector3, source: Entity | undefined): void {
 	const hitEntities: Entity[] = dimension.getEntities({ location: at, maxDistance: 5 });
@@ -17,13 +16,13 @@ function iceBomb(dimension: Dimension, at: Vector3, source: Entity | undefined):
 }
 
 world.afterEvents.projectileHitBlock.subscribe((event) => {
-	if (event.projectile.typeId === ICE_BOMB_ID) {
+	if (event.projectile.typeId === "minecraft:ice_bomb") {
 		iceBomb(event.dimension, event.location, event.source);
 	}
 });
 
 world.afterEvents.projectileHitEntity.subscribe((event) => {
-	if (event.projectile.typeId === ICE_BOMB_ID) {
+	if (event.projectile.typeId === "minecraft:ice_bomb") {
 		iceBomb(event.dimension, event.location, event.source);
 	}
 });

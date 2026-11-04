@@ -10,8 +10,8 @@ import {
 } from "@minecraft/server";
 import { showFormTeleporter } from "../forms/teleporter";
 import { PACK_NAMESPACE } from "../tools/constants";
-import { getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
 import { RoomType } from "../tools/room/roomType";
+import { getPlayerFromOrigin } from "../tools/shared/commandOrigin";
 import { commandEnums } from "./enums";
 
 export function registerCommandQ(registry: CustomCommandRegistry): void {

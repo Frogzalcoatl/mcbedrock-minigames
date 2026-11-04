@@ -12,8 +12,8 @@ import {
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/helpers/entityComponents";
-import { beamParticles } from "../../tools/helpers/particles";
 import { beamFrom } from "../../tools/projectiles/beam";
+import { beamParticles } from "../../tools/shared/particles";
 
 const typeId: string = MinecraftItemTypes.EndRod;
 const nameTag: string = "§r§bLightning§7 (Use)";

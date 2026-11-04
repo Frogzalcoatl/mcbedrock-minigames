@@ -10,9 +10,9 @@ import {
 } from "@minecraft/server";
 import { gameIds, PACK_NAMESPACE } from "../tools/constants";
 import type { LocalHub } from "../tools/game/tools/localHub";
-import { getPlayerFromOrigin } from "../tools/helpers/commandOrigin";
 import { Room } from "../tools/room/room";
 import { RoomType } from "../tools/room/roomType";
+import { getPlayerFromOrigin } from "../tools/shared/commandOrigin";
 
 export function registerCommandHub(registry: CustomCommandRegistry): void {
 	registry.registerCommand(

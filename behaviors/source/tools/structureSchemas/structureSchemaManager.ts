@@ -1,13 +1,7 @@
 import { type Dimension, StructureAnimationMode, type Vector3, world } from "@minecraft/server";
-import { PACK_NAMESPACE } from "../constants";
 
-const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/normal`;
-const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
-
-interface StructureSchemaManagerEnums {
-	readonly animationMode: string;
-	readonly structureIds: string;
-}
+const BLOCK_NORMAL = "frogzalcoatl:structure_block/normal";
+const BLOCK_FLAT = "frogzalcoatl:structure_block/flat";
 
 // [structureId, relativeX, relativeY, relativeZ]
 // structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/
@@ -16,17 +10,14 @@ type JsonStructureEntry = [string, number, number, number];
 export type StructureSchema = JsonStructureEntry[];
 
 export class StructureSchemaManager {
-	private readonly _schemas: Map<string, StructureSchema>;
+	public readonly namespace: string;
 	public readonly ids: Set<string>;
-	public readonly enums: StructureSchemaManagerEnums;
+	private readonly _schemas: Map<string, StructureSchema>;
 
-	public constructor(packNamespace: string) {
+	public constructor(namespace: string) {
 		this._schemas = new Map<string, StructureSchema>();
 		this.ids = new Set<string>();
-		this.enums = {
-			animationMode: `${packNamespace}:ssm_animation_mode`,
-			structureIds: `${packNamespace}:ssm_structure_ids`,
-		};
+		this.namespace = namespace;
 	}
 
 	public addSchemas(schemas: [string, unknown][]): void {
@@ -56,7 +47,7 @@ export class StructureSchemaManager {
 	): void {
 		const schema: StructureSchema | undefined = this._schemas.get(id);
 		if (schema === undefined) {
-			world.structureManager.place(`${PACK_NAMESPACE}:${id}`, dimension, location, {
+			world.structureManager.place(`${this.namespace}:${id}`, dimension, location, {
 				animationMode: animationMode,
 				animationSeconds: animationSeconds,
 			});
@@ -68,7 +59,7 @@ export class StructureSchemaManager {
 				y: location.y + entry[2],
 				z: location.z + entry[3],
 			};
-			world.structureManager.place(`${PACK_NAMESPACE}:${entry[0]}`, dimension, absLocation, {
+			world.structureManager.place(`${this.namespace}:${entry[0]}`, dimension, absLocation, {
 				animationMode: animationMode,
 				animationSeconds: animationSeconds,
 			});
@@ -76,33 +67,18 @@ export class StructureSchemaManager {
 	}
 
 	public placeStructureBlocks(from: Vector3, to: Vector3, dimension: Dimension): void {
-		let temp = 0;
-		if (from.x > to.x) {
-			temp = from.x;
-			from.x = to.x;
-			to.x = temp;
-		}
-		if (from.y > to.y) {
-			temp = from.y;
-			from.y = to.y;
-			to.y = temp;
-		}
-		if (from.z > to.z) {
-			temp = from.z;
-			from.z = to.z;
-			to.z = temp;
-		}
-		let structureBlockY = 0;
-		let structureBlockId = "";
-		if (from.y === dimension.heightRange.min) {
-			structureBlockId = structureBlockFlat;
-			structureBlockY = dimension.heightRange.min;
-		} else {
-			structureBlockId = structureBlockNormal;
-			structureBlockY = from.y - 1;
-		}
-		for (let x: number = from.x - 1; x < to.x; x += 64) {
-			for (let z: number = from.z - 1; z < to.z; z += 64) {
+		const minX = Math.min(from.x, to.x);
+		const maxX = Math.max(from.x, to.x);
+		const minY = Math.min(from.y, to.y);
+		const minZ = Math.min(from.z, to.z);
+		const maxZ = Math.max(from.z, to.z);
+
+		const isAtWorldMin: boolean = minY === dimension.heightRange.min;
+		const structureBlockId = isAtWorldMin ? BLOCK_FLAT : BLOCK_NORMAL;
+		const structureBlockY = isAtWorldMin ? dimension.heightRange.min : minY - 1;
+
+		for (let x: number = minX - 1; x < maxX; x += 64) {
+			for (let z: number = minZ - 1; z < maxZ; z += 64) {
 				const location: Vector3 = {
 					x: x,
 					y: structureBlockY,
@@ -119,10 +95,10 @@ export class StructureSchemaManager {
 		if (at.y < dimension.heightRange.min || at.y > dimension.heightRange.max) {
 			return;
 		} else if (at.y === dimension.heightRange.min) {
-			structureBlockId = structureBlockFlat;
+			structureBlockId = BLOCK_FLAT;
 			structureBlockY = dimension.heightRange.min;
 		} else {
-			structureBlockId = structureBlockNormal;
+			structureBlockId = BLOCK_NORMAL;
 			structureBlockY = at.y - 1;
 		}
 		const schema: StructureSchema | undefined = this._schemas.get(id);

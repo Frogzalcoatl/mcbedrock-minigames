@@ -12,12 +12,11 @@ import {
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
 import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
-import { tools } from "../../tools";
+import { structureSchemaManager, tools } from "../../tools";
 import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/helpers/entityComponents";
-import { structureSchemaManager } from "../../tools/structures";
 import {
 	GameJoinResult,
 	QueueMode,
