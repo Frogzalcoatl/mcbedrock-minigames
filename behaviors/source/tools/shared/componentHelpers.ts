@@ -20,7 +20,8 @@ import {
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
-import { MAX_EFFECT_DURATION } from "../constants";
+
+export const MAX_EFFECT_DURATION: number = 2e7;
 
 export function removeItem(container: Container, item: ItemStack, amount: number): void {
 	const itemIndex = container.find(item);

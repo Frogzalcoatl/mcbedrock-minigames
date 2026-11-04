@@ -1,6 +1,6 @@
 import type { BlockRaycastHit, Entity, EntityRaycastHit, Vector3 } from "@minecraft/server";
 
-export function beamFrom(
+export function beamFromEntity(
 	entity: Entity,
 	maxDistance: number,
 	onHit: (from: Entity, hitLocation: Vector3, hitEntity?: Entity) => void,

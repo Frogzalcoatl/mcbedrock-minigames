@@ -1,4 +1,6 @@
-import { structureSchemaManager } from "../tools";
+import { PACK_NAMESPACE } from "../tools/constants";
+import { registerStructureCommands } from "../tools/done/structureSchemas/comands";
+import { StructureSchemaManager } from "../tools/done/structureSchemas/manager";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
 	type: "json",
@@ -19,6 +21,9 @@ import ghostlyKitPvp from "./json/ghostly/kitPvp.json" with { type: "json" };
 import ghostlyShop from "./json/ghostly/shop.json" with { type: "json" };
 import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
+
+// biome-ignore lint/style/useExportsLast: need to add schemas and register commands below
+export const structureSchemaManager = new StructureSchemaManager(PACK_NAMESPACE);
 
 structureSchemaManager.addSchemas([
 	["ghostly/spawn", ghostlySpawn],
@@ -56,3 +61,5 @@ structureSchemaManager.addIds(
 	"frogzalcoatl/bedwars/template/diamonds",
 	"frogzalcoatl/bedwars/template/mid",
 );
+
+registerStructureCommands(structureSchemaManager);
