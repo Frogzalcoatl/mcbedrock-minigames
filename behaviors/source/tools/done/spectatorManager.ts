@@ -1,5 +1,6 @@
 import { type Dimension, GameMode, type Player } from "@minecraft/server";
-import { arrRemoveByCallback, type TeleportLocation } from "../../types";
+import { arrRemoveByCallback } from "../shared/arrayHelpers";
+import type { TeleportLocation } from "../shared/locationHelpers";
 
 export class SpectatorManager {
 	public readonly players: Player[];

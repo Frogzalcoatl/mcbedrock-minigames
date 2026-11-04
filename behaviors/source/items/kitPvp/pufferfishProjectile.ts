@@ -1,8 +1,8 @@
 import { GameMode, type ItemStack, type ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/helpers/entityComponents";
 import { pufferfishProjectile } from "../../tools/projectiles/pufferfish";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/shared/componentHelpers";
 
 const typeId: string = MinecraftItemTypes.Pufferfish;
 const nameTag: string = "§r§aPufferfish§7 (Use)";

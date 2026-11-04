@@ -16,7 +16,7 @@ import {
 	getLocationFromOrigin,
 	getPlayerFromOrigin,
 } from "../shared/commandOrigin";
-import type { StructureSchemaManager } from "./structureSchemaManager";
+import type { StructureSchemaManager } from "./manager";
 
 export function registerStructureCommands(schemaManager: StructureSchemaManager): void {
 	system.beforeEvents.startup.subscribe((event: StartupEvent): void => {

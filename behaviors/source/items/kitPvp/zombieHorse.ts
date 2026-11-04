@@ -9,7 +9,7 @@ import {
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { spawnTemporaryMount } from "../../tools/helpers/actions";
-import { defaultItemStackFunc } from "../../tools/helpers/entityComponents";
+import { defaultItemStackFunc } from "../../tools/shared/componentHelpers";
 
 const typeId: string = MinecraftItemTypes.ZombieHorseSpawnEgg;
 const nameTag: string = "§r§dZombie Horse §7(Use)";

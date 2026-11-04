@@ -1,7 +1,6 @@
 import {
 	type Entity,
 	EntityComponentTypes,
-	type EntityDieAfterEvent,
 	type EntityEquippableComponent,
 	type EntityInventoryComponent,
 	EquipmentSlot,
@@ -10,8 +9,8 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { applyEnchant, setDurability } from "../helpers/entityComponents";
-import { safeActionFormShow } from "../helpers/safeFormShow";
+import { applyEnchant, setDurability } from "../shared/componentHelpers";
+import { safeActionFormShow } from "../shared/safeFormShow";
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -82,17 +81,17 @@ export class KitManager {
 		}
 	}
 
-	public entityDie(event: EntityDieAfterEvent): void {
-		if (event.deadEntity.isValid) {
-			const kit: Kit | undefined = this._entityKits.get(event.deadEntity.id);
+	public handleDeath(deadEntity: Entity, killer?: Entity): void {
+		if (deadEntity.isValid) {
+			const kit: Kit | undefined = this._entityKits.get(deadEntity.id);
 			if (kit?.onDeath) {
-				kit.onDeath(event.deadEntity, event.damageSource.damagingEntity);
+				kit.onDeath(deadEntity, killer);
 			}
 		}
-		if (event.damageSource.damagingEntity?.isValid) {
-			const kit: Kit | undefined = this._entityKits.get(event.damageSource.damagingEntity.id);
+		if (killer?.isValid) {
+			const kit: Kit | undefined = this._entityKits.get(killer.id);
 			if (kit?.onKill) {
-				kit.onKill(event.damageSource.damagingEntity, event.deadEntity);
+				kit.onKill(killer, deadEntity);
 			}
 		}
 	}

@@ -1,6 +1,28 @@
+/** biome-ignore-all lint/style/useNamingConvention: using enum title casing in an object */
+
 import { type Player, system } from "@minecraft/server";
-import { playerNameTracker } from "../../helpers/playerNameTracker";
-import { arrRemoveByCallback, EventSignal, WaitingRoomState } from "../../types";
+import { arrRemoveByCallback } from "../../shared/arrayHelpers";
+import { EventSignal } from "../../shared/eventSignal";
+
+export const WaitingRoomState = {
+	Closed: 0,
+	Full: 2,
+	Open: 1,
+};
+export type WaitingRoomState = (typeof WaitingRoomState)[keyof typeof WaitingRoomState];
+
+export function waitingRoomStateToString(state: WaitingRoomState): string {
+	switch (state) {
+		case WaitingRoomState.Closed:
+			return "Closed";
+		case WaitingRoomState.Open:
+			return "Open";
+		case WaitingRoomState.Full:
+			return "Full";
+		default:
+			return "Unknown";
+	}
+}
 
 export class WaitingRoom {
 	public readonly players: Player[];
@@ -117,13 +139,13 @@ export class WaitingRoom {
 		return true;
 	}
 
-	public removePlayer(playerId: string): void {
+	public removePlayer(playerId: string, playerName: string): void {
 		arrRemoveByCallback(this.players, (p) => p.id === playerId);
 		if (this.players.length === 0 && this._intervalId !== null) {
 			system.clearRun(this._intervalId);
 			this._intervalId = null;
 		} else {
-			const message: string = `§7${playerNameTracker(playerId)}§r§7 left the game`;
+			const message: string = `§7${playerName}§r§7 left the game`;
 			for (const p of this.players) {
 				p.sendMessage(message);
 			}

@@ -8,12 +8,12 @@ import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { MAX_EFFECT_DURATION } from "../../tools/constants";
 import type { Kit } from "../../tools/game/kits";
+import { Room } from "../../tools/room/room";
 import {
 	clearEntityEffects,
 	clearEntityEquippable,
 	clearEntityInventory,
-} from "../../tools/helpers/entityComponents";
-import { Room } from "../../tools/room/room";
+} from "../../tools/shared/componentHelpers";
 
 export function joinKitPvpArena(player: Player, kit: Kit): void {
 	player.setGameMode(GameMode.Adventure);

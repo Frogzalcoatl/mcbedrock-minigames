@@ -7,7 +7,7 @@ import {
 	world,
 } from "@minecraft/server";
 import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
-import { deathLocationTracker } from "../../helpers/deathLocationTracker";
+import { deathLocationTracker } from "../../done/helpers/deathLocationTracker";
 import {
 	arrRemoveByCallback,
 	arrRemoveSwap,

@@ -11,8 +11,8 @@ import {
 } from "@minecraft/server";
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/helpers/entityComponents";
 import { beamFrom } from "../../tools/projectiles/beam";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/shared/componentHelpers";
 import { beamParticles } from "../../tools/shared/particles";
 
 const typeId: string = MinecraftItemTypes.EndRod;

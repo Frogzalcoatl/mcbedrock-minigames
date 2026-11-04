@@ -10,13 +10,13 @@ import {
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
+import type { KillTrackerSettings } from "../../tools/done/helpers/deathLocationTracker";
 import { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/team";
-import type { KillTrackerSettings } from "../../tools/helpers/deathLocationTracker";
-import { clearEntityEquippable } from "../../tools/helpers/entityComponents";
 import { deathMessageFromEvent, formatTimeSeconds } from "../../tools/helpers/textFormatting";
 import { Room } from "../../tools/room/room";
 import { type RoomCreatorFunc, RoomType } from "../../tools/room/roomType";
+import { clearEntityEquippable } from "../../tools/shared/componentHelpers";
 import { GameState, QueueMode, type TeleportLocation } from "../../tools/types";
 
 const creator: RoomCreatorFunc = (dimensionId: string, displayName: string, icon: string): Room => {

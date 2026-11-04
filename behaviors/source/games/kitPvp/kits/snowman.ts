@@ -14,8 +14,8 @@ import {
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/game/kits";
-import { applyEnchant, giveItem, setDurability } from "../../../tools/helpers/entityComponents";
+} from "../../../tools/done/kitManager";
+import { applyEnchant, giveItem, setDurability } from "../../../tools/shared/componentHelpers";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
@@ -26,7 +26,7 @@ function onKill(kitUser: Entity, _dead: Entity): void {
 	}
 	const snowballs = new ItemStack(MinecraftItemTypes.Snowball, 2);
 	snowballs.lockMode = ItemLockMode.inventory;
-	const iceBomb = new ItemStack(ICE_BOMB_ID);
+	const iceBomb = new ItemStack("minecraft:ice_bomb");
 	iceBomb.lockMode = ItemLockMode.inventory;
 	giveItem(snowballs, inventory.container, kitUser.location, kitUser.dimension, false);
 	giveItem(iceBomb, inventory.container, kitUser.location, kitUser.dimension, false);
@@ -52,7 +52,7 @@ export function getKitSnowman(): Kit {
 	const ironSword = new ItemStack(MinecraftItemTypes.IronSword);
 	setDurability(ironSword, "unbreakable");
 	applyEnchant(ironSword, MinecraftEnchantmentTypes.Sharpness, 2);
-	const iceBomb = new ItemStack(ICE_BOMB_ID, 4);
+	const iceBomb = new ItemStack("minecraft:ice_bomb", 4);
 	kit.inventory = [
 		{ item: ironSword, slot: 0 },
 		{ item: new ItemStack(MinecraftItemTypes.Snowball, 12), slot: 1 },

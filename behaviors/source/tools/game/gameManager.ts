@@ -1,7 +1,7 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { showFormTeleporter } from "../../forms/teleporter";
-import { safeActionFormShow } from "../helpers/safeFormShow";
+import { safeActionFormShow } from "../shared/safeFormShow";
 import type { GameType } from "./gameType";
 
 export class GameManager {

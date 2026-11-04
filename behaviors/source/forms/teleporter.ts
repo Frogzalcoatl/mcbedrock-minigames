@@ -1,7 +1,7 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { safeActionFormShow } from "../tools/helpers/safeFormShow";
 import { RoomType } from "../tools/room/roomType";
+import { safeActionFormShow } from "../tools/shared/safeFormShow";
 
 export async function showFormTeleporter(player: Player): Promise<void> {
 	const form = new ActionFormData();

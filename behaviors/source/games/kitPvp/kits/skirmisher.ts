@@ -11,7 +11,7 @@ import {
 	applyEnchant,
 	giveItemToEntity,
 	setDurability,
-} from "../../../tools/helpers/entityComponents";
+} from "../../../tools/shared/componentHelpers";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const arrows = new ItemStack(MinecraftItemTypes.Arrow, 4);

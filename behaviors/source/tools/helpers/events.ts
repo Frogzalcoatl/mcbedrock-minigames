@@ -1,15 +1,9 @@
 import {
 	type ChatSendBeforeEvent,
 	GameMode,
-	type ItemCompleteUseAfterEvent,
 	type PlayerLeaveAfterEvent,
 	world,
 } from "@minecraft/server";
-import {
-	MinecraftEffectTypes,
-	MinecraftEntityTypes,
-	MinecraftItemTypes,
-} from "@minecraft/vanilla-data";
 import { playerDisplayName } from "./textFormatting";
 
 const chatTimestamps = new Map<string, number>();
@@ -42,13 +36,5 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 world.afterEvents.projectileHitBlock.subscribe((event) => {
 	if (event.projectile.isValid && event.projectile.typeId === MinecraftEntityTypes.Arrow) {
 		event.projectile.remove();
-	}
-});
-
-world.afterEvents.itemCompleteUse.subscribe((event: ItemCompleteUseAfterEvent) => {
-	// Limit gapple absorption level to match java
-	if (event.itemStack.typeId === MinecraftItemTypes.GoldenApple) {
-		event.source.removeEffect(MinecraftEffectTypes.Absorption);
-		event.source.addEffect(MinecraftEffectTypes.Absorption, 20 * 120);
 	}
 });

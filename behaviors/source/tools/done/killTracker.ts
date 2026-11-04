@@ -1,7 +1,6 @@
 import {
 	type Entity,
 	EntityDamageCause,
-	type EntityDamageSource,
 	type EntityDieAfterEvent,
 	type EntityHurtAfterEvent,
 	Player,
@@ -9,17 +8,22 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { tools } from "../..";
-import { EventSignal } from "../../types";
+import { EventSignal } from "../shared/eventSignal";
 
 interface KillTrackerValue {
 	lastHitterId: string;
 	timestamp: number;
 }
 
+export interface CombatKillEvent {
+	cause?: EntityDamageCause;
+	deadPlayer: Player;
+	killer?: Entity | undefined;
+}
+
 export class KillTracker {
 	public hitCooldownTicks: number;
-	public readonly onKill: EventSignal<EntityDieAfterEvent>;
+	public readonly onKill: EventSignal<CombatKillEvent>;
 	public readonly onRespawn: EventSignal<Player>;
 	public readonly showCombatTime: EventSignal<Player>;
 	public showCombatTimeTickInterval: number;
@@ -63,30 +67,29 @@ export class KillTracker {
 		}
 	}
 
-	public getLastHitter(player: Player): Entity | null {
+	public getLastHitter(player: Player): Entity | undefined {
 		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
 		if (value === undefined) {
-			return null;
+			return undefined;
 		}
 		if (!this.inCombatCondition(value.timestamp)) {
-			return null;
+			return undefined;
 		}
 		const lastHitter = world.getEntity(value.lastHitterId);
 		if (lastHitter === undefined || !lastHitter.isValid) {
-			return null;
+			return undefined;
 		}
 		return lastHitter;
 	}
 
 	public removePlayer(playerId: string): void {
 		const playerEntity: Entity | undefined = world.getEntity(playerId);
-		if (playerEntity !== undefined && playerEntity instanceof Player && this.inCombat(playerId)) {
-			const event: EntityDieAfterEvent = this.createDeathEvent(
-				playerEntity,
-				this.getLastHitter(playerEntity),
-				EntityDamageCause.override,
-			);
-			this.onKill.triggerEvent(event);
+		if (playerEntity !== undefined && playerEntity instanceof Player) {
+			this.onKill.triggerEvent({
+				cause: EntityDamageCause.override,
+				deadPlayer: playerEntity,
+				killer: this.getLastHitter(playerEntity),
+			});
 		}
 		this._hitMap.delete(playerId);
 		this.clearInterval(playerId);
@@ -102,28 +105,6 @@ export class KillTracker {
 			return -1;
 		}
 		return (value.timestamp - now) / 50 + this.hitCooldownTicks;
-	}
-
-	private createDeathEvent(
-		deadPlayer: Player,
-		lastHitter: Entity | null,
-		cause: EntityDamageCause,
-	): EntityDieAfterEvent {
-		let source: EntityDamageSource;
-		if (lastHitter !== null) {
-			source = {
-				cause: cause,
-				damagingEntity: lastHitter,
-			};
-		} else {
-			source = {
-				cause: cause,
-			};
-		}
-		return {
-			damageSource: source,
-			deadEntity: deadPlayer,
-		};
 	}
 
 	private clearInterval(playerId: string): void {
@@ -160,21 +141,16 @@ export class KillTracker {
 		if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
 			return;
 		}
-		const deadPlayer: Player = event.deadEntity;
-		if (event.damageSource.damagingEntity === undefined) {
-			// I have to create a new event because im not able to reassign event.damageSource.damagingEntity for some reason.
-			event = this.createDeathEvent(
-				deadPlayer,
-				this.getLastHitter(event.deadEntity),
-				event.damageSource.cause,
-			);
-		}
+		const combatEvent: CombatKillEvent = {
+			cause: event.damageSource.cause,
+			deadPlayer: event.deadEntity,
+			killer: event.damageSource.damagingEntity ?? this.getLastHitter(event.deadEntity),
+		};
 		this._hitMap.delete(event.deadEntity.id);
 		if (event.damageSource.damagingEntity !== undefined) {
 			this._hitMap.delete(event.damageSource.damagingEntity.id);
 		}
-		this.onKill.triggerEvent(event);
-		tools.kitManager.entityDie(event);
+		this.onKill.triggerEvent(combatEvent);
 	};
 
 	private playerSpawn = (event: PlayerSpawnAfterEvent): void => {

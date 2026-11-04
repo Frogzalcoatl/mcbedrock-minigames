@@ -15,47 +15,12 @@ import {
 	ItemComponentTypes,
 	type ItemDurabilityComponent,
 	type ItemEnchantableComponent,
-	ItemStack,
+	type ItemStack,
 	type Player,
 	type Vector3,
 } from "@minecraft/server";
 import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { MAX_EFFECT_DURATION } from "../constants";
-
-const CONTAINER_TYPE_ID: string = "mg:container";
-
-export function getDataValueItem(
-	typeId: string,
-	dataValue: number,
-	originDimension: Dimension,
-	originLocation: Vector3,
-): ItemStack | null {
-	if (!originDimension.isChunkLoaded(originLocation)) {
-		return null;
-	}
-	const containerEntity: Entity = originDimension.spawnEntity(CONTAINER_TYPE_ID, originLocation);
-	const inventory: EntityInventoryComponent | undefined = containerEntity.getComponent(
-		EntityComponentTypes.Inventory,
-	);
-	if (inventory === undefined) {
-		containerEntity.remove();
-		return null;
-	}
-	containerEntity.runCommand(`replaceitem entity @s slot.inventory 0 ${typeId} 1 ${dataValue}`);
-	const dataValueItem: ItemStack | undefined = inventory.container.getItem(0);
-	containerEntity.remove();
-	if (dataValueItem === undefined) {
-		return null;
-	}
-	return dataValueItem;
-}
-
-// was typing this everywhere so just created a func for it.
-export function defaultItemStackFunc(typeId: string, nameTag: string): ItemStack {
-	const item = new ItemStack(typeId);
-	item.nameTag = nameTag;
-	return item;
-}
 
 export function removeItem(container: Container, item: ItemStack, amount: number): void {
 	const itemIndex = container.find(item);

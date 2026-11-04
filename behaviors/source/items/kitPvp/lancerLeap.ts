@@ -2,7 +2,7 @@ import type { ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { entityLeap } from "../../tools/helpers/actions";
-import { defaultItemStackFunc } from "../../tools/helpers/entityComponents";
+import { defaultItemStackFunc } from "../../tools/shared/componentHelpers";
 
 const typeId: string = MinecraftItemTypes.Feather;
 const nameTag: string = "§rLancer Leap §7(Use)";

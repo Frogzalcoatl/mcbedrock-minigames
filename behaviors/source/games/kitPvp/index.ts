@@ -18,17 +18,18 @@ import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { tools } from "../../tools";
 import { gameIds, MAX_EFFECT_DURATION, PACK_NAMESPACE } from "../../tools/constants";
+import { KillTracker } from "../../tools/done/killTracker";
+import type { Kit } from "../../tools/done/kitManager";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
-import { KillTracker } from "../../tools/game/tools/killTracker";
+import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
 import {
 	changeEntityHealth,
 	clearEntityEffects,
 	clearEntityEquippable,
 	clearEntityInventory,
 	hubEffectHelper,
-} from "../../tools/helpers/entityComponents";
-import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
+} from "../../tools/shared/componentHelpers";
 import { structureSchemaManager } from "../../tools/structureSchemas";
 import {
 	GameJoinResult,
@@ -36,7 +37,6 @@ import {
 	type TeleportLocation,
 	teleportLocationDefault,
 } from "../../tools/types";
-import type { Kit } from "../../tools/world/kitManager";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";

@@ -16,7 +16,7 @@ import { structureSchemaManager, tools } from "../../tools";
 import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
-import { clearEntityEquippable, hubEffectHelper } from "../../tools/helpers/entityComponents";
+import { clearEntityEquippable, hubEffectHelper } from "../../tools/shared/componentHelpers";
 import {
 	GameJoinResult,
 	QueueMode,
