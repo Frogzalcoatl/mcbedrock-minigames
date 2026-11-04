@@ -29,6 +29,7 @@ import {
 	hubEffectHelper,
 } from "../../tools/helpers/entityComponents";
 import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
+import { structureSchemaManager } from "../../tools/structures";
 import {
 	GameJoinResult,
 	QueueMode,
@@ -165,12 +166,12 @@ class KitPvpHub extends Game {
 	}
 
 	public reset(): void {
-		tools.structures.load(
+		structureSchemaManager.load(
 			"ghostly/shopNoChests",
 			{ x: this.spawn.pos.x - 33, y: this.spawn.pos.y - 3, z: this.spawn.pos.z - 41 },
 			this.dimension,
 		);
-		tools.structures.load(
+		structureSchemaManager.load(
 			"ghostly/kitPvp",
 			{
 				x: this.spawn.pos.x + 128,

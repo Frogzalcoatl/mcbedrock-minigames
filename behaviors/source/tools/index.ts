@@ -3,9 +3,9 @@ import "./helpers/index";
 import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import { GameManager } from "./game/gameManager";
 import { ProjectileTracker } from "./game/tools/projectileTracker";
+import type { StructureSchemaManager } from "./structures/structureSchemaManager";
 import { ItemManager } from "./world/itemManager";
 import { KitManager } from "./world/kitManager";
-import { StructureSchemaManager } from "./world/structureSchemaManager";
 import { TickingAreaQueue } from "./world/tickingAreaQueue";
 
 export interface MinigamesTools {
@@ -23,7 +23,6 @@ export const tools: MinigamesTools = {
 	items: new ItemManager(),
 	kitManager: new KitManager(),
 	projectileTracker: new ProjectileTracker([MinecraftEntityTypes.ThrownTrident]),
-	structures: new StructureSchemaManager(),
 	tickingAreaQueue: new TickingAreaQueue(),
 };
 

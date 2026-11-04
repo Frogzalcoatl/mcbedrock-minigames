@@ -4,6 +4,11 @@ import { PACK_NAMESPACE } from "../constants";
 const structureBlockNormal: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/normal`;
 const structureBlockFlat: string = `${PACK_NAMESPACE}:frogzalcoatl/structureBlock/flat`;
 
+interface StructureSchemaManagerEnums {
+	readonly animationMode: string;
+	readonly structureIds: string;
+}
+
 // [structureId, relativeX, relativeY, relativeZ]
 // structureId is the .mcstructure file path relative to behaviors/structures/${PACK_NAMESPACE}/
 // (.mcstructure file extension not included)
@@ -13,21 +18,30 @@ export type StructureSchema = JsonStructureEntry[];
 export class StructureSchemaManager {
 	private readonly _schemas: Map<string, StructureSchema>;
 	public readonly ids: Set<string>;
+	public readonly enums: StructureSchemaManagerEnums;
 
-	public constructor() {
+	public constructor(packNamespace: string) {
 		this._schemas = new Map<string, StructureSchema>();
 		this.ids = new Set<string>();
+		this.enums = {
+			animationMode: `${packNamespace}:ssm_animation_mode`,
+			structureIds: `${packNamespace}:ssm_structure_ids`,
+		};
 	}
 
 	public addSchemas(schemas: [string, unknown][]): void {
 		for (const s of schemas) {
-			// Im still not sure how to avoid type assertion when importing json schemas in ts
+			// Type assertion seems unavoidable here
 			this._schemas.set(s[0], s[1] as StructureSchema);
 			this.ids.add(s[0]);
 		}
 	}
 
-	public addIds(ids: string[]): void {
+	public addSchema(id: string, schema: StructureSchema): void {
+		this._schemas.set(id, schema);
+	}
+
+	public addIds(...ids: string[]): void {
 		for (const id of ids) {
 			this.ids.add(id);
 		}

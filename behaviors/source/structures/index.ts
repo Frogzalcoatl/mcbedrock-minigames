@@ -1,4 +1,5 @@
 import { tools } from "../tools";
+import { structureSchemaManager } from "../tools/structures";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
 	type: "json",
@@ -20,7 +21,7 @@ import ghostlyShop from "./json/ghostly/shop.json" with { type: "json" };
 import ghostlyShopNoChests from "./json/ghostly/shopNoChests.json";
 import ghostlySpawn from "./json/ghostly/spawn.json" with { type: "json" };
 
-tools.structures.addSchemas([
+structureSchemaManager.addSchemas([
 	["ghostly/spawn", ghostlySpawn],
 	["ghostly/shop", ghostlyShop],
 	["ghostly/shopNoChests", ghostlyShopNoChests],
@@ -33,7 +34,7 @@ tools.structures.addSchemas([
 	["frogzalcoatl/lobby/haroldsRealm", frogzalcoatlLobbyHaroldsRealm],
 ]);
 
-tools.structures.addIds([
+structureSchemaManager.addIds(
 	"ghostly/crates",
 	"ghostly/tree",
 	"ghostly/mountain",
@@ -55,4 +56,4 @@ tools.structures.addIds([
 	"frogzalcoatl/bedwars/template/base",
 	"frogzalcoatl/bedwars/template/diamonds",
 	"frogzalcoatl/bedwars/template/mid",
-]);
+);

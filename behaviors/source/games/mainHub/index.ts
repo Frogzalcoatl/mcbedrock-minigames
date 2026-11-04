@@ -17,6 +17,7 @@ import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/helpers/entityComponents";
+import { structureSchemaManager } from "../../tools/structures";
 import {
 	GameJoinResult,
 	QueueMode,
@@ -76,7 +77,7 @@ class MainHub extends Game {
 			y: this.spawn.pos.y - 11,
 			z: this.spawn.pos.z - 59,
 		};
-		tools.structures.load("ghostly/spawn", loadPos, this.dimension);
+		structureSchemaManager.load("ghostly/spawn", loadPos, this.dimension);
 	}
 }
 
