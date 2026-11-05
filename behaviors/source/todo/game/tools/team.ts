@@ -6,9 +6,9 @@ import {
 	type Vector3,
 	world,
 } from "@minecraft/server";
-import { arrRemoveByCallback, arrRemoveSwap } from "../../../shared/arrayHelpers";
-import { EventSignal } from "../../../shared/eventSignal";
-import type { TeleportLocation } from "../../../shared/locations";
+import { arrRemoveByCallback, arrRemoveSwap } from "../../../tools/shared/arrayHelpers";
+import { EventSignal } from "../../../tools/shared/eventSignal";
+import type { TeleportLocation } from "../../../tools/shared/locations";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
 	if (event.initialSpawn) {

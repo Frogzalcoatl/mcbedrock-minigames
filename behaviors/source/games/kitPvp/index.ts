@@ -18,6 +18,7 @@ import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
 import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { structureSchemaManager } from "../../structures";
+import { GameJoinResult, QueueMode } from "../../todo/types";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { KillTracker } from "../../tools/killTracker";
@@ -30,7 +31,6 @@ import {
 	hubEffectHelper,
 } from "../../tools/shared/componentUtils";
 import { type TeleportLocation, teleportLocationDefault } from "../../tools/shared/locations";
-import { GameJoinResult, QueueMode } from "../../tools/todo/types";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";

@@ -1,6 +1,6 @@
 import { type Dimension, type Player, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import { arrRemoveByCallback } from "../../shared/arrayHelpers";
-import { type TeleportLocation, teleportLocationDefault } from "../../shared/locations";
+import { arrRemoveByCallback } from "../../tools/shared/arrayHelpers";
+import { type TeleportLocation, teleportLocationDefault } from "../../tools/shared/locations";
 import type { GameJoinResult } from "../types";
 
 world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {

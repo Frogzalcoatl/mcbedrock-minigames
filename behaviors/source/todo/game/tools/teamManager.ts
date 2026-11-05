@@ -1,5 +1,5 @@
 import { type Player, system } from "@minecraft/server";
-import { EventSignal } from "../../../shared/eventSignal";
+import { EventSignal } from "../../../tools/shared/eventSignal";
 import { TeamDistributionMode } from "../../types";
 import { EliminatableTeam, type PlayerEliminationEvent, Team } from "./team";
 

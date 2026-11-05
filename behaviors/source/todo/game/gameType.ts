@@ -1,6 +1,6 @@
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { safeActionFormShow } from "../../shared/safeFormShow";
+import { safeActionFormShow } from "../../tools/shared/safeFormShow";
 import { GameJoinResult, QueueMode } from "../types";
 import type { Game } from "./game";
 
