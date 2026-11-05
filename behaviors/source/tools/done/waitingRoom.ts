@@ -2,285 +2,153 @@
 
 import { type Player, system } from "@minecraft/server";
 import { arrRemoveByCallback } from "../shared/arrayHelpers";
-i
-ort { EventSignal } from "../shared/eventSignal";
+import { EventSignal } from "../shared/eventSignal";
 
-ex
-
- const WaitingRoomState = {
-	Clo
-d: 0,
-	Ful
- 2,
-	Ope
- 1,
+export const WaitingRoomState = {
+	Closed: 0,
+	Full: 2,
+	Open: 1,
 };
+export type WaitingRoomState = (typeof WaitingRoomState)[keyof typeof WaitingRoomState];
 
-po
- type WaitingRoomState = (typeof WaitingRoomState)[keyof typeof WaitingRoomState];
-
-ex
-
- function waitingRoomStateToString(state: WaitingRoomState): string {
-	swi
-h (state) {
-		ca
- WaitingRoomState.Closed:
-			r
-urn "Closed";
-		ca
- WaitingRoomState.Open:
-			r
-urn "Open";
-		ca
- WaitingRoomState.Full:
-			r
-urn "Full";
-		de
-ult:
-			r
-urn "Unknown";
+export function waitingRoomStateToString(state: WaitingRoomState): string {
+	switch (state) {
+		case WaitingRoomState.Closed:
+			return "Closed";
+		case WaitingRoomState.Open:
+			return "Open";
+		case WaitingRoomState.Full:
+			return "Full";
+		default:
+			return "Unknown";
 	}
+}
 
+export class WaitingRoom {
+	public readonly players: Player[];
 
+	// Amount of players required to start the countdown
+	public playersToStart: number;
 
-x
+	// Minimum amount of players required to start the game.
+	// Should be less than or equal to playersToStart
+	public minPlayers: number;
 
- class WaitingRoom {
-	pub
-c readonly players: Player[];
+	// Maximum amount of players allowed
+	public maxPlayers: number;
 
-	/
+	// Length of countdown
+	public startTimeSeconds: number;
 
-ount of players required to start the countdown
-	pub
-c playersToStart: number;
+	// Seconds remaining to start the game
+	public secondsRemaining: number;
 
-	/
+	// Event triggers when countdown finishes
+	public onCountdownComplete: EventSignal<Player[]>;
 
-nimum amount of players required to start the game.
-	// 
-ould be less than or equal to playersToStart
-	pub
-c minPlayers: number;
+	// 1 second runInterval for countdown
+	private _intervalId: number | null;
 
-	/
+	// self explanatory
+	private _state: WaitingRoomState;
 
-ximum amount of players allowed
-	pub
-c maxPlayers: number;
-
-	/
-
-ngth of countdown
-	pub
-c startTimeSeconds: number;
-
-	/
-
-conds remaining to start the game
-	pub
-c secondsRemaining: number;
-
-	/
-
-ent triggers when countdown finishes
-	pub
-c readonly onCountdownComplete: EventSignal<Player[]>;
-
-	/
-
-second runInterval for countdown
-	pri
-te _intervalId: number | null;
-
-	/
-
-lf explanatory
-	pri
-te _state: WaitingRoomState;
-
-	p
-
-c constructor(
-		pl
-ersToStart: number,
-		mi
-layers: number,
-		ma
-layers: number,
-		st
-tTimeSeconds = 30,
+	public constructor(
+		playersToStart: number,
+		minPlayers: number,
+		maxPlayers: number,
+		startTimeSeconds = 30,
 	) {
-		th
-.players = [];
-		th
-.playersToStart = playersToStart;
-		th
-.minPlayers = minPlayers;
-		th
-.maxPlayers = maxPlayers;
-		th
-.startTimeSeconds = startTimeSeconds;
-		th
-.secondsRemaining = startTimeSeconds;
-		th
-.onCountdownComplete = new EventSignal<Player[]>();
-		th
-._intervalId = null;
-		th
-._state = WaitingRoomState.Open;
+		this.players = [];
+		this.playersToStart = playersToStart;
+		this.minPlayers = minPlayers;
+		this.maxPlayers = maxPlayers;
+		this.startTimeSeconds = startTimeSeconds;
+		this.secondsRemaining = startTimeSeconds;
+		this.onCountdownComplete = new EventSignal<Player[]>();
+		this._intervalId = null;
+		this._state = WaitingRoomState.Open;
 	}
 
-	p
-
-c get state(): WaitingRoomState {
-		re
-rn this._state;
+	public get state(): WaitingRoomState {
+		return this._state;
 	}
 
-	p
-
-te startInterval(): void {
-		th
-.clearInterval();
-		co
-t playSoundDuring: number[] = [60, 39, 29, 10, 5, 4, 3, 2, 1];
-		if
-!playSoundDuring.includes(this.startTimeSeconds)) {
-			p
-ySoundDuring.push(this.startTimeSeconds);
+	private startInterval(): void {
+		this.clearInterval();
+		const playSoundDuring: number[] = [60, 39, 29, 10, 5, 4, 3, 2, 1];
+		if (!playSoundDuring.includes(this.startTimeSeconds)) {
+			playSoundDuring.push(this.startTimeSeconds);
 		}
-	th
-.secondsRemaining = this.startTimeSeconds;
-		co
-t intervalId: number = system.runInterval(() => {
-			i
-(this.players.length < this.minPlayers) {
-				
-is.secondsRemaining = this.startTimeSeconds;
-				
-nst playersNeeded: number = this.playersToStart - this.players.length;
-				
-r (const p of this.players) {
-				
-.onScreenDisplay.setActionBar(
-				
-`Waiting for §l${playersNeeded}§r more player${playersNeeded !== 1 ? "s" : ""}...`,
-				
-;
-				
-
-				
-turn;
+		this.secondsRemaining = this.startTimeSeconds;
+		const intervalId: number = system.runInterval(() => {
+			if (this.players.length < this.minPlayers) {
+				this.secondsRemaining = this.startTimeSeconds;
+				const playersNeeded: number = this.playersToStart - this.players.length;
+				for (const p of this.players) {
+					p.onScreenDisplay.setActionBar(
+						`Waiting for §l${playersNeeded}§r more player${playersNeeded !== 1 ? "s" : ""}...`,
+					);
+				}
+				return;
 			}
-			i
-(this.secondsRemaining <= 0) {
-				
-stem.clearRun(intervalId);
-				
-is._intervalId = null;
-				
-is.onCountdownComplete.triggerEvent(this.players);
-				
-turn;
+			if (this.secondsRemaining <= 0) {
+				system.clearRun(intervalId);
+				this._intervalId = null;
+				this.onCountdownComplete.triggerEvent(this.players);
+				return;
 			}
-			f
- (const p of this.players) {
-				
-onScreenDisplay.setActionBar(
-				
-Game starting in §l${this.secondsRemaining}§r second${this.secondsRemaining !== 1 ? "s" : ""}`,
-				
-
+			for (const p of this.players) {
+				p.onScreenDisplay.setActionBar(
+					`Game starting in §l${this.secondsRemaining}§r second${this.secondsRemaining !== 1 ? "s" : ""}`,
+				);
 			}
-			i
-(playSoundDuring.includes(this.secondsRemaining)) {
-				
-r (const p of this.players) {
-				
-.playSound("random.click");
-				
-
+			if (playSoundDuring.includes(this.secondsRemaining)) {
+				for (const p of this.players) {
+					p.playSound("random.click");
+				}
 			}
-			t
-s.secondsRemaining--;
-		},
-0);
-		th
-._intervalId = intervalId;
+			this.secondsRemaining--;
+		}, 20);
+		this._intervalId = intervalId;
 	}
 
-	p
-
-te clearInterval(): void {
-		if
-this._intervalId !== null) {
-			s
-tem.clearRun(this._intervalId);
+	private clearInterval(): void {
+		if (this._intervalId !== null) {
+			system.clearRun(this._intervalId);
 		}
+	}
+
+	public addPlayer(player: Player): boolean {
+		if (this._state !== WaitingRoomState.Open) {
+			let message = `§cWaiting room is `;
+			message += this._state === WaitingRoomState.Closed ? "closed" : "full";
+			player.sendMessage(message);
+			return false;
+		}
+		if (this.players.includes(player)) {
+			return false;
+		}
+		this.players.push(player);
+		if (this._intervalId === null) {
+			this.startInterval();
+		}
+		const message: string = `§7${player.name}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`;
+		for (const p of this.players) {
+			p.sendMessage(message);
+		}
+		return true;
+	}
+
+	public removePlayer(playerId: string, playerName: string): void {
+		arrRemoveByCallback(this.players, (p) => p.id === playerId);
+		if (this.players.length === 0 && this._intervalId !== null) {
+			system.clearRun(this._intervalId);
+			this._intervalId = null;
+		} else {
+			const message: string = `§7${playerName}§r§7 left the game`;
+			for (const p of this.players) {
+				p.sendMessage(message);
+			}
+		}
+	}
 }
-
-	p
-
-c addPlayer(player: Player): boolean {
-		if
-this._state !== WaitingRoomState.Open) {
-			l
- message = `§cWaiting room is `;
-			m
-sage += this._state === WaitingRoomState.Closed ? "closed" : "full";
-			p
-yer.sendMessage(message);
-			r
-urn false;
-		}
-	if
-this.players.includes(player)) {
-			r
-urn false;
-		}
-	th
-.players.push(player);
-		if
-this._intervalId === null) {
-			t
-s.startInterval();
-		}
-	co
-t message: string = `§7${player.name}§r§7 joined the game §8[${this.players.length}/${this.maxPlayers}]`;
-		fo
-(const p of this.players) {
-			p
-endMessage(message);
-		}
-	re
-rn true;
-	}
-
-	p
-
-c removePlayer(playerId: string, playerName: string): void {
-		ar
-emoveByCallback(this.players, (p) => p.id === playerId);
-		if
-this.players.length === 0 && this._intervalId !== null) {
-			s
-tem.clearRun(this._intervalId);
-			t
-s._intervalId = null;
-		} 
-se {
-			c
-st message: string = `§7${playerName}§r§7 left the game`;
-			f
- (const p of this.players) {
-				
-sendMessage(message);
-			}
-		}
-}
-
-
-
-
