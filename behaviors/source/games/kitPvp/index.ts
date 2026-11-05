@@ -28,7 +28,7 @@ import {
 	clearEntityEquippable,
 	clearEntityInventory,
 	hubEffectHelper,
-} from "../../tools/shared/componentHelpers";
+} from "../../tools/shared/componentUtils";
 import { type TeleportLocation, teleportLocationDefault } from "../../tools/shared/locationHelpers";
 import { GameJoinResult, QueueMode } from "../../tools/types";
 import { getKitBlaze } from "./kits/blaze";

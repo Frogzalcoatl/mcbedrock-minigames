@@ -1,8 +1,16 @@
-import { type ChatSendBeforeEvent, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
+import {
+	type ChatSendBeforeEvent,
+	type Player,
+	type PlayerLeaveAfterEvent,
+	world,
+} from "@minecraft/server";
+
+export type ChatCallback = (event: ChatSendBeforeEvent) => void;
+export type CooldownBypassCallback = (sender: Player) => boolean; // Return true to bypass cooldown
 
 export class ChatCooldownManager {
 	public cooldownMs: number;
-	private eventHandler: ((event: ChatSendBeforeEvent) => void) | null;
+	public eventHandler: ChatCallback | null;
 	private readonly timestamps: Map<string, number>;
 
 	public constructor(cooldownMs: number) {

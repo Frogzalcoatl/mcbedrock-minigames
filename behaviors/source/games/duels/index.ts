@@ -12,7 +12,7 @@ import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { formatTimeSeconds } from "../../tools/done/helpers/textFormatting";
 import type { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/tools/team";
-import { clearEntityEquippable } from "../../tools/shared/componentHelpers";
+import { clearEntityEquippable } from "../../tools/shared/componentUtils";
 import type { TeleportLocation } from "../../tools/shared/locationHelpers";
 import { GameState, QueueMode } from "../../tools/types";
 

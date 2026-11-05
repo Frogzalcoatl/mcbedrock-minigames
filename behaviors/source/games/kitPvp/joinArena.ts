@@ -13,7 +13,7 @@ import {
 	clearEntityEffects,
 	clearEntityEquippable,
 	clearEntityInventory,
-} from "../../tools/shared/componentHelpers";
+} from "../../tools/shared/componentUtils";
 
 export function joinKitPvpArena(player: Player, kit: Kit): void {
 	player.setGameMode(GameMode.Adventure);

@@ -12,7 +12,7 @@ import {
 import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { tools } from "../../tools";
 import { beamFrom } from "../../tools/projectiles/beam";
-import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/shared/componentHelpers";
+import { decrementMainhandItem, defaultItemStackFunc } from "../../tools/shared/componentUtils";
 import { beamParticles } from "../../tools/shared/particles";
 
 const typeId: string = MinecraftItemTypes.EndRod;

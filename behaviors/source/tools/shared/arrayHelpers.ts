@@ -31,7 +31,7 @@ export function arrRemoveByCallback<T>(arr: T[], callback: (current: T) => boole
 	return undefined;
 }
 
-export function arrRemoveIndex<T>(arr: T[], i: number): T | undefined {
+export function arrRemoveIndexSwap<T>(arr: T[], i: number): T | undefined {
 	const lastValue: T | undefined = arr[arr.length - 1];
 	if (lastValue !== undefined) {
 		arr[i] = lastValue;

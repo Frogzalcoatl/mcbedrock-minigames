@@ -10,7 +10,7 @@ import {
 	world,
 } from "@minecraft/server";
 
-const propertyId: string = "frogzalcoatl:tracked_projectile";
+const TRACKED_PROPERTY_ID: string = "frogzalcoatl:tracked_projectile";
 
 export class ProjectileTracker {
 	public readonly projectileTypeIds: Set<string>;
@@ -60,7 +60,7 @@ export class ProjectileTracker {
 			this._trackedPlayerIds.has(projectileComponent.owner.id)
 		) {
 			this._projectiles.set(event.entity.id, projectileComponent.owner.id);
-			event.entity.setDynamicProperty(propertyId, true);
+			event.entity.setDynamicProperty(TRACKED_PROPERTY_ID, true);
 		}
 	};
 
@@ -68,7 +68,7 @@ export class ProjectileTracker {
 		if (
 			event.entity.isValid &&
 			this.projectileTypeIds.has(event.entity.typeId) &&
-			event.entity.getDynamicProperty(propertyId) !== undefined
+			event.entity.getDynamicProperty(TRACKED_PROPERTY_ID) !== undefined
 		) {
 			event.entity.remove();
 		}

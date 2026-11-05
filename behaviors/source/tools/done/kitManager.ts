@@ -9,7 +9,7 @@ import {
 	type Player,
 } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { applyEnchant, setDurability } from "../shared/componentHelpers";
+import { applyEnchant, setDurability } from "../shared/componentUtils";
 import { safeActionFormShow } from "../shared/safeFormShow";
 
 export type KitInventory = { item: ItemStack; slot: number }[];

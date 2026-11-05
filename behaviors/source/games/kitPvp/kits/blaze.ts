@@ -13,7 +13,7 @@ import {
 	applyEnchant,
 	giveItemToEntity,
 	setDurability,
-} from "../../../tools/shared/componentHelpers";
+} from "../../../tools/shared/componentUtils";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const fireballs: ItemStack = itemBlazeFireball();

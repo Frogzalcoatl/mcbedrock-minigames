@@ -1,4 +1,5 @@
 import {
+	type Dimension,
 	type EntityDieAfterEvent,
 	Player,
 	type PlayerLeaveAfterEvent,
@@ -6,19 +7,37 @@ import {
 	world,
 } from "@minecraft/server";
 
-const deathLocations = new Map<string, Vector3>();
+const deathLocations = new Map<string, DeathLocation>();
 
-world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent) => {
+function entityDie(event: EntityDieAfterEvent): void {
 	if (event.deadEntity instanceof Player === false || !event.deadEntity.isValid) {
 		return;
 	}
-	deathLocations.set(event.deadEntity.id, event.deadEntity.location);
-});
+	deathLocations.set(event.deadEntity.id, {
+		dimension: event.deadEntity.dimension,
+		pos: event.deadEntity.location,
+	});
+}
 
-world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent) => {
+function playerLeave(event: PlayerLeaveAfterEvent): void {
 	deathLocations.delete(event.playerId);
-});
+}
 
-export function deathLocationTracker(player: Player): Vector3 | null {
-	return deathLocations.get(player.id) ?? null;
+export interface DeathLocation {
+	dimension: Dimension;
+	pos: Vector3;
+}
+
+export function initDeathLocationTracker(): void {
+	world.afterEvents.entityDie.subscribe(entityDie);
+	world.afterEvents.playerLeave.subscribe(playerLeave);
+}
+
+export function shutdownDeathLocationTracker(): void {
+	world.afterEvents.entityDie.unsubscribe(entityDie);
+	world.afterEvents.playerLeave.unsubscribe(playerLeave);
+}
+
+export function getLastDeathLocation(player: Player): DeathLocation | undefined {
+	return deathLocations.get(player.id);
 }

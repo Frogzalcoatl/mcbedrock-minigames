@@ -7,7 +7,6 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { tools } from "../../tools";
 import { spreadParticles } from "../../tools/shared/particles";
 
 function despawnEffects(pos: Vector3, dimension: Dimension): void {
@@ -35,13 +34,10 @@ function applyPoisonToEntities(thrower: Entity, pufferfish: Entity, maxDistance:
 
 // Despawn pufferfish after this duration of time
 const maxTicks: number = 20 * 10;
-const pufferfishProjectilePropertyId: string = "pufferfish_projectile";
+const PROPERTY_ID: string = "frogzalcoatl:pufferfish_projectile";
 
 world.afterEvents.entityLoad.subscribe((event) => {
-	if (
-		event.entity.isValid &&
-		event.entity.getDynamicProperty(pufferfishProjectilePropertyId) !== undefined
-	) {
+	if (event.entity.isValid && event.entity.getDynamicProperty(PROPERTY_ID) !== undefined) {
 		event.entity.remove();
 	}
 });
@@ -57,7 +53,7 @@ export function pufferfishProjectile(
 		MinecraftEntityTypes.Pufferfish,
 		headLocation,
 	);
-	pufferfish.setDynamicProperty(pufferfishProjectilePropertyId, true);
+	pufferfish.setDynamicProperty(PROPERTY_ID, true);
 	pufferfish.applyKnockback(
 		{
 			x: viewDirection.x * horizontalVelocity,

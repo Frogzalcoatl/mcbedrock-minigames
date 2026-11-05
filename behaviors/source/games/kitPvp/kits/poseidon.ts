@@ -16,7 +16,7 @@ import {
 	kitArmorLockMode,
 	kitInventoryLockMode,
 } from "../../../tools/game/kits";
-import { applyEnchant, giveItem, setDurability } from "../../../tools/shared/componentHelpers";
+import { applyEnchant, giveItem, setDurability } from "../../../tools/shared/componentUtils";
 
 function onKill(kitUser: Entity, _dead: Entity): void {
 	const inventory: EntityInventoryComponent | undefined = kitUser.getComponent(
