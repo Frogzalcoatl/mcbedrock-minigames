@@ -1,11 +1,7 @@
 import { type Dimension, type Player, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import type { GameHub } from "../room/gameHub";
-import {
-	arrRemoveByCallback,
-	type GameJoinResult,
-	type TeleportLocation,
-	teleportLocationDefault,
-} from "../types";
+import { arrRemoveByCallback } from "../../shared/arrayHelpers";
+import { type TeleportLocation, teleportLocationDefault } from "../../shared/locations";
+import type { GameJoinResult } from "../types";
 
 world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {
 	const game: Game | undefined = Game.findPlayer(event.playerId);

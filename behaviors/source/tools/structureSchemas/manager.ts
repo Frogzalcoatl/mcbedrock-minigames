@@ -22,7 +22,8 @@ export class StructureSchemaManager {
 
 	public addSchemas(schemas: [string, unknown][]): void {
 		for (const s of schemas) {
-			// Type assertion seems unavoidable here
+			// unknown type is unavoidable when importing from json it seems
+			// makes most sense to simply use type assertion here instead of with every import
 			this._schemas.set(s[0], s[1] as StructureSchema);
 			this.ids.add(s[0]);
 		}

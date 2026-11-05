@@ -8,5 +8,3 @@ export const gameIds = {
 	kitPvpHub: "hub-kit",
 	mainHub: "hub",
 } as const satisfies Record<string, string>;
-
-export const DEFAULT_CHATNAME_PREFIX = "§7";

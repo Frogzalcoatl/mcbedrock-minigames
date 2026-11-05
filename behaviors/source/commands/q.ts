@@ -8,8 +8,8 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
+import { PACK_NAMESPACE } from "../constants";
 import { showFormTeleporter } from "../forms/teleporter";
-import { PACK_NAMESPACE } from "../tools/constants";
 import { RoomType } from "../tools/room/roomType";
 import { getPlayerFromOrigin } from "../tools/shared/commandOrigin";
 import { commandEnums } from "./enums";

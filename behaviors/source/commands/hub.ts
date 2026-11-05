@@ -8,7 +8,7 @@ import {
 	type Player,
 	system,
 } from "@minecraft/server";
-import { gameIds, PACK_NAMESPACE } from "../tools/constants";
+import { gameIds, PACK_NAMESPACE } from "../constants";
 import type { LocalHub } from "../tools/game/tools/localHub";
 import { Room } from "../tools/room/room";
 import { RoomType } from "../tools/room/roomType";

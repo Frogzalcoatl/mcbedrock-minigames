@@ -7,14 +7,14 @@ import {
 	Player,
 } from "@minecraft/server";
 import { MinecraftEnchantmentTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
-import { ICE_BOMB_ID } from "../../../tools/constants";
+import { ICE_BOMB_ID } from "../../../constants";
 import {
 	type Kit,
 	kitArmorDurability,
 	kitArmorEnchant,
 	kitArmorLockMode,
 	kitInventoryLockMode,
-} from "../../../tools/done/kitManager";
+} from "../../../tools/kitManager";
 import { applyEnchant, giveItem, setDurability } from "../../../tools/shared/componentUtils";
 
 function onKill(kitUser: Entity, _dead: Entity): void {

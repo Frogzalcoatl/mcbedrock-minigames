@@ -1,20 +1,4 @@
-import { type Entity, type EntityDamageCause, Player } from "@minecraft/server";
-import { DEFAULT_CHATNAME_PREFIX } from "../../constants";
-
-export function playerDisplayName(player: Player): string {
-	if (!player.isValid) {
-		return `${DEFAULT_CHATNAME_PREFIX}${player.name}`;
-	}
-	return `${player.chatNamePrefix ?? DEFAULT_CHATNAME_PREFIX}${player.name}${player.chatNameSuffix ?? ""}`;
-}
-
-export function entityDisplayName(entity: Entity): string {
-	if (entity instanceof Player) {
-		return playerDisplayName(entity);
-	} else {
-		return entity.nameTag ? entity.nameTag : entity.typeId;
-	}
-}
+import type { EntityDamageCause } from "@minecraft/server";
 
 export function formatTimeSeconds(seconds: number): string {
 	const hours: number = Math.floor(seconds / 3600);

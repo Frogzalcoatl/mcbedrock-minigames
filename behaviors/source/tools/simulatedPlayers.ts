@@ -13,7 +13,7 @@ import {
 } from "@minecraft/server";
 import { SimulatedPlayer, spawnSimulatedPlayer } from "@minecraft/server-gametest";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
-import { getDimensionFromOrigin } from "../shared/commandOrigin";
+import { getDimensionFromOrigin } from "./shared/commandOrigin";
 
 export interface SimulatedPlayerModuleOptions {
 	autoRespawn?: boolean;

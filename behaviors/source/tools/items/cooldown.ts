@@ -5,7 +5,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { arrRemoveSwap } from "../../shared/arrayHelpers";
+import { arrRemoveSwap } from "../shared/arrayHelpers";
 
 interface ItemCooldownInfo {
 	cooldownTicks: number;

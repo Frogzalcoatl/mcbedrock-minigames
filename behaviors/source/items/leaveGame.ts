@@ -5,8 +5,8 @@ import {
 	type PlayerSwingStartAfterEvent,
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { gameIds } from "../constants";
 import { tools } from "../tools";
-import { gameIds } from "../tools/constants";
 import { RoomType } from "../tools/room/roomType";
 import { defaultItemStackFunc } from "../tools/shared/componentUtils";
 

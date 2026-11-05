@@ -10,10 +10,10 @@ import {
 	world,
 } from "@minecraft/server";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
+import { gameIds, PACK_NAMESPACE } from "../../constants";
 import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { structureSchemaManager, tools } from "../../tools";
-import { gameIds, PACK_NAMESPACE } from "../../tools/constants";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { clearEntityEquippable, hubEffectHelper } from "../../tools/shared/componentUtils";
@@ -22,7 +22,7 @@ import {
 	QueueMode,
 	type TeleportLocation,
 	teleportLocationDefault,
-} from "../../tools/types";
+} from "../../tools/todo/types";
 
 const HUB_COUNT = 3;
 

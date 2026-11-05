@@ -8,7 +8,7 @@ import {
 	system,
 	world,
 } from "@minecraft/server";
-import { EventSignal } from "../shared/eventSignal";
+import { EventSignal } from "./shared/eventSignal";
 
 interface KillTrackerValue {
 	lastHitterId: string;
