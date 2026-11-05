@@ -2,42 +2,76 @@ import {
 	type ChatSendBeforeEvent,
 	type Player,
 	type PlayerLeaveAfterEvent,
+	system,
 	world,
 } from "@minecraft/server";
+import { EventSignal } from "./shared/eventSignal";
 
-export type ChatCallback = (event: ChatSendBeforeEvent) => void;
-export type CooldownBypassCallback = (sender: Player) => boolean; // Return true to bypass cooldown
+export interface ChatCooldownRejectEvent {
+	message: string;
+	sender: Player;
+	ticksRemaining: number;
+}
+
+export interface ChatCooldownAcceptEvent {
+	// Set to true to suppress vanilla minecraft chat messages
+	cancelVanilla: boolean;
+	readonly message: string;
+	readonly sender: Player;
+}
 
 export class ChatCooldownManager {
-	public cooldownMs: number;
-	public eventHandler: ChatCallback | null;
-	private readonly timestamps: Map<string, number>;
+	public cooldownTicks: number;
+	public readonly onChatAccept: EventSignal<ChatCooldownAcceptEvent>;
+	public readonly onChatReject: EventSignal<ChatCooldownRejectEvent>;
+	public isBypassed: ((player: Player) => boolean) | null;
+	private readonly _timestamps: Map<string, number>;
 
-	public constructor(cooldownMs: number) {
-		this.cooldownMs = cooldownMs;
-		this.eventHandler = null;
-		this.timestamps = new Map();
+	public constructor(cooldownTicks: number) {
+		this.cooldownTicks = cooldownTicks;
+		this.onChatAccept = new EventSignal();
+		this.onChatReject = new EventSignal();
+		this.isBypassed = null;
+		this._timestamps = new Map();
 	}
 
 	private chatSend = (event: ChatSendBeforeEvent): void => {
-		const timestamp: number | undefined = this.timestamps.get(event.sender.id);
-		const now: number = Date.now();
-		if (timestamp !== undefined && timestamp + this.cooldownMs > now) {
-			const remainingSec: number = Math.ceil((timestamp + this.cooldownMs - now) / 1000);
-			event.sender.sendMessage(`§cPlease wait ${remainingSec}s before chatting again.`);
-			event.cancel = true;
+		if (event.cancel) {
+			// In case event was already cancelled by another callback for whatever reason
 			return;
 		}
-		if (this.eventHandler !== null) {
-			this.eventHandler(event);
+		const bypassed: boolean = this.isBypassed?.(event.sender) ?? false;
+		if (!bypassed) {
+			const timestamp: number | undefined = this._timestamps.get(event.sender.id);
+			if (timestamp !== undefined && timestamp + this.cooldownTicks > system.currentTick) {
+				const ticksRemaining: number = Math.ceil(
+					timestamp + this.cooldownTicks - system.currentTick,
+				);
+				event.cancel = true;
+				this.onChatReject.triggerEvent({
+					message: event.message,
+					sender: event.sender,
+					ticksRemaining: ticksRemaining,
+				});
+				return;
+			}
 		}
-		if (!event.cancel) {
-			this.timestamps.set(event.sender.id, now);
+		const acceptEvent: ChatCooldownAcceptEvent = {
+			cancelVanilla: false,
+			message: event.message,
+			sender: event.sender,
+		};
+		this.onChatAccept.triggerEvent(acceptEvent);
+		if (acceptEvent.cancelVanilla) {
+			event.cancel = true;
+		}
+		if (!bypassed) {
+			this._timestamps.set(event.sender.id, system.currentTick);
 		}
 	};
 
 	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
-		this.timestamps.delete(event.playerId);
+		this._timestamps.delete(event.playerId);
 	};
 
 	public init(): void {
