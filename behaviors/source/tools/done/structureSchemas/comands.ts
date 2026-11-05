@@ -15,7 +15,7 @@ import {
 	getDimensionFromOrigin,
 	getLocationFromOrigin,
 	getPlayerFromOrigin,
-} from "../shared/commandOrigin";
+} from "../../shared/commandOrigin";
 import type { StructureSchemaManager } from "./manager";
 
 export function registerStructureCommands(schemaManager: StructureSchemaManager): void {

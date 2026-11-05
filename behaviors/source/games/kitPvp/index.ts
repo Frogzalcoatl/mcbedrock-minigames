@@ -16,13 +16,12 @@ import { MinecraftEffectTypes, MinecraftEntityTypes } from "@minecraft/vanilla-d
 import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
 import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
-import { tools } from "../../tools";
+import { structureSchemaManager } from "../../structures";
 import { gameIds, MAX_EFFECT_DURATION, PACK_NAMESPACE } from "../../tools/constants";
 import { KillTracker } from "../../tools/done/killTracker";
 import type { Kit } from "../../tools/done/kitManager";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
-import { deathMessageFromEvent } from "../../tools/helpers/textFormatting";
 import {
 	changeEntityHealth,
 	clearEntityEffects,
@@ -30,13 +29,8 @@ import {
 	clearEntityInventory,
 	hubEffectHelper,
 } from "../../tools/shared/componentHelpers";
-import { structureSchemaManager } from "../../tools/structureSchemas";
-import {
-	GameJoinResult,
-	QueueMode,
-	type TeleportLocation,
-	teleportLocationDefault,
-} from "../../tools/types";
+import { type TeleportLocation, teleportLocationDefault } from "../../tools/shared/locationHelpers";
+import { GameJoinResult, QueueMode } from "../../tools/types";
 import { getKitBlaze } from "./kits/blaze";
 import { getKitBreeze } from "./kits/breeze";
 import { getKitFisherman } from "./kits/fisherman";

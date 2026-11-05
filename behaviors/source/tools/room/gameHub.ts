@@ -1,5 +1,7 @@
 import type { Dimension, DimensionLocation, Player } from "@minecraft/server";
-import { arrRemoveByCallback, EventSignal, type TeleportLocation } from "../types";
+import { arrRemoveByCallback } from "../shared/arrayHelpers";
+import { EventSignal } from "../shared/eventSignal";
+import type { TeleportLocation } from "../shared/locationHelpers";
 
 export interface GameHubTransferEvent {
 	hub: GameHub;

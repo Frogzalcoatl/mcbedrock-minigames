@@ -15,7 +15,7 @@ interface KillTrackerValue {
 	timestamp: number;
 }
 
-export interface CombatKillEvent {
+export interface KillTrackerEvent {
 	cause?: EntityDamageCause;
 	deadPlayer: Player;
 	killer?: Entity | undefined;
@@ -23,7 +23,7 @@ export interface CombatKillEvent {
 
 export class KillTracker {
 	public hitCooldownTicks: number;
-	public readonly onKill: EventSignal<CombatKillEvent>;
+	public readonly onKill: EventSignal<KillTrackerEvent>;
 	public readonly onRespawn: EventSignal<Player>;
 	public readonly showCombatTime: EventSignal<Player>;
 	public showCombatTimeTickInterval: number;
@@ -141,7 +141,7 @@ export class KillTracker {
 		if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
 			return;
 		}
-		const combatEvent: CombatKillEvent = {
+		const combatEvent: KillTrackerEvent = {
 			cause: event.damageSource.cause,
 			deadPlayer: event.deadEntity,
 			killer: event.damageSource.damagingEntity ?? this.getLastHitter(event.deadEntity),
