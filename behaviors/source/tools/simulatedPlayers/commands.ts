@@ -5,37 +5,31 @@ import {
 	type CustomCommandResult,
 	CustomCommandStatus,
 	type Dimension,
-	type EntityDieAfterEvent,
+	type DimensionLocation,
 	GameMode,
 	type StartupEvent,
 	system,
+	type Vector3,
 	world,
 } from "@minecraft/server";
-import { SimulatedPlayer, spawnSimulatedPlayer } from "@minecraft/server-gametest";
 import { MinecraftDimensionTypes } from "@minecraft/vanilla-data";
-import { getDimensionFromOrigin } from "./shared/commandOrigin";
+import { parseCommandGameMode, registerCommandGameModeEnum } from "../shared/commandGameMode";
+import { getDimensionFromOrigin, getLocationFromOrigin } from "../shared/commandOrigin";
+import type { SimulatedPlayerManager } from "./manager";
 
-export interface SimulatedPlayerModuleOptions {
-	autoRespawn?: boolean;
-	namespace: string;
-}
-
-export function registerSimulatedPlayers(options: SimulatedPlayerModuleOptions): void {
-	const { namespace, autoRespawn = true } = options;
-	if (autoRespawn) {
-		world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent): void => {
-			if (event.deadEntity instanceof SimulatedPlayer) {
-				event.deadEntity.respawn();
-			}
-		});
-	}
+export function registerSimulatedPlayerCommands(manager: SimulatedPlayerManager): void {
 	system.beforeEvents.startup.subscribe((event: StartupEvent): void => {
+		const enumGameMode: string = registerCommandGameModeEnum(
+			manager.namespace,
+			event.customCommandRegistry,
+		);
 		event.customCommandRegistry.registerCommand(
 			{
 				description: "Spawn simulated players.",
-				name: `${namespace}:sim`,
+				name: `${manager.namespace}:sim`,
 				optionalParameters: [
 					{ name: "amount", type: CustomCommandParamType.Integer },
+					{ name: enumGameMode, type: CustomCommandParamType.Enum },
 					{ name: "name", type: CustomCommandParamType.String },
 				],
 				permissionLevel: CommandPermissionLevel.Admin,
@@ -43,6 +37,7 @@ export function registerSimulatedPlayers(options: SimulatedPlayerModuleOptions):
 			(
 				origin: CustomCommandOrigin,
 				amount = 1,
+				gameModeStr: string = GameMode.Adventure,
 				name = "SimulatedPlayer",
 			): CustomCommandResult | undefined => {
 				if (amount <= 0) {
@@ -51,18 +46,26 @@ export function registerSimulatedPlayers(options: SimulatedPlayerModuleOptions):
 						status: CustomCommandStatus.Failure,
 					};
 				}
+				const gameMode: GameMode | undefined = parseCommandGameMode(gameModeStr);
+				if (gameMode === undefined) {
+					return {
+						message: `Invalid GameMode "${gameModeStr}"`,
+						status: CustomCommandStatus.Failure,
+					};
+				}
 				let dimension: Dimension | null = getDimensionFromOrigin(origin);
 				if (dimension === null) {
 					dimension = world.getDimension(MinecraftDimensionTypes.Overworld);
 				}
+				const pos: Vector3 = getLocationFromOrigin(origin) ?? { x: 0.5, y: 0, z: 0.5 };
 				system.run(() => {
-					for (let i = 0; i < amount; i++) {
-						spawnSimulatedPlayer(
-							{ dimension: dimension, x: 0.5, y: 0, z: 0.5 },
-							name,
-							GameMode.Adventure,
-						);
-					}
+					const location: DimensionLocation = {
+						dimension: dimension,
+						x: pos.x,
+						y: pos.y,
+						z: pos.z,
+					};
+					manager.spawn(location, amount, name, gameMode);
 				});
 				return {
 					status: CustomCommandStatus.Success,
@@ -72,16 +75,12 @@ export function registerSimulatedPlayers(options: SimulatedPlayerModuleOptions):
 		event.customCommandRegistry.registerCommand(
 			{
 				description: "Clear simulated players.",
-				name: `${namespace}:clearsim`,
+				name: `${manager.namespace}:clearsim`,
 				permissionLevel: CommandPermissionLevel.Admin,
 			},
 			(_origin: CustomCommandOrigin): CustomCommandResult | undefined => {
 				system.run(() => {
-					for (const p of world.getAllPlayers()) {
-						if (p instanceof SimulatedPlayer) {
-							p.disconnect();
-						}
-					}
+					manager.clear();
 				});
 				return {
 					status: CustomCommandStatus.Success,

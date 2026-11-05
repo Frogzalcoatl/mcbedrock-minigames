@@ -9,7 +9,7 @@ export const WaitingRoomState = {
 	Closed: 0,
 	Open: 1,
 	Full: 2,
-};
+} as const;
 export type WaitingRoomState = (typeof WaitingRoomState)[keyof typeof WaitingRoomState];
 
 export function waitingRoomStateToString(state: WaitingRoomState): string {
