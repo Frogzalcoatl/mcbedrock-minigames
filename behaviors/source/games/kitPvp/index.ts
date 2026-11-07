@@ -22,7 +22,7 @@ import { GameJoinResult, QueueMode } from "../../todo/types";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { KillTracker } from "../../tools/killTracker";
-import type { Kit } from "../../tools/kitManager";
+import type { Kit } from "../../tools/kits/manager";
 import {
 	changeEntityHealth,
 	clearEntityEffects,

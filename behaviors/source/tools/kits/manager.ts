@@ -6,11 +6,8 @@ import {
 	EquipmentSlot,
 	type ItemLockMode,
 	type ItemStack,
-	type Player,
 } from "@minecraft/server";
-import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { applyEnchant, setDurability } from "./shared/componentUtils";
-import { safeActionFormShow } from "./shared/safeFormShow";
+import { applyEnchant, setDurability } from "../shared/componentUtils";
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -64,20 +61,6 @@ export class KitManager {
 					inventory.container.setItem(entry.slot, entry.item);
 				}
 			}
-		}
-	}
-
-	public async form(kits: Kit[], viewer: Player): Promise<Kit | undefined> {
-		const form = new ActionFormData();
-		form.title("§0Kit Selection");
-		for (const kit of kits) {
-			form.button(kit.name, kit.icon);
-		}
-		const resp: ActionFormResponse = await safeActionFormShow(form, viewer);
-		if (!viewer.isValid || resp.selection === undefined) {
-			return undefined;
-		} else {
-			return kits[resp.selection];
 		}
 	}
 

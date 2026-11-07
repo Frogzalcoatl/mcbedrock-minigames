@@ -131,7 +131,7 @@ export class KillTracker {
 		this._intervalIds.set(player.id, intervalId);
 	}
 
-	private enitityHurt = (event: EntityHurtAfterEvent): void => {
+	private entityHurt = (event: EntityHurtAfterEvent): void => {
 		if (event.damageSource.damagingEntity !== undefined && event.hurtEntity instanceof Player) {
 			this.setCombat(event.hurtEntity, event.damageSource.damagingEntity);
 		}
@@ -161,13 +161,13 @@ export class KillTracker {
 	};
 
 	public init(): void {
-		world.afterEvents.entityHurt.subscribe(this.enitityHurt);
+		world.afterEvents.entityHurt.subscribe(this.entityHurt);
 		world.afterEvents.entityDie.subscribe(this.entityDie);
 		world.afterEvents.playerSpawn.subscribe(this.playerSpawn);
 	}
 
 	public shutdown(): void {
-		world.afterEvents.entityHurt.unsubscribe(this.enitityHurt);
+		world.afterEvents.entityHurt.unsubscribe(this.entityHurt);
 		world.afterEvents.entityDie.unsubscribe(this.entityDie);
 		world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
 	}

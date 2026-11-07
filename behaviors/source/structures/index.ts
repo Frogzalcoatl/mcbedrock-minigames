@@ -1,5 +1,5 @@
 import { PACK_NAMESPACE } from "../constants";
-import { registerStructureCommands } from "../tools/structureSchemas/comands";
+import { registerStructureCommands } from "../tools/structureSchemas/commands";
 import { StructureSchemaManager } from "../tools/structureSchemas/manager";
 import frogzalcoatlBridgeEnd from "./json/frogzalcoatl/bridge/end.json" with { type: "json" };
 import frogzalcoatlDuelsMangrove from "./json/frogzalcoatl/duels/mangrove.json" with {
