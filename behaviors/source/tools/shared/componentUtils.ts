@@ -90,7 +90,7 @@ export function giveItem(
 	spawnOverflowItems: boolean,
 ): void {
 	const existingIndex: number | undefined = container.find(item);
-	if (!existingIndex) {
+	if (existingIndex === undefined) {
 		addItem(item, container, containerLocation, containerDimension, spawnOverflowItems);
 		return;
 	}
@@ -119,10 +119,9 @@ export function giveItemToEntity(
 	const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 		EntityComponentTypes.Inventory,
 	);
-	if (inventory === undefined) {
-		return;
+	if (inventory !== undefined) {
+		giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
 	}
-	giveItem(item, inventory.container, entity.location, entity.dimension, spawnOverflowItems);
 }
 
 export function clearEntityEquippable(entity: Entity): void {
