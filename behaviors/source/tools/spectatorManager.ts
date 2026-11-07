@@ -7,13 +7,7 @@ export class SpectatorManager {
 	public spawn: TeleportLocation;
 	public dimension: Dimension;
 
-	public constructor(
-		dimension: Dimension,
-		spawn: TeleportLocation = {
-			facing: { x: 0.5, y: 0, z: 0.5 },
-			pos: { x: 0.5, y: 0, z: 0.5 },
-		},
-	) {
+	public constructor(dimension: Dimension, spawn: TeleportLocation) {
 		this.players = [];
 		this.spawn = spawn;
 		this.dimension = dimension;
