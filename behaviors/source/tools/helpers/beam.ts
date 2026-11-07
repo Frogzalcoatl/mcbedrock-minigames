@@ -1,4 +1,5 @@
 import type { BlockRaycastHit, Entity, EntityRaycastHit, Vector3 } from "@minecraft/server";
+import { vector3Distance } from "../shared/locations";
 
 export function beamFromEntity(
 	entity: Entity,
@@ -7,33 +8,38 @@ export function beamFromEntity(
 ): void {
 	const viewDirection: Vector3 = entity.getViewDirection();
 	const headLocation: Vector3 = entity.getHeadLocation();
-	let endPos: Vector3 | undefined;
-	const entities: EntityRaycastHit[] = entity.getEntitiesFromViewDirection({
+	const entityRaycasts: EntityRaycastHit[] = entity.getEntitiesFromViewDirection({
 		maxDistance: maxDistance,
 	});
-	const hitEntityRaycast: EntityRaycastHit | undefined = entities[0];
-	if (hitEntityRaycast !== undefined) {
-		endPos = {
-			x: headLocation.x + viewDirection.x * hitEntityRaycast.distance,
-			y: headLocation.y + viewDirection.y * hitEntityRaycast.distance,
-			z: headLocation.z + viewDirection.z * hitEntityRaycast.distance,
-		};
-	} else {
-		const blockRaycast: BlockRaycastHit | undefined = entity.getBlockFromViewDirection({
-			maxDistance: maxDistance,
-		});
-		if (blockRaycast !== undefined) {
-			endPos = blockRaycast.block.location;
-			endPos.x += blockRaycast.faceLocation.x;
-			endPos.y += blockRaycast.faceLocation.y;
-			endPos.z += blockRaycast.faceLocation.z;
-		}
+	const entityRaycast: EntityRaycastHit | undefined = entityRaycasts[0];
+	const blockRaycast: BlockRaycastHit | undefined = entity.getBlockFromViewDirection({
+		maxDistance: maxDistance,
+	});
+	let blockLocation: Vector3 | undefined;
+	if (blockRaycast !== undefined) {
+		blockLocation = blockRaycast.block.location;
+		blockLocation.x += blockRaycast.faceLocation.x;
+		blockLocation.y += blockRaycast.faceLocation.y;
+		blockLocation.z += blockRaycast.faceLocation.z;
 	}
-	// New syntax unlocked?? same as "if (endPos === undefined) { endPos = value }"
-	endPos ??= {
-		x: headLocation.x + viewDirection.x * maxDistance,
-		y: headLocation.y + viewDirection.y * maxDistance,
-		z: headLocation.z + viewDirection.z * maxDistance,
-	};
-	onHit(entity, endPos, hitEntityRaycast?.entity);
+	let hitPos: Vector3;
+	if (entityRaycast !== undefined && blockLocation !== undefined) {
+		const blockDistance: number = vector3Distance(headLocation, blockLocation);
+		if (blockDistance <= entityRaycast.distance) {
+			hitPos = blockLocation;
+		} else {
+			hitPos = entityRaycast.entity.location;
+		}
+	} else if (entityRaycast !== undefined) {
+		hitPos = entityRaycast.entity.location;
+	} else if (blockLocation !== undefined) {
+		hitPos = blockLocation;
+	} else {
+		hitPos = {
+			x: headLocation.x + viewDirection.x * maxDistance,
+			y: headLocation.y + viewDirection.y * maxDistance,
+			z: headLocation.z + viewDirection.z * maxDistance,
+		};
+	}
+	onHit(entity, hitPos, entityRaycast?.entity);
 }
