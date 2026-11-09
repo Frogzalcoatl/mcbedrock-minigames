@@ -5,15 +5,14 @@ import {
 	type EntityHurtAfterEvent,
 	Player,
 	type PlayerLeaveAfterEvent,
-	type PlayerSpawnAfterEvent,
 	system,
 	world,
 } from "@minecraft/server";
 import { EventSignal } from "./shared/eventSignal";
 
 interface KillTrackerValue {
+	expireTick: number;
 	lastHitterId: string;
-	timestamp: number;
 }
 
 export interface KillTrackerEvent {
@@ -22,67 +21,81 @@ export interface KillTrackerEvent {
 	killer?: Entity | undefined;
 }
 
+export interface CombatEnterEvent {
+	opponent?: Entity;
+	player: Player;
+}
+
 export class KillTracker {
-	public hitCooldownTicks: number;
+	public combatDurationTicks: number;
 	public readonly onKill: EventSignal<KillTrackerEvent>;
-	public readonly onRespawn: EventSignal<Player>;
-	public readonly showCombatTime: EventSignal<Player>;
-	public showCombatTimeTickInterval: number;
-	private readonly _intervalIds: Map<string, number>;
-	private readonly _hitMap: Map<string, KillTrackerValue>; // key is entityId
+	public readonly onCombatEnter: EventSignal<CombatEnterEvent>;
+	public readonly onCombatExit: EventSignal<Player>;
+	private readonly _combatMap: Map<string, KillTrackerValue>; // key is entityId
 	private _isInitialized: boolean;
 
 	public constructor(hitCooldownTicks: number) {
-		this.hitCooldownTicks = hitCooldownTicks;
+		this.combatDurationTicks = hitCooldownTicks;
 		this.onKill = new EventSignal();
-		this.onRespawn = new EventSignal();
-		this.showCombatTime = new EventSignal();
-		this.showCombatTimeTickInterval = 0;
-		this._intervalIds = new Map<string, number>();
-		this._hitMap = new Map<string, KillTrackerValue>();
+		this.onCombatEnter = new EventSignal();
+		this.onCombatExit = new EventSignal();
+		this._combatMap = new Map();
 		this._isInitialized = false;
 	}
 
-	private inCombatCondition(timestamp: number): boolean {
-		return timestamp >= Date.now() - this.hitCooldownTicks * 50;
-	}
-
 	public inCombat(playerId: string): boolean {
-		const value: KillTrackerValue | undefined = this._hitMap.get(playerId);
+		const value: KillTrackerValue | undefined = this._combatMap.get(playerId);
 		if (value === undefined) {
 			return false;
 		}
-		return this.inCombatCondition(value.timestamp);
+		return system.currentTick < value.expireTick;
 	}
 
-	public setCombat(hurtPlayer: Player, damagingEntity: Entity): void {
-		this._hitMap.set(hurtPlayer.id, {
-			lastHitterId: damagingEntity.id,
-			timestamp: Date.now(),
-		});
-		this.runShowCombatTime(hurtPlayer);
-		if (damagingEntity instanceof Player) {
-			this._hitMap.set(damagingEntity.id, {
-				lastHitterId: hurtPlayer.id,
-				timestamp: Date.now(),
-			});
-			this.runShowCombatTime(damagingEntity);
+	public getRemainingCombatTicks(playerId: string): number {
+		const value = this._combatMap.get(playerId);
+		if (!value) {
+			return 0;
 		}
+		return Math.max(0, value.expireTick - system.currentTick);
 	}
 
 	public getLastHitter(player: Player): Entity | undefined {
-		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
-		if (value === undefined) {
+		const value = this._combatMap.get(player.id);
+		if (!value || system.currentTick >= value.expireTick) {
 			return undefined;
 		}
-		if (!this.inCombatCondition(value.timestamp)) {
-			return undefined;
+		const hitter: Entity | undefined = world.getEntity(value.lastHitterId);
+		return hitter?.isValid ? hitter : undefined;
+	}
+
+	public setCombat(hurtPlayer: Player, damagingEntity: Entity): void {
+		this.applyTag(hurtPlayer, damagingEntity);
+		if (damagingEntity instanceof Player) {
+			this.applyTag(damagingEntity, hurtPlayer);
 		}
-		const lastHitter = world.getEntity(value.lastHitterId);
-		if (lastHitter === undefined || !lastHitter.isValid) {
-			return undefined;
+	}
+
+	private applyTag(player: Player, opponent: Entity): void {
+		const wasInCombat: boolean = this.inCombat(player.id);
+		this._combatMap.set(player.id, {
+			expireTick: system.currentTick + this.combatDurationTicks,
+			lastHitterId: opponent.id,
+		});
+		if (!wasInCombat) {
+			this.onCombatEnter.triggerEvent({ opponent: opponent, player: player });
 		}
-		return lastHitter;
+	}
+
+	public clearCombat(playerId: string, triggerEvent = true): void {
+		if (!this._combatMap.delete(playerId)) {
+			return;
+		}
+		if (triggerEvent) {
+			const player = world.getEntity(playerId);
+			if (player instanceof Player && player.isValid) {
+				this.onCombatExit.triggerEvent(player);
+			}
+		}
 	}
 
 	public removePlayer(playerId: string): void {
@@ -94,44 +107,8 @@ export class KillTracker {
 				killer: this.getLastHitter(playerEntity),
 			});
 		}
-		this._hitMap.delete(playerId);
+		this._combatMap.delete(playerId);
 		this.clearInterval(playerId);
-	}
-
-	public combatTimeTicks(player: Player): number {
-		const value: KillTrackerValue | undefined = this._hitMap.get(player.id);
-		if (value === undefined) {
-			return -1;
-		}
-		const now: number = Date.now();
-		if (value.timestamp < now - this.hitCooldownTicks * 50) {
-			return -1;
-		}
-		return (value.timestamp - now) / 50 + this.hitCooldownTicks;
-	}
-
-	private clearInterval(playerId: string): void {
-		const id: number | undefined = this._intervalIds.get(playerId);
-		if (id !== undefined) {
-			system.clearRun(id);
-			this._intervalIds.delete(playerId);
-		}
-	}
-
-	private runShowCombatTime(player: Player): void {
-		this.clearInterval(player.id);
-		system.run(() => {
-			if (player.isValid) {
-				this.showCombatTime.triggerEvent(player);
-			}
-		});
-		const intervalId: number = system.runInterval(() => {
-			if (!(player.isValid && this.inCombat(player.id))) {
-				this.clearInterval(player.id);
-				return;
-			}
-		}, this.showCombatTimeTickInterval);
-		this._intervalIds.set(player.id, intervalId);
 	}
 
 	private entityHurt = (event: EntityHurtAfterEvent): void => {
@@ -144,23 +121,17 @@ export class KillTracker {
 		if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
 			return;
 		}
+		this.clearCombat();
 		const combatEvent: KillTrackerEvent = {
 			cause: event.damageSource.cause,
 			deadPlayer: event.deadEntity,
 			killer: event.damageSource.damagingEntity ?? this.getLastHitter(event.deadEntity),
 		};
-		this._hitMap.delete(event.deadEntity.id);
+		this._combatMap.delete(event.deadEntity.id);
 		if (event.damageSource.damagingEntity !== undefined) {
-			this._hitMap.delete(event.damageSource.damagingEntity.id);
+			this._combatMap.delete(event.damageSource.damagingEntity.id);
 		}
 		this.onKill.triggerEvent(combatEvent);
-	};
-
-	private playerSpawn = (event: PlayerSpawnAfterEvent): void => {
-		if (event.initialSpawn || !event.player.isValid) {
-			return;
-		}
-		this.onRespawn.triggerEvent(event.player);
 	};
 
 	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
@@ -171,7 +142,6 @@ export class KillTracker {
 		if (!this._isInitialized) {
 			world.afterEvents.entityHurt.subscribe(this.entityHurt);
 			world.afterEvents.entityDie.subscribe(this.entityDie);
-			world.afterEvents.playerSpawn.subscribe(this.playerSpawn);
 			world.afterEvents.playerLeave.subscribe(this.playerLeave);
 			this._isInitialized = true;
 		}
@@ -181,7 +151,6 @@ export class KillTracker {
 		if (this._isInitialized) {
 			world.afterEvents.entityHurt.unsubscribe(this.entityHurt);
 			world.afterEvents.entityDie.unsubscribe(this.entityDie);
-			world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
 			world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
 		}
 	}
