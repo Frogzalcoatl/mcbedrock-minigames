@@ -1,8 +1,99 @@
-import "./commands/index";
-import "./games/index";
+// import "./commands/index";
+// import "./games/index";
 import "./structures/index";
 import "./miscEvents";
+import { type Entity, Player, type PlayerJoinAfterEvent, world } from "@minecraft/server";
+import { PACK_NAMESPACE } from "./constants";
 import { ChatCooldownManager } from "./tools/chatCooldown";
+import { initJavaGoldenApple } from "./tools/helpers/javaGoldenApple";
+import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
+import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
+import {
+	WaitingRoom,
+	type WaitingRoomJoinEvent,
+	type WaitingRoomLeaveEvent,
+} from "./tools/waitingRoom";
 
-const chatCooldowns = new ChatCooldownManager(500);
+const chatCooldowns = new ChatCooldownManager(10);
 chatCooldowns.init();
+
+registerSimulatedPlayerCommands(new SimulatedPlayerManager(PACK_NAMESPACE, true));
+
+initJavaGoldenApple();
+
+const waitingRoom = new WaitingRoom({
+	countdownDurationSeconds: 15,
+	maxPlayersForCompletion: 8,
+	minPlayersForCompletion: 2,
+	playersToStartCountdown: 4,
+});
+
+waitingRoom.onWaitingTick.subscribe((room: WaitingRoom): void => {
+	const players: Player[] = room.getPlayers();
+	const playersNeeded: number = room.playersToStartCountdown - players.length;
+	const actionbar: string = `§cWaiting for ${playersNeeded} more player${playersNeeded !== 1 ? "s" : ""}...`;
+	for (const p of players) {
+		p.onScreenDisplay.setActionBar(actionbar);
+	}
+});
+
+waitingRoom.onCountdownTick.subscribe((room: WaitingRoom): void => {
+	const players: Player[] = room.getPlayers();
+	const actionbar: string = `Starting in §l${room.secondsRemaining}§r second${room.secondsRemaining !== 1 ? "s" : ""}`;
+	for (const p of players) {
+		p.onScreenDisplay.setActionBar(actionbar);
+	}
+	const playSound: boolean = [1, 2, 3, 4, 5, 10, 15].includes(room.secondsRemaining);
+	if (playSound) {
+		const sound: string = "random.click";
+		for (const p of players) {
+			p.playSound(sound);
+		}
+	}
+});
+
+waitingRoom.onPlayerJoin.subscribe((event: WaitingRoomJoinEvent): void => {
+	const players: Player[] = event.room.getPlayers();
+	const message: string = `§7${event.player.name} joined the game [${players.length}/${event.room.maxPlayersForCompletion}]`;
+	for (const p of players) {
+		p.sendMessage(message);
+	}
+});
+
+waitingRoom.onPlayerLeave.subscribe((event: WaitingRoomLeaveEvent): void => {
+	const players: Player[] = event.room.getPlayers();
+	const message: string = `§7${event.playerName} left the game [${players.length}/${event.room.maxPlayersForCompletion}]`;
+	for (const p of players) {
+		p.sendMessage(message);
+	}
+});
+
+waitingRoom.onCountdownCancelled.subscribe((room: WaitingRoom): void => {
+	const players: Player[] = room.getPlayers();
+	const playersNeeded: number = room.playersToStartCountdown - players.length;
+	const message: string = `§cCountdown canceled! Waiting for ${playersNeeded} more player${playersNeeded !== 1 ? "s" : ""}...`;
+	const actionbar: string = "§cCancelled!";
+	const sound: string = "note.bass";
+	for (const p of players) {
+		p.sendMessage(message);
+		p.onScreenDisplay.setActionBar(actionbar);
+		p.playSound(sound);
+	}
+});
+
+waitingRoom.onCountdownComplete.subscribe((_room: WaitingRoom): void => {
+	world.sendMessage("Game Started!");
+});
+
+world.afterEvents.worldLoad.subscribe((): void => {
+	for (const p of world.getAllPlayers()) {
+		waitingRoom.join(p);
+	}
+});
+
+world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent): void => {
+	const player: Entity | undefined = world.getEntity(event.playerId);
+	if (player instanceof Player) {
+		waitingRoom.join(player);
+	}
+});

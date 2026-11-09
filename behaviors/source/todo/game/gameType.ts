@@ -1,8 +1,17 @@
+/** biome-ignore-all lint/style/useNamingConvention: QueueMode enum style */
 import type { Player } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
 import { safeActionFormShow } from "../../tools/shared/safeFormShow";
-import { GameJoinResult, QueueMode } from "../types";
-import type { Game } from "./game";
+import { type Game, GameJoinResult } from "./game";
+
+// biome-ignore assist/source/useSortedKeys: enum style
+export const QueueMode = {
+	ShowForm: 0,
+	FirstOpenGame: 1,
+	FullyRandom: 2,
+	FindGameWithPlayersWaiting: 3,
+} as const;
+export type QueueMode = (typeof QueueMode)[keyof typeof QueueMode];
 
 export class GameType {
 	public readonly instances: Game[];
@@ -31,7 +40,7 @@ export class GameType {
 	public get playerCount(): number {
 		let count = 0;
 		for (const game of this.instances) {
-			count += game.players.length;
+			count += game.getPlayers().length;
 		}
 		return count;
 	}
@@ -108,7 +117,7 @@ export class GameType {
 	private queueGameWithPlayersWaiting(player: Player): boolean {
 		const hasPlayersWaiting: Game[] = [];
 		for (const game of this.instances) {
-			if (game.players.length > 0 && game.canJoin(player) === GameJoinResult.Success) {
+			if (game.getPlayers().length > 0 && game.canJoin(player) === GameJoinResult.Success) {
 				hasPlayersWaiting.push(game);
 			}
 		}

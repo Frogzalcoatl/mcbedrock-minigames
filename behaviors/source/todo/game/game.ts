@@ -1,61 +1,68 @@
-import { type Dimension, type Player, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import { arrRemoveByCallback } from "../../tools/shared/arrayHelpers";
-import { type TeleportLocation, teleportLocationDefault } from "../../tools/shared/locations";
-import type { GameJoinResult } from "../types";
+/** biome-ignore-all lint/style/useNamingConvention: GameJoinResult enum style */
+import type { Player, PlayerLeaveAfterEvent } from "@minecraft/server";
+import { PlayerManager } from "../../tools/playerManager";
+import type { TeleportLocation } from "../../tools/shared/locations";
 
-world.afterEvents.playerLeave.subscribe((event: PlayerLeaveAfterEvent): void => {
-	const game: Game | undefined = Game.findPlayer(event.playerId);
-	if (game !== undefined) {
-		game.leave(event.playerId);
-	}
-});
+// biome-ignore assist/source/useSortedKeys: enum style
+export const GameJoinResult = {
+	Success: 0,
+	Failure: 1,
+	Spectate: 2,
+};
+export type GameJoinResult = (typeof GameJoinResult)[keyof typeof GameJoinResult];
 
 export abstract class Game {
-	private static _globalPlayers = new Map<string, Game>(); // key is player id
+	private static _globalPlayerIds = new Map<string, Game>();
 
 	public static findPlayer(playerId: string): Game | undefined {
-		return Game._globalPlayers.get(playerId);
+		return Game._globalPlayerIds.get(playerId);
 	}
 
-	public readonly players: Player[];
 	public id: string;
-	public dimension: Dimension;
 	public spawn: TeleportLocation;
-	public hub: Game | null;
-	// Players join this on /hub if not null, otherwise queues main hub
+	private readonly _players: PlayerManager;
 
-	public constructor(
-		id: string,
-		dimension: Dimension,
-		spawn: TeleportLocation = teleportLocationDefault(),
-	) {
-		this.players = [];
+	public constructor(id: string, spawn: TeleportLocation) {
 		this.id = id;
-		this.dimension = dimension;
 		this.spawn = spawn;
-		this.hub = null;
+		this._players = new PlayerManager();
+		this._players.onDisconnect.subscribe(this.handleDisconnect);
 	}
 
-	protected addPlayer(player: Player): boolean {
-		if (this.players.includes(player)) {
-			return false;
+	private handleDisconnect = (event: PlayerLeaveAfterEvent): void => {
+		Game._globalPlayerIds.delete(event.playerId);
+		this.leave(event.playerId);
+	};
+
+	protected addPlayer(player: Player): void {
+		const oldGame: Game | undefined = Game._globalPlayerIds.get(player.id);
+		if (oldGame !== undefined) {
+			oldGame.removePlayer(player);
 		}
-		Game._globalPlayers.set(player.id, this);
-		this.players.push(player);
-		return true;
+		Game._globalPlayerIds.set(player.id, this);
+		this._players.add(player);
 	}
 
-	protected removePlayer(playerId: string): void {
-		if (arrRemoveByCallback(this.players, (p) => p.id === playerId) !== undefined) {
-			Game._globalPlayers.delete(playerId);
-		}
+	protected removePlayer(player: Player): void {
+		Game._globalPlayerIds.delete(player.id);
+		this._players.remove(player);
+	}
+
+	protected shutdownPlayerManager(): void {
+		this._players.shutdown();
+	}
+
+	public getPlayers(): Player[] {
+		return this._players.getAll();
 	}
 
 	public abstract canJoin(player: Player): GameJoinResult;
 
 	public abstract join(player: Player): GameJoinResult;
 
-	public abstract leave(playerId: string): void;
+	public abstract leave(player: Player | string): void;
 
 	public abstract reset(): void;
+
+	public abstract shutdown(): void;
 }

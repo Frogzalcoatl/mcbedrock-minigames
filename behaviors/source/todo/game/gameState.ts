@@ -26,24 +26,3 @@ export function gameStateToString(state: GameState): string {
 			return "Unknown";
 	}
 }
-
-export const TeamDistributionMode = {
-	Balanced: 0,
-	InOrder: 1,
-} as const;
-export type TeamDistributionMode = (typeof TeamDistributionMode)[keyof typeof TeamDistributionMode];
-
-export const QueueMode = {
-	ShowForm: 0,
-	FirstOpenGame: 1,
-	FullyRandom: 2,
-	FindGameWithPlayersWaiting: 3,
-} as const;
-export type QueueMode = (typeof QueueMode)[keyof typeof QueueMode];
-
-export const GameJoinResult = {
-	Success: 0,
-	Failure: 1,
-	Spectator: 2,
-};
-export type GameJoinResult = (typeof GameJoinResult)[keyof typeof GameJoinResult];

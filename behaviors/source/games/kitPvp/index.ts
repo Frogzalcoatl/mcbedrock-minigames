@@ -18,7 +18,7 @@ import { itemKitPvpSelect } from "../../items/kitPvp/kitPvpSelect";
 import { itemSettings } from "../../items/settings";
 import { itemTeleporter } from "../../items/teleporter";
 import { structureSchemaManager } from "../../structures";
-import { GameJoinResult, QueueMode } from "../../todo/types";
+import { GameJoinResult, QueueMode } from "../../todo/game/gameState";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
 import { KillTracker } from "../../tools/killTracker";

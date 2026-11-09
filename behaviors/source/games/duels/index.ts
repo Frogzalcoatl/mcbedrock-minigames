@@ -9,7 +9,7 @@ import {
 } from "@minecraft/server";
 import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { gameIds, PACK_NAMESPACE } from "../../constants";
-import { GameState, QueueMode } from "../../todo/types";
+import { GameState, QueueMode } from "../../todo/game/gameState";
 import type { Game } from "../../tools/game/game";
 import type { Team } from "../../tools/game/tools/team";
 import { formatTimeSeconds } from "../../tools/helpers/textFormatting";

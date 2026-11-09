@@ -18,7 +18,7 @@ import {
 	QueueMode,
 	type TeleportLocation,
 	teleportLocationDefault,
-} from "../../todo/types";
+} from "../../todo/game/gameState";
 import { structureSchemaManager, tools } from "../../tools";
 import { Game } from "../../tools/game/game";
 import { GameType } from "../../tools/game/gameType";
