@@ -1,11 +1,15 @@
 import {
 	type Entity,
 	EntityComponentTypes,
+	type EntityDieAfterEvent,
 	type EntityEquippableComponent,
 	type EntityInventoryComponent,
 	EquipmentSlot,
 	type ItemLockMode,
 	type ItemStack,
+	Player,
+	type PlayerLeaveAfterEvent,
+	world,
 } from "@minecraft/server";
 import { applyEnchant, setDurability } from "../shared/componentUtils";
 
@@ -26,9 +30,11 @@ export interface Kit {
 
 export class KitManager {
 	private readonly _entityKits: Map<string, Kit>;
+	private _isInitialized: boolean;
 
 	public constructor() {
 		this._entityKits = new Map<string, Kit>();
+		this._isInitialized = false;
 	}
 
 	public reset(entity: Entity): void {
@@ -76,6 +82,30 @@ export class KitManager {
 			if (kit?.onKill) {
 				kit.onKill(killer, deadEntity);
 			}
+		}
+	}
+
+	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
+		this._entityKits.delete(event.playerId);
+	};
+
+	private entityDie = (event: EntityDieAfterEvent): void => {
+		if (event.deadEntity instanceof Player === false) {
+			this._entityKits.delete(event.deadEntity.id);
+		}
+	};
+
+	public init(): void {
+		if (!this._isInitialized) {
+			world.afterEvents.playerLeave.subscribe(this.playerLeave);
+			world.afterEvents.entityDie.subscribe(this.entityDie);
+		}
+	}
+
+	public shutdown(): void {
+		if (this._isInitialized) {
+			world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
+			world.afterEvents.entityDie.unsubscribe(this.entityDie);
 		}
 	}
 }
