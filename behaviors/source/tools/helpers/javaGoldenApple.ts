@@ -8,7 +8,7 @@ import {
 import { MinecraftEffectTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 
 /*
-Absorption has a jank effect stacking mechanic on Minecraft Bedrock Edition.
+Absorption is jank on Minecraft Bedrock Edition.
 Each time a player eats multiple Golden Apples in a row, it adds 2 yellow absorption hearts to their health, capping at 8.
 On Java Edition, Golden Apples always cap at 2 yellow hearts.
 This script aims to replicate the more balanced behavior of java edition.

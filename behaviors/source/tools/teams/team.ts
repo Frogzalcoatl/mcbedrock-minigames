@@ -115,6 +115,6 @@ export class Team {
 	}
 
 	public getEliminatedPlayers(): Player[] {
-		return this._eliminatedPlayers?.getAll();
+		return this._eliminatedPlayers.getAll();
 	}
 }
