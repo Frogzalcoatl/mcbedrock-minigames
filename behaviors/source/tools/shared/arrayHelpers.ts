@@ -35,6 +35,9 @@ export function arrRemoveSwapByCallback<T>(
 }
 
 export function arrRemoveSwapByIndex<T>(arr: T[], i: number): boolean {
+	if (i < 0 || i >= arr.length) {
+		return false;
+	}
 	const lastValue: T | undefined = arr[arr.length - 1];
 	if (lastValue !== undefined) {
 		arr[i] = lastValue;
