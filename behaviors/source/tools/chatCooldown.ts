@@ -44,9 +44,7 @@ export class ChatCooldownManager {
 		if (!bypassed) {
 			const timestamp: number | undefined = this._timestamps.get(event.sender.id);
 			if (timestamp !== undefined && timestamp + this.cooldownTicks > system.currentTick) {
-				const ticksRemaining: number = Math.ceil(
-					timestamp + this.cooldownTicks - system.currentTick,
-				);
+				const ticksRemaining: number = timestamp + this.cooldownTicks - system.currentTick;
 				event.cancel = true;
 				this.onChatReject.triggerEvent({
 					message: event.message,
