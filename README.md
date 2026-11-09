@@ -1,8 +1,4 @@
 # Minigames
-
-This project is currently a jumbled mess as I am midway through completely refactoring how everything works. 
-To avoid burnout I am going to take a break from this project and work on something else.
-
 A collection of Minecraft Bedrock Edition minigames that can be played concurrently.
 Each minigame instance is split into its own custom dimension.
 
@@ -52,10 +48,18 @@ Structures built by contributors should be exported to .mcstructure files using 
 
 **Multiple files needed:**
 
-1. Store position offsets of each structure file in a json file at: `behaviors/source/structures/json/`.
-	- When choosing a json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
-	- See type [StructureSchema](https://github.com/Frogzalcoatl/mcbedrock-minigames/blob/main/behaviors/source/tools/managers/structureSchemaManager.ts) for json formatting in: `behaviors/source/structures/data.ts`.
-	- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
+1. Store position offsets of each structure file in a json file at: `behaviors/source/structures/json/`. The json file should contain an array of: `["structureId", relativeX, relativeY, relativeZ]`
+	
+- When choosing a json file location, try to match the file structure in `behaviors/structures/mg/` for consistency.
+- structureId should be a file path relative to `behaviors/structures/mg/`, ignoring the .mcstructure file extension.
+
+Example:
+```json
+[
+	["username/structurePath1", 0, 0, 0],
+	["username/structurePath2", 64, 0, 0]
+]
+```
 
 2. Import the json file in structures/index.ts. Example Import:
 ```ts
@@ -80,106 +84,4 @@ Use the **/load** command. Example:
 Loads structure with id "username/myStructure" at the user's current position.
 
 ## Features
-### Rooms
-Each room has its own custom dimension. Custom dimensions can only be registered on startup and cannot be reset once registered.
-Even if a world is loaded without registering a specific dimension, its data still exists and will remain if registered again.
-Rooms optionally include a hub, which can also be used for waiting rooms.
-Use the **/settings** command to manage rooms in game.
-
-### Custom Commands
-**All Players:**
-
-`/hub` - Transfer to hub.
-
-`/profile` - View a player profile.
-
-`/q` - Join a game queue.
-
-**Operators Only:**
-
-`/load` - Load structure from behavior pack.
-
-`/settings` - Manage active rooms.
-
-`/newsave` - Place structure blocks for save based on bounds.
-
-`/existingsave` - Place structure blocks for save based on existing structure.
-
-`/sim` - Spawn simulated players.
-
-`/clearsim` - Clear simulated players.
-
-### Custom Items
-Custom items on this world are currently just renamed vanilla items that trigger callbacks on ItemUse and/or PlayerSwing events.
-I would like to learn about adding custom items through resource packs, especially if we decide to give players anvil access in a future gamemode.
-As far as I know, theres no feasible way to prevent players from renaming their items to match the type/name of a custom item.
-
-### Kits
-A collection of items with optional onKill and onDeath callbacks. Currently just used for kitpvp, but can be used for future modes like Skywars.
-
-### Floating Text
-A basic invisible entity whose nametag is always visible. 
-
-**Spawning:**
-
-Rename a mg:text spawn egg with an anvil and place it down. 
-
-Or instead run:
-```
-/summon mg:text "your text here" ~ ~ ~
-```
-
-**Removing:**
-
-Remove all text entities within 1 block of the user:
-```
-/kill @e[r=1,type=mg:text]
-```
-If 1 block of precision is not enough, change the number after r= (Example: r=0.5).
-
-### Trackers
-- Kill Tracker
-	- Grants indirect kills by tracking who last attacked an entity using the EntityHurtAfterEvent.
-	- Cooldown ticks represents the max amount of time that a kill will still be counted after last hit.
-	- An optional per room onKill callback can be included, which is useful for death messages.
-	- An optional per room showCombatTime callback can be included to display a cooldown countdown. (e.g. an actionbar)
-
-- Projectile Tracker
-	- Can be used to kill projectiles shot by a player on leave.
-	- Projectiles cannot be removed on world shutdown, so they are all tagged then removed on entityLoad.
-
-- Death Location Tracker
-	- Used to teleport players to their death location in spectator mode after respawning.
-
-- Dimension Tracker
-	- In 26.50, player.dimension is not accessible during the PlayerLeaveBeforeEvent.
-	- Track player dimensions using the dimension transfer event to properly run room leave callbacks.
-
-- Player Name Tracker
-	- In 26.50, player.name is not accessible during the PlayerLeaveBeforeEvent.
-	- Properly send "PlayerName has left the game" message if they were in an active game.
-	- player.name is technically available in the after event, could potentially refactor to remove bloat.
-
-
-## Planned Features
-- Game State Manager
-	- Handle basic game loop and teams.
-
-- Custom Knockback
-	- Minecraft gamerule pvp set to false.
-	- Use events to manually calculate damage and knockback.
-	- Useful to enable/disable combat based on gamemode.
-	- Try to emulate The Hive here.
-
-- Team Manager
-	- Would use custom kockback listed above to cancel attacks from teammates.
-
-- Custom Fall Damage
-	- Useful to enable, disable, or edit fall damage based on gamemode.
-
-- Player Statistics
-	- Kills, Wins, etc.
-	- Use dynamic properties (per stat properties instead of json stringify tomfoolery)
-
-- Ticking Area Queue
-	- Minecraft limits worlds to 10 ticking areas.
+I am in the process of refactoring this pack's features. Will update this once done.
