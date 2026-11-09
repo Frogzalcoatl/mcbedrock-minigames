@@ -4,11 +4,15 @@ import "./structures/index";
 import "./miscEvents";
 import {
 	type Entity,
+	ItemStack,
+	type ItemUseAfterEvent,
 	Player,
 	type PlayerJoinAfterEvent,
 	PlayerPermissionLevel,
+	type PlayerSwingStartAfterEvent,
 	world,
 } from "@minecraft/server";
+import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "./constants";
 import {
 	type ChatCooldownAcceptEvent,
@@ -16,6 +20,7 @@ import {
 	type ChatCooldownRejectEvent,
 } from "./tools/chatCooldown";
 import { initJavaGoldenApple } from "./tools/helpers/javaGoldenApple";
+import { ItemEventManager, type ItemUseRejectEvent } from "./tools/itemEventManager";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
 import {
@@ -121,4 +126,23 @@ world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent): void => {
 	if (player instanceof Player) {
 		waitingRoom.join(player);
 	}
+});
+
+const items = new ItemEventManager();
+
+items.init();
+
+items.onUseReject.subscribe((event: ItemUseRejectEvent): void => {
+	const seconds: number = Math.ceil(event.ticksRemaining / 2) / 10;
+	event.player.sendMessage(`§cPlease wait ${seconds}s before using this again.`);
+});
+
+world.afterEvents.worldLoad.subscribe(() => {
+	const stick = new ItemStack(MinecraftItemTypes.Stick);
+	items.registerItemUse(stick, 60, (event: ItemUseAfterEvent): void => {
+		event.source.sendMessage("Use!");
+	});
+	items.registerItemSwing(stick, (event: PlayerSwingStartAfterEvent): void => {
+		event.player.sendMessage("Swing!");
+	});
 });

@@ -103,16 +103,7 @@ export class WaitingRoom {
 			playerName: event.playerName,
 			room: this,
 		});
-		this.runCurrentTick();
 	};
-
-	private runCurrentTick(): void {
-		if (this._waitingIntervalId !== null) {
-			this.waitingTick();
-		} else if (this._countdownIntervalId !== null) {
-			this.countdownTick();
-		}
-	}
 
 	private stopWaitingTick(): void {
 		if (this._waitingIntervalId !== null) {
@@ -190,7 +181,6 @@ export class WaitingRoom {
 		if (this._waitingIntervalId === null && this._countdownIntervalId === null) {
 			this.startWaitingTick();
 		}
-		this.runCurrentTick();
 		return true;
 	}
 
@@ -206,7 +196,6 @@ export class WaitingRoom {
 			playerName: player.name,
 			room: this,
 		});
-		this.runCurrentTick();
 	}
 
 	public reset(): void {
