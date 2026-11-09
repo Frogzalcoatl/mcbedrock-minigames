@@ -213,4 +213,15 @@ export class WaitingRoom {
 	public has(player: Player): boolean {
 		return this._players.has(player);
 	}
+
+	public shutdown(): void {
+		if (this._waitingIntervalId !== null) {
+			system.clearRun(this._waitingIntervalId);
+			this._waitingIntervalId = null;
+		}
+		if (this._countdownIntervalId !== null) {
+			system.clearRun(this._countdownIntervalId);
+			this._countdownIntervalId = null;
+		}
+	}
 }
