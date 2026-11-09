@@ -134,14 +134,14 @@ export class WaitingRoom {
 			return;
 		}
 		this._state =
-			this._players.getAll().length >= this.maxPlayersForCompletion
+			this._players.size >= this.maxPlayersForCompletion
 				? WaitingRoomState.Full
 				: WaitingRoomState.Open;
 	}
 
 	private waitingTick = (): void => {
 		this.updateFullState();
-		if (this._players.getAll().length >= this.playersToStartCountdown) {
+		if (this._players.size >= this.playersToStartCountdown) {
 			this.stopWaitingTick();
 			this.startCountdownTick();
 		} else {
@@ -151,12 +151,11 @@ export class WaitingRoom {
 
 	private countdownTick = (): void => {
 		this.updateFullState();
-		const playerCount: number = this._players.getAll().length;
-		if (playerCount < this.playersToStartCountdown) {
+		if (this._players.size < this.playersToStartCountdown) {
 			this.secondsRemaining = this.countdownDurationSeconds;
 			this.stopCountdownTick();
 			this.onCountdownCancelled.triggerEvent(this);
-			if (playerCount > 0) {
+			if (this._players.size > 0) {
 				this.startWaitingTick();
 			}
 			return;
@@ -186,7 +185,7 @@ export class WaitingRoom {
 
 	public leave(player: Player): void {
 		this._players.remove(player);
-		if (this._players.getAll().length === 0) {
+		if (this._players.size === 0) {
 			this.stopCountdownTick();
 			this.stopWaitingTick();
 		}
