@@ -20,7 +20,11 @@ import {
 	type ChatCooldownRejectEvent,
 } from "./tools/chatCooldown";
 import { initJavaGoldenApple } from "./tools/helpers/javaGoldenApple";
-import { ItemEventManager, type ItemUseRejectEvent } from "./tools/itemEventManager";
+import {
+	type ItemCooldownCompleteEvent,
+	ItemEventManager,
+	type ItemUseRejectEvent,
+} from "./tools/itemEventManager";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
 import {
@@ -135,6 +139,10 @@ items.init();
 items.onUseReject.subscribe((event: ItemUseRejectEvent): void => {
 	const seconds: number = Math.ceil(event.ticksRemaining / 2) / 10;
 	event.player.sendMessage(`§cPlease wait ${seconds}s before using this again.`);
+});
+
+items.onCooldownComplete.subscribe((event: ItemCooldownCompleteEvent): void => {
+	event.player.sendMessage(`Cooldown complete for ${event.item.nameTag ?? event.item.typeId}`);
 });
 
 world.afterEvents.worldLoad.subscribe(() => {

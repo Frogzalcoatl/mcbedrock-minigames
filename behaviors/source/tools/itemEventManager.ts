@@ -7,6 +7,7 @@ import {
 	type ItemUseAfterEvent,
 	type Player,
 	type PlayerSwingStartAfterEvent,
+	system,
 	world,
 } from "@minecraft/server";
 import { EventSignal } from "./shared/eventSignal";
@@ -22,6 +23,11 @@ export interface ItemUseRejectEvent {
 	ticksRemaining: number;
 }
 
+export interface ItemCooldownCompleteEvent {
+	item: ItemStack;
+	player: Player;
+}
+
 export type ItemSwingHandler = (event: PlayerSwingStartAfterEvent) => void;
 
 export function itemCooldownsCategory(item: ItemStack): string {
@@ -33,12 +39,14 @@ export function itemCooldownsCategory(item: ItemStack): string {
 
 export class ItemEventManager {
 	public readonly onUseReject: EventSignal<ItemUseRejectEvent>;
+	public readonly onCooldownComplete: EventSignal<ItemCooldownCompleteEvent>;
 	private readonly _itemUse: Map<string, ItemUseEntry>;
 	private readonly _itemSwing: Map<string, ItemSwingHandler>;
 	private _isInitialized: boolean;
 
 	public constructor() {
 		this.onUseReject = new EventSignal();
+		this.onCooldownComplete = new EventSignal();
 		this._itemUse = new Map();
 		this._itemSwing = new Map();
 		this._isInitialized = false;
@@ -83,6 +91,14 @@ export class ItemEventManager {
 		if (event.source.getItemCooldown(category) <= 0) {
 			entry.callback(event);
 			event.source.startItemCooldown(category, entry.cooldownTicks);
+			system.runTimeout(() => {
+				if (event.source.isValid) {
+					this.onCooldownComplete.triggerEvent({
+						item: event.itemStack,
+						player: event.source,
+					});
+				}
+			}, entry.cooldownTicks);
 		} else {
 			const rejectEvent: ItemUseRejectEvent = {
 				item: event.itemStack,
