@@ -108,7 +108,6 @@ export class KillTracker {
 			});
 		}
 		this._combatMap.delete(playerId);
-		this.clearInterval(playerId);
 	}
 
 	private entityHurt = (event: EntityHurtAfterEvent): void => {
@@ -121,7 +120,6 @@ export class KillTracker {
 		if (!event.deadEntity.isValid || event.deadEntity instanceof Player === false) {
 			return;
 		}
-		this.clearCombat();
 		const combatEvent: KillTrackerEvent = {
 			cause: event.damageSource.cause,
 			deadPlayer: event.deadEntity,
