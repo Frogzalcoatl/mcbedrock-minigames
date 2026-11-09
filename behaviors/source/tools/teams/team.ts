@@ -1,8 +1,8 @@
 import { type Player, type PlayerSpawnAfterEvent, world } from "@minecraft/server";
-import { PlayerManager } from "../../../tools/playerManager";
-import { ColorCode } from "../../../tools/shared/colorCodes";
-import { DyeColorId } from "../../../tools/shared/dyeColorId";
-import type { TeleportLocation } from "../../../tools/shared/locations";
+import { PlayerManager } from "../playerManager";
+import { ColorCode } from "../shared/colorCodes";
+import { DyeColorId } from "../shared/dyeColorId";
+import type { TeleportLocation } from "../shared/locations";
 import { EliminationManager, type PlayerEliminationEvent } from "./eliminationManager";
 
 world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {

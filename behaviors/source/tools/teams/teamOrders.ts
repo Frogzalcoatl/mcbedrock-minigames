@@ -1,5 +1,5 @@
-import { ColorCode } from "../../../tools/shared/colorCodes";
-import { DyeColorId } from "../../../tools/shared/dyeColorId";
+import { ColorCode } from "../shared/colorCodes";
+import { DyeColorId } from "../shared/dyeColorId";
 import { Team } from "./team";
 
 interface TeamOrdersValue {

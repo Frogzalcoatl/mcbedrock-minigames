@@ -4,9 +4,9 @@ import {
 	type PlayerSpawnAfterEvent,
 	system,
 } from "@minecraft/server";
-import { PlayerManager } from "../../../tools/playerManager";
-import { EventSignal } from "../../../tools/shared/eventSignal";
-import { type TeleportLocation, teleportLocation } from "../../../tools/shared/locations";
+import { PlayerManager } from "../playerManager";
+import { EventSignal } from "../shared/eventSignal";
+import { type TeleportLocation, teleportLocation } from "../shared/locations";
 
 export interface PlayerRespawnEvent {
 	player: Player;
