@@ -36,7 +36,7 @@ import {
 const chatCooldowns = new ChatCooldownManager(10);
 chatCooldowns.init();
 chatCooldowns.onChatAccept.subscribe((event: ChatCooldownAcceptEvent): void => {
-	event.cancelVanilla = true;
+	event.cancelVanillaEvent = true;
 	world.sendMessage(`§7${event.sender.name} §r§l§7»§r ${event.message}`);
 });
 

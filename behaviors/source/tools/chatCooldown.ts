@@ -15,7 +15,7 @@ export interface ChatCooldownRejectEvent {
 
 export interface ChatCooldownAcceptEvent {
 	// Set to true to suppress vanilla minecraft chat messages
-	cancelVanilla: boolean;
+	cancelVanillaEvent: boolean;
 	readonly message: string;
 	readonly sender: Player;
 }
@@ -55,12 +55,12 @@ export class ChatCooldownManager {
 			}
 		}
 		const acceptEvent: ChatCooldownAcceptEvent = {
-			cancelVanilla: false,
+			cancelVanillaEvent: false,
 			message: event.message,
 			sender: event.sender,
 		};
 		this.onChatAccept.triggerEvent(acceptEvent);
-		if (acceptEvent.cancelVanilla) {
+		if (acceptEvent.cancelVanillaEvent) {
 			event.cancel = true;
 		}
 		if (!bypassed) {

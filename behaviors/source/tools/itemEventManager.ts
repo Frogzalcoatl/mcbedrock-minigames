@@ -17,6 +17,8 @@ interface ItemUseEntry {
 	cooldownTicks: number;
 }
 
+type ItemSwingHandler = (event: PlayerSwingStartAfterEvent) => void;
+
 export interface ItemUseRejectEvent {
 	item: ItemStack;
 	player: Player;
@@ -27,8 +29,6 @@ export interface ItemCooldownCompleteEvent {
 	item: ItemStack;
 	player: Player;
 }
-
-export type ItemSwingHandler = (event: PlayerSwingStartAfterEvent) => void;
 
 export function itemCooldownsCategory(item: ItemStack): string {
 	const cooldownComponent: ItemCooldownComponent | undefined = item.getComponent(
