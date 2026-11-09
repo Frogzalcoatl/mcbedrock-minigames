@@ -19,7 +19,7 @@ export interface TeleportLocation {
 }
 
 export function teleportLocationToString(loc: TeleportLocation): string {
-	return `${loc.dimension}: ${vector3ToString(loc.pos)} (Facing ${vector3ToString(loc.facing)})`;
+	return `${loc.dimension.id}: ${vector3ToString(loc.pos)} (Facing ${vector3ToString(loc.facing)})`;
 }
 
 export function teleportLocationDefault(): TeleportLocation {
