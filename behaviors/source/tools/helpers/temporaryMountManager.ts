@@ -21,10 +21,10 @@ function despawnEffects(pos: Vector3, dimension: Dimension): void {
 }
 
 export class TemporaryMountManager {
-	private isInitialized: boolean;
+	private _isInitialized: boolean;
 
 	public constructor() {
-		this.isInitialized = false;
+		this._isInitialized = false;
 	}
 
 	private entityLoadCleanup = (event: EntityLoadAfterEvent): void => {
@@ -37,16 +37,17 @@ export class TemporaryMountManager {
 	};
 
 	public init(): void {
-		if (this.isInitialized) {
-			return;
+		if (!this._isInitialized) {
+			world.afterEvents.entityLoad.subscribe(this.entityLoadCleanup);
+			this._isInitialized = true;
 		}
-		world.afterEvents.entityLoad.subscribe(this.entityLoadCleanup);
-		this.isInitialized = true;
 	}
 
 	public shutdown(): void {
-		world.afterEvents.entityLoad.unsubscribe(this.entityLoadCleanup);
-		this.isInitialized = false;
+		if (this._isInitialized) {
+			world.afterEvents.entityLoad.unsubscribe(this.entityLoadCleanup);
+			this._isInitialized = false;
+		}
 	}
 
 	public spawn(
@@ -54,7 +55,7 @@ export class TemporaryMountManager {
 		player: Player,
 		durationTicks: number,
 	): Entity | undefined {
-		if (!this.isInitialized) {
+		if (!this._isInitialized) {
 			this.init();
 		}
 		const mountEntity: Entity = player.dimension.spawnEntity(mountType, player.location, {

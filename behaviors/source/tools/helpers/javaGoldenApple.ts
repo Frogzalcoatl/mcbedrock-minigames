@@ -67,14 +67,22 @@ function playerLeave(event: PlayerLeaveAfterEvent): void {
 	playerAbsorptionMap.delete(event.playerId);
 }
 
+let isInitialized = false;
+
 export function initJavaGoldenApple(): void {
-	world.afterEvents.itemStartUse.subscribe(itemStartUse);
-	world.afterEvents.itemCompleteUse.subscribe(itemCompleteUse);
-	world.afterEvents.playerLeave.subscribe(playerLeave);
+	if (!isInitialized) {
+		world.afterEvents.itemStartUse.subscribe(itemStartUse);
+		world.afterEvents.itemCompleteUse.subscribe(itemCompleteUse);
+		world.afterEvents.playerLeave.subscribe(playerLeave);
+		isInitialized = true;
+	}
 }
 
 export function shutdownJavaGoldenApple(): void {
-	world.afterEvents.itemStartUse.unsubscribe(itemStartUse);
-	world.afterEvents.itemCompleteUse.unsubscribe(itemCompleteUse);
-	world.afterEvents.playerLeave.unsubscribe(playerLeave);
+	if (isInitialized) {
+		world.afterEvents.itemStartUse.unsubscribe(itemStartUse);
+		world.afterEvents.itemCompleteUse.unsubscribe(itemCompleteUse);
+		world.afterEvents.playerLeave.unsubscribe(playerLeave);
+		isInitialized = false;
+	}
 }

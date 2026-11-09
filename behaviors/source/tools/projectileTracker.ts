@@ -16,11 +16,13 @@ export class ProjectileTracker {
 	public readonly projectileTypeIds: Set<string>;
 	private readonly _trackedPlayerIds: Set<string>;
 	private readonly _projectiles: Map<string, string>; // [projectileId, playerId]
+	private _isInitialized: boolean;
 
 	public constructor(projectileTypeIds: string[]) {
 		this._trackedPlayerIds = new Set();
 		this.projectileTypeIds = new Set(projectileTypeIds);
 		this._projectiles = new Map<string, string>();
+		this._isInitialized = false;
 	}
 
 	public trackPlayer(player: Player): void {
@@ -80,18 +82,24 @@ export class ProjectileTracker {
 	};
 
 	public init(): void {
-		world.beforeEvents.entityRemove.subscribe(this.entityRemove);
-		world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
-		world.afterEvents.entityLoad.subscribe(this.entityLoad);
-		world.afterEvents.playerLeave.subscribe(this.playerLeave);
+		if (!this._isInitialized) {
+			world.beforeEvents.entityRemove.subscribe(this.entityRemove);
+			world.afterEvents.entitySpawn.subscribe(this.entitySpawn);
+			world.afterEvents.entityLoad.subscribe(this.entityLoad);
+			world.afterEvents.playerLeave.subscribe(this.playerLeave);
+			this._isInitialized = true;
+		}
 	}
 
 	public shutdown(): void {
-		world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
-		world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
-		world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
-		world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
-		this._projectiles.clear();
-		this._trackedPlayerIds.clear();
+		if (this._isInitialized) {
+			world.beforeEvents.entityRemove.unsubscribe(this.entityRemove);
+			world.afterEvents.entitySpawn.unsubscribe(this.entitySpawn);
+			world.afterEvents.entityLoad.unsubscribe(this.entityLoad);
+			world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
+			this._projectiles.clear();
+			this._trackedPlayerIds.clear();
+			this._isInitialized = false;
+		}
 	}
 }

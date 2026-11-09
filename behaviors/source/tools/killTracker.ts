@@ -4,6 +4,7 @@ import {
 	type EntityDieAfterEvent,
 	type EntityHurtAfterEvent,
 	Player,
+	type PlayerLeaveAfterEvent,
 	type PlayerSpawnAfterEvent,
 	system,
 	world,
@@ -29,6 +30,7 @@ export class KillTracker {
 	public showCombatTimeTickInterval: number;
 	private readonly _intervalIds: Map<string, number>;
 	private readonly _hitMap: Map<string, KillTrackerValue>; // key is entityId
+	private _isInitialized: boolean;
 
 	public constructor(hitCooldownTicks: number) {
 		this.hitCooldownTicks = hitCooldownTicks;
@@ -38,6 +40,7 @@ export class KillTracker {
 		this.showCombatTimeTickInterval = 0;
 		this._intervalIds = new Map<string, number>();
 		this._hitMap = new Map<string, KillTrackerValue>();
+		this._isInitialized = false;
 	}
 
 	private inCombatCondition(timestamp: number): boolean {
@@ -160,15 +163,26 @@ export class KillTracker {
 		this.onRespawn.triggerEvent(event.player);
 	};
 
+	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
+		this.removePlayer(event.playerId);
+	};
+
 	public init(): void {
-		world.afterEvents.entityHurt.subscribe(this.entityHurt);
-		world.afterEvents.entityDie.subscribe(this.entityDie);
-		world.afterEvents.playerSpawn.subscribe(this.playerSpawn);
+		if (!this._isInitialized) {
+			world.afterEvents.entityHurt.subscribe(this.entityHurt);
+			world.afterEvents.entityDie.subscribe(this.entityDie);
+			world.afterEvents.playerSpawn.subscribe(this.playerSpawn);
+			world.afterEvents.playerLeave.subscribe(this.playerLeave);
+			this._isInitialized = true;
+		}
 	}
 
 	public shutdown(): void {
-		world.afterEvents.entityHurt.unsubscribe(this.entityHurt);
-		world.afterEvents.entityDie.unsubscribe(this.entityDie);
-		world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
+		if (this._isInitialized) {
+			world.afterEvents.entityHurt.unsubscribe(this.entityHurt);
+			world.afterEvents.entityDie.unsubscribe(this.entityDie);
+			world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
+			world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
+		}
 	}
 }

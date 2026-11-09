@@ -23,19 +23,27 @@ function playerLeave(event: PlayerLeaveAfterEvent): void {
 	deathLocations.delete(event.playerId);
 }
 
+let isInitialized = false;
+
 export interface DeathLocation {
 	dimension: Dimension;
 	pos: Vector3;
 }
 
 export function initDeathLocationTracker(): void {
-	world.afterEvents.entityDie.subscribe(entityDie);
-	world.afterEvents.playerLeave.subscribe(playerLeave);
+	if (!isInitialized) {
+		world.afterEvents.entityDie.subscribe(entityDie);
+		world.afterEvents.playerLeave.subscribe(playerLeave);
+		isInitialized = true;
+	}
 }
 
 export function shutdownDeathLocationTracker(): void {
-	world.afterEvents.entityDie.unsubscribe(entityDie);
-	world.afterEvents.playerLeave.unsubscribe(playerLeave);
+	if (isInitialized) {
+		world.afterEvents.entityDie.unsubscribe(entityDie);
+		world.afterEvents.playerLeave.unsubscribe(playerLeave);
+		isInitialized = false;
+	}
 }
 
 export function getLastDeathLocation(player: Player): DeathLocation | undefined {
