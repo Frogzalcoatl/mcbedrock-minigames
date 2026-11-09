@@ -9,6 +9,7 @@ import {
 	Player,
 	type PlayerJoinAfterEvent,
 	PlayerPermissionLevel,
+	type PlayerSpawnAfterEvent,
 	type PlayerSwingStartAfterEvent,
 	world,
 } from "@minecraft/server";
@@ -19,14 +20,16 @@ import {
 	ChatCooldownManager,
 	type ChatCooldownRejectEvent,
 } from "./tools/chatCooldown";
-import { initJavaGoldenApple } from "./tools/helpers/javaGoldenApple";
 import {
 	type ItemCooldownCompleteEvent,
 	ItemEventManager,
 	type ItemUseRejectEvent,
 } from "./tools/itemEventManager";
+import { JavaGoldenApple } from "./tools/javaGoldenApple";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
+import { Team } from "./tools/teams/team";
+import { getDefaultTeamOrders } from "./tools/teams/teamOrders";
 import {
 	WaitingRoom,
 	type WaitingRoomJoinEvent,
@@ -37,7 +40,9 @@ const chatCooldowns = new ChatCooldownManager(10);
 chatCooldowns.init();
 chatCooldowns.onChatAccept.subscribe((event: ChatCooldownAcceptEvent): void => {
 	event.cancelVanillaEvent = true;
-	world.sendMessage(`§7${event.sender.name} §r§l§7»§r ${event.message}`);
+	world.sendMessage(
+		`${event.sender.chatNamePrefix ?? "§7"}${event.sender.name} §r§l§7»§r ${event.message}`,
+	);
 });
 
 chatCooldowns.onChatReject.subscribe((event: ChatCooldownRejectEvent): void => {
@@ -53,7 +58,8 @@ chatCooldowns.isBypassed = (player: Player): boolean => {
 
 registerSimulatedPlayerCommands(new SimulatedPlayerManager(PACK_NAMESPACE, true));
 
-initJavaGoldenApple();
+const javaGoldenApple = new JavaGoldenApple();
+javaGoldenApple.init();
 
 const waitingRoom = new WaitingRoom({
 	countdownDurationSeconds: 15,
@@ -153,4 +159,27 @@ world.afterEvents.worldLoad.subscribe(() => {
 	items.registerItemSwing(stick, (event: PlayerSwingStartAfterEvent): void => {
 		event.player.sendMessage("Swing!");
 	});
+});
+
+const teams: Team[] = getDefaultTeamOrders(2, 1);
+
+function joinTeam(player: Player): void {
+	for (const t of teams) {
+		if (t.join(player)) {
+			return;
+		}
+	}
+}
+
+world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent): void => {
+	if (event.initialSpawn) {
+		joinTeam(event.player);
+	}
+});
+
+world.afterEvents.worldLoad.subscribe(() => {
+	Team.clearAllPlayerStyles();
+	for (const p of world.getAllPlayers()) {
+		joinTeam(p);
+	}
 });

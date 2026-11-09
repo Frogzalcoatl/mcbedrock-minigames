@@ -1,27 +1,9 @@
-import { type Player, type PlayerSpawnAfterEvent, world } from "@minecraft/server";
+import { type Player, world } from "@minecraft/server";
 import { PlayerManager } from "../playerManager";
 import { ColorCode } from "../shared/colorCodes";
 import { DyeColorId } from "../shared/dyeColorId";
 import type { TeleportLocation } from "../shared/locations";
 import { EliminationManager, type PlayerEliminationEvent } from "./eliminationManager";
-
-world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent) => {
-	if (event.initialSpawn) {
-		clearNameStyle(event.player);
-	}
-});
-
-world.afterEvents.worldLoad.subscribe(() => {
-	for (const p of world.getAllPlayers()) {
-		clearNameStyle(p);
-	}
-});
-
-export function clearNameStyle(player: Player): void {
-	player.nameTag = player.name;
-	player.chatNamePrefix = "";
-	player.chatNameSuffix = "";
-}
 
 export class Team {
 	public name: string;
@@ -98,7 +80,7 @@ export class Team {
 		if (this._eliminationManager !== null) {
 			this._eliminationManager.removePlayer(player);
 		}
-		clearNameStyle(player);
+		Team.clearPlayerStyle(player);
 		return true;
 	}
 
@@ -116,5 +98,17 @@ export class Team {
 
 	public getEliminatedPlayers(): Player[] {
 		return this._eliminatedPlayers.getAll();
+	}
+
+	public static clearPlayerStyle(player: Player): void {
+		player.nameTag = player.name;
+		player.chatNamePrefix = "";
+		player.chatNameSuffix = "";
+	}
+
+	public static clearAllPlayerStyles(): void {
+		for (const p of world.getAllPlayers()) {
+			Team.clearPlayerStyle(p);
+		}
 	}
 }

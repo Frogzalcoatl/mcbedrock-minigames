@@ -11,7 +11,7 @@ import {
 	world,
 } from "@minecraft/server";
 import type { MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "../shared/particles";
+import { spreadParticles } from "./shared/particles";
 
 const MOUNT_PROPERTY_ID: string = "frogzalcoatl:is_temporary_mount";
 
