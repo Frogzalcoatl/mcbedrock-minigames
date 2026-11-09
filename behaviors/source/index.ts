@@ -2,9 +2,19 @@
 // import "./games/index";
 import "./structures/index";
 import "./miscEvents";
-import { type Entity, Player, type PlayerJoinAfterEvent, world } from "@minecraft/server";
+import {
+	type Entity,
+	Player,
+	type PlayerJoinAfterEvent,
+	PlayerPermissionLevel,
+	world,
+} from "@minecraft/server";
 import { PACK_NAMESPACE } from "./constants";
-import { ChatCooldownManager } from "./tools/chatCooldown";
+import {
+	type ChatCooldownAcceptEvent,
+	ChatCooldownManager,
+	type ChatCooldownRejectEvent,
+} from "./tools/chatCooldown";
 import { initJavaGoldenApple } from "./tools/helpers/javaGoldenApple";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
@@ -16,6 +26,21 @@ import {
 
 const chatCooldowns = new ChatCooldownManager(10);
 chatCooldowns.init();
+chatCooldowns.onChatAccept.subscribe((event: ChatCooldownAcceptEvent): void => {
+	event.cancelVanilla = true;
+	world.sendMessage(`§7${event.sender.name} §r§l§7»§r ${event.message}`);
+});
+
+chatCooldowns.onChatReject.subscribe((event: ChatCooldownRejectEvent): void => {
+	const secondsRemaining: number = Math.ceil(event.ticksRemaining / 2) / 10;
+	event.sender.sendMessage(
+		`§cPlease wait ${secondsRemaining} second${secondsRemaining !== 1 ? "s" : ""}`,
+	);
+});
+
+chatCooldowns.isBypassed = (player: Player): boolean => {
+	return player.playerPermissionLevel === PlayerPermissionLevel.Operator;
+};
 
 registerSimulatedPlayerCommands(new SimulatedPlayerManager(PACK_NAMESPACE, true));
 
