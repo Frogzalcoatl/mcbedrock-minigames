@@ -14,7 +14,9 @@ export function beamParticles(
 		distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ,
 	);
 	if (distance === 0) {
-		dimension.spawnParticle(particle, startPos);
+		if (dimension.isChunkLoaded(startPos)) {
+			dimension.spawnParticle(particle, startPos);
+		}
 		return;
 	}
 	const changeByX: number = (distanceX / distance) * spacing;
@@ -22,7 +24,9 @@ export function beamParticles(
 	const changeByZ: number = (distanceZ / distance) * spacing;
 	const current: Vector3 = startPos;
 	for (let distanceTraveled = 0; distanceTraveled < distance; distanceTraveled += spacing) {
-		dimension.spawnParticle(particle, current);
+		if (dimension.isChunkLoaded(current)) {
+			dimension.spawnParticle(particle, current);
+		}
 		current.x += changeByX;
 		current.y += changeByY;
 		current.z += changeByZ;
@@ -49,6 +53,8 @@ export function spreadParticles(
 			y: minY + Math.random() * (maxY - minY),
 			z: minZ + Math.random() * (maxZ - minZ),
 		};
-		dimension.spawnParticle(particle, particlePos);
+		if (dimension.isChunkLoaded(particlePos)) {
+			dimension.spawnParticle(particle, particlePos);
+		}
 	}
 }
