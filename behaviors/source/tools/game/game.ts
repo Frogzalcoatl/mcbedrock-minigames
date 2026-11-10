@@ -29,6 +29,10 @@ export abstract class Game {
 		this._players.onDisconnect.subscribe(this.handleDisconnect);
 	}
 
+	public get playerCount(): number {
+		return this._players.size;
+	}
+
 	private handleDisconnect = (event: PlayerLeaveAfterEvent): void => {
 		Game._globalPlayerIds.delete(event.playerId);
 		this.leave(event.playerId);

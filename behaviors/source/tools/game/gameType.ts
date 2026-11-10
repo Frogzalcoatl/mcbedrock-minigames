@@ -40,7 +40,7 @@ export class GameType {
 	public get playerCount(): number {
 		let count = 0;
 		for (const game of this.instances) {
-			count += game.getPlayers().length;
+			count += game.playerCount;
 		}
 		return count;
 	}

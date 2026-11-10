@@ -1,6 +1,5 @@
 import { type Player, system } from "@minecraft/server";
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import { showFormTeleporter } from "../../forms/teleporter";
 import { safeActionFormShow } from "../../tools/shared/safeFormShow";
 import type { GameType } from "./gameType";
 
@@ -41,7 +40,7 @@ export class GameManager {
 		const queueResult: boolean = await selectedType.queue(player);
 		if (!queueResult && player.isValid) {
 			system.run(() => {
-				showFormTeleporter(player);
+				this.form(player);
 			});
 		}
 	}
