@@ -11,21 +11,25 @@ import {
 	PlayerPermissionLevel,
 	type PlayerSpawnAfterEvent,
 	type PlayerSwingStartAfterEvent,
+	type Vector3,
 	world,
 } from "@minecraft/server";
-import { MinecraftItemTypes } from "@minecraft/vanilla-data";
+import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { PACK_NAMESPACE } from "./constants";
 import {
 	type ChatCooldownAcceptEvent,
 	ChatCooldownManager,
 	type ChatCooldownRejectEvent,
 } from "./tools/chatCooldown";
+import { beamFromEntity } from "./tools/helpers/beam";
+import { throwFireballFromEntity } from "./tools/helpers/fireball";
 import {
 	type ItemCooldownCompleteEvent,
 	ItemEventManager,
 	type ItemUseRejectEvent,
 } from "./tools/itemEventManager";
 import { JavaGoldenApple } from "./tools/javaGoldenApple";
+import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
 import { Team } from "./tools/teams/team";
@@ -152,12 +156,28 @@ items.onCooldownComplete.subscribe((event: ItemCooldownCompleteEvent): void => {
 });
 
 world.afterEvents.worldLoad.subscribe(() => {
-	const stick = new ItemStack(MinecraftItemTypes.Stick);
-	items.registerItemUse(stick, 60, (event: ItemUseAfterEvent): void => {
-		event.source.sendMessage("Use!");
+	const fireball = new ItemStack(MinecraftItemTypes.FireCharge);
+	items.registerItemUse(fireball, 0, (event: ItemUseAfterEvent): void => {
+		throwFireballFromEntity(event.source, MinecraftEntityTypes.Fireball, 10);
 	});
-	items.registerItemSwing(stick, (event: PlayerSwingStartAfterEvent): void => {
-		event.player.sendMessage("Swing!");
+	items.registerItemSwing(fireball, (event: PlayerSwingStartAfterEvent): void => {
+		event.player.sendMessage(`${event.player.name} swung da fireball!`);
+	});
+	const wand = new ItemStack(MinecraftItemTypes.Stick);
+	items.registerItemUse(wand, 20, (event: ItemUseAfterEvent): void => {
+		beamFromEntity(
+			event.source,
+			64,
+			(from: Entity, hitLocation: Vector3, _hitEntity?: Entity): void => {
+				beamParticles(
+					"minecraft:bleach",
+					from.dimension,
+					from.getHeadLocation(),
+					hitLocation,
+					1,
+				);
+			},
+		);
 	});
 });
 
