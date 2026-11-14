@@ -10,8 +10,8 @@ import {
 	type ModalFormResponse,
 } from "@minecraft/server-ui";
 
-// Minecraft throws FromRejectError when a player leaves while in a form
-// These functions catch that error and return a canceled response object
+// Minecraft throws FromRejectError when a player discnonects while viewing a form
+// These functions catch that error and return response object where resp.canceled = true
 // (as mojang should be doing imo)
 
 export async function safeActionFormShow(
