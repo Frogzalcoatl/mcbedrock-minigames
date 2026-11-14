@@ -63,7 +63,12 @@ export class Team {
 		if (this._activePlayers.has(player) || this._activePlayers.size >= this.maxPlayers) {
 			return false;
 		}
+		const oldTeam: Team | undefined = Team._globalPlayerIds.get(player.id);
+		if (oldTeam !== undefined) {
+			oldTeam.leave(player);
+		}
 		this._activePlayers.add(player);
+		Team._globalPlayerIds.set(player.id, this);
 		if (this._eliminationManager !== null) {
 			this._eliminationManager.addPlayer(player);
 		}
@@ -77,6 +82,7 @@ export class Team {
 		if (!this._activePlayers.remove(player)) {
 			return false;
 		}
+		Team._globalPlayerIds.delete(player.id);
 		if (this._eliminationManager !== null) {
 			this._eliminationManager.removePlayer(player);
 		}
@@ -110,5 +116,11 @@ export class Team {
 		for (const p of world.getAllPlayers()) {
 			Team.clearPlayerStyle(p);
 		}
+	}
+
+	private static _globalPlayerIds = new Map<string, Team>();
+
+	public static findPlayer(playerId: string): Team | undefined {
+		return Team._globalPlayerIds.get(playerId);
 	}
 }
