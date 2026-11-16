@@ -9,6 +9,7 @@ import { EventSignal } from "../shared/eventSignal";
 import { type TeleportLocation, teleportLocation } from "../shared/locations";
 
 export interface PlayerRespawnEvent {
+	isInitialTick: boolean;
 	player: Player;
 	ticksRemaining: number;
 }
@@ -162,7 +163,11 @@ export class EliminationManager {
 			return;
 		}
 		let ticksRemaining = this.respawnTimeTicks - ticksToSubtract;
-		this.onRespawnTick.triggerEvent({ player: player, ticksRemaining: ticksRemaining });
+		this.onRespawnTick.triggerEvent({
+			isInitialTick: true,
+			player: player,
+			ticksRemaining: ticksRemaining,
+		});
 		const intervalId: number = system.runInterval(() => {
 			if (!player.isValid) {
 				this.clearRespawnInterval(player.id);
@@ -173,7 +178,11 @@ export class EliminationManager {
 				this.spawn(player);
 				return;
 			}
-			this.onRespawnTick.triggerEvent({ player: player, ticksRemaining: ticksRemaining });
+			this.onRespawnTick.triggerEvent({
+				isInitialTick: false,
+				player: player,
+				ticksRemaining: ticksRemaining,
+			});
 			ticksRemaining--;
 		});
 		this._respawnIntervalIds.set(player.id, intervalId);
