@@ -26,7 +26,7 @@ export class EliminationManager {
 	public readonly onSpawn: EventSignal<PlayerSpawnAfterEvent>;
 	public readonly onRespawnTick: EventSignal<PlayerRespawnEvent>;
 	public readonly onPlayerElimination: EventSignal<PlayerEliminationEvent>;
-	public readonly onAllPlayersEliminated: EventSignal<EliminationManager>;
+	public readonly onFinalElimination: EventSignal<EliminationManager>;
 	private readonly _players: PlayerManager;
 	private readonly _respawnIntervalIds: Map<string, number>; // key is playerId
 
@@ -37,7 +37,7 @@ export class EliminationManager {
 		this.onSpawn = new EventSignal();
 		this.onRespawnTick = new EventSignal();
 		this.onPlayerElimination = new EventSignal();
-		this.onAllPlayersEliminated = new EventSignal();
+		this.onFinalElimination = new EventSignal();
 		this._players = new PlayerManager();
 		this._players.onDisconnect.subscribe(this.handleDisconnect);
 		this._respawnIntervalIds = new Map();
@@ -76,13 +76,20 @@ export class EliminationManager {
 	}
 
 	public addPlayer(player: Player): void {
+		const oldManager = EliminationManager._globalPlayers.get(player.id);
+		if (oldManager !== undefined) {
+			oldManager.removePlayer(player);
+		}
 		this._players.add(player);
+		EliminationManager._globalPlayers.set(player.id, this);
 	}
 
 	public removePlayer(player: Player | string): void {
 		const id = typeof player === "string" ? player : player.id;
 		this.clearRespawnInterval(id);
-		this._players.remove(player);
+		if (this._players.remove(player)) {
+			EliminationManager._globalPlayers.delete(id);
+		}
 	}
 
 	public clearPlayers(): void {
@@ -106,7 +113,7 @@ export class EliminationManager {
 			playerName: player.name,
 		});
 		if (this._players.isEmpty) {
-			this.onAllPlayersEliminated.triggerEvent(this);
+			this.onFinalElimination.triggerEvent(this);
 		}
 	}
 
@@ -122,7 +129,7 @@ export class EliminationManager {
 			});
 		}
 		if (players.length > 0) {
-			this.onAllPlayersEliminated.triggerEvent(this);
+			this.onFinalElimination.triggerEvent(this);
 		}
 	}
 
@@ -140,7 +147,9 @@ export class EliminationManager {
 		}
 	}
 
-	public respawn(player: Player): void {
+	// ticksToSubtract to account for time spent respawning
+	// e.g. time before PlayerSpawnEvent is triggered
+	public respawn(player: Player, ticksToSubtract = 0): void {
 		if (this._respawnIntervalIds.has(player.id) || !this._players.has(player)) {
 			return;
 		}
@@ -152,7 +161,7 @@ export class EliminationManager {
 			this.spawn(player);
 			return;
 		}
-		let ticksRemaining = this.respawnTimeTicks;
+		let ticksRemaining = this.respawnTimeTicks - ticksToSubtract;
 		this.onRespawnTick.triggerEvent({ player: player, ticksRemaining: ticksRemaining });
 		const intervalId: number = system.runInterval(() => {
 			if (!player.isValid) {
@@ -168,5 +177,11 @@ export class EliminationManager {
 			ticksRemaining--;
 		});
 		this._respawnIntervalIds.set(player.id, intervalId);
+	}
+
+	private static readonly _globalPlayers = new Map<string, EliminationManager>();
+
+	public static findPlayer(playerId: string): EliminationManager | undefined {
+		return EliminationManager._globalPlayers.get(playerId);
 	}
 }

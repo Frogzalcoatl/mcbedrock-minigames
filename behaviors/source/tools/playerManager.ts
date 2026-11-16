@@ -73,7 +73,8 @@ export class PlayerManager {
 		this.onDisconnect.triggerEvent(event);
 	};
 
-	private init(): void {
+	// is run automatically when first player is added but still public just in case
+	public init(): void {
 		if (!this._isInitialized) {
 			world.afterEvents.playerLeave.subscribe(this.handleDisconnect);
 			this._isInitialized = true;

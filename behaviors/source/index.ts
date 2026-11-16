@@ -4,7 +4,6 @@ import "./structures/index";
 import "./miscEvents";
 import {
 	type Entity,
-	type EntityDieAfterEvent,
 	ItemStack,
 	type ItemUseAfterEvent,
 	Player,
@@ -35,7 +34,6 @@ import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
-import { EliminationManager } from "./tools/teams/eliminationManager";
 import { Team } from "./tools/teams/team";
 import { getDefaultTeamOrders } from "./tools/teams/teamOrders";
 import {
@@ -186,24 +184,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 });
 
 const teams: Team[] = getDefaultTeamOrders(2, 1);
-system.run(() => {
-	for (const t of teams) {
-		t.initEliminationManager(teleportLocationDefault());
-		if (t.eliminationManager === null) {
-			continue;
-		}
-		t.eliminationManager.canRespawn = true;
-		t.eliminationManager.respawnTimeTicks = 100;
-		t.eliminationManager
-		world.sendMessage(
-			`${t.eliminationManager.canRespawn} ${t.eliminationManager.respawnTimeTicks}`,
-		);
-	}
-});
-
-world.afterEvents.entityDie.subscribe((event: EntityDieAfterEvent): void => {
-	
-});
+system.run(() => {});
 
 function joinTeam(player: Player): void {
 	for (const t of teams) {
@@ -221,6 +202,14 @@ world.afterEvents.playerSpawn.subscribe((event: PlayerSpawnAfterEvent): void => 
 
 world.afterEvents.worldLoad.subscribe(() => {
 	Team.clearAllPlayerStyles();
+	for (const t of teams) {
+		t.initEliminationManager(teleportLocationDefault());
+		if (t.eliminationManager === null) {
+			continue;
+		}
+		t.eliminationManager.canRespawn = true;
+		t.eliminationManager.respawnTimeTicks = 100;
+	}
 	for (const p of world.getAllPlayers()) {
 		joinTeam(p);
 	}
