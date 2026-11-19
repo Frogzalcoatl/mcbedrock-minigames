@@ -1,5 +1,6 @@
 import {
 	type Dimension,
+	type Entity,
 	type EntityDieAfterEvent,
 	Player,
 	type PlayerLeaveAfterEvent,
@@ -51,7 +52,11 @@ export class DeathLocationTracker {
 		}
 	}
 
-	public getLast(playerId: string): DeathLocation | undefined {
+	public getDeathLocation(playerId: string): DeathLocation | undefined {
 		return this._locations.get(playerId);
 	}
+}
+
+export function deathLocationTeleport(entity: Entity, location: DeathLocation): void {
+	entity.teleport(location.pos, { dimension: location.dimension });
 }
