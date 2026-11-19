@@ -3,7 +3,9 @@
 import "./structures/index";
 import "./miscEvents";
 import {
+	CommandPermissionLevel,
 	type Entity,
+	GameMode,
 	ItemStack,
 	type ItemUseAfterEvent,
 	Player,
@@ -22,6 +24,8 @@ import {
 	ChatCooldownManager,
 	type ChatCooldownRejectEvent,
 } from "./tools/chatCooldown";
+import { DeathLocationTracker, deathLocationTeleport } from "./tools/deathLocationTracker";
+import { DeathTimeTracker } from "./tools/deathTimeTracker";
 import { beamFromEntity } from "./tools/helpers/beam";
 import { throwFireballFromEntity } from "./tools/helpers/fireball";
 import {
@@ -33,7 +37,16 @@ import { JavaGoldenApple } from "./tools/javaGoldenApple";
 import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
-import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
+import {
+	type SimulatedPlayerDisconnectEvent,
+	SimulatedPlayerManager,
+} from "./tools/simulatedPlayers/manager";
+import type {
+	EliminationManager,
+	PlayerEliminationEvent,
+	PlayerRespawnEvent,
+} from "./tools/teams/eliminationManager";
+import { EliminationManagerAutoRespawn } from "./tools/teams/eliminationManagerAutoRespawn";
 import { Team } from "./tools/teams/team";
 import { getDefaultTeamOrders } from "./tools/teams/teamOrders";
 import {
@@ -62,7 +75,13 @@ chatCooldowns.isBypassed = (player: Player): boolean => {
 	return player.playerPermissionLevel === PlayerPermissionLevel.Operator;
 };
 
-registerSimulatedPlayerCommands(new SimulatedPlayerManager(PACK_NAMESPACE, true));
+const simulatedPlayers = new SimulatedPlayerManager(PACK_NAMESPACE, true);
+simulatedPlayers.init();
+simulatedPlayers.onDisconnect.subscribe((event: SimulatedPlayerDisconnectEvent): void => {
+	world.sendMessage(`§e${event.playerName}§r§e left the game`);
+});
+
+registerSimulatedPlayerCommands(simulatedPlayers, CommandPermissionLevel.Admin);
 
 const javaGoldenApple = new JavaGoldenApple();
 javaGoldenApple.init();
@@ -183,6 +202,9 @@ world.afterEvents.worldLoad.subscribe(() => {
 	});
 });
 
+const deathLocationTracker = new DeathLocationTracker();
+deathLocationTracker.init();
+
 const teams: Team[] = getDefaultTeamOrders(2, 1);
 system.run(() => {});
 
@@ -207,10 +229,48 @@ world.afterEvents.worldLoad.subscribe(() => {
 		if (t.eliminationManager === null) {
 			continue;
 		}
-		t.eliminationManager.canRespawn = true;
-		t.eliminationManager.respawnTimeTicks = 100;
+		t.eliminationManager.spawnPoint.pos.y = -63;
+		t.eliminationManager.spawnPoint.facing.y = -63;
+		t.eliminationManager.canRespawn = false;
+		t.eliminationManager.respawnTimeTicks = 5;
+		t.eliminationManager.onRespawnTick.subscribe((event: PlayerRespawnEvent): void => {
+			world.sendMessage("onRespawnTick");
+			if (event.isInitialTick) {
+				event.player.setGameMode(GameMode.Spectator);
+				const deathLocation = deathLocationTracker.getDeathLocation(event.player.id);
+				if (deathLocation !== undefined) {
+					deathLocationTeleport(event.player, deathLocation);
+				}
+				event.player.onScreenDisplay.setTitle("§cYOU DIED!");
+			}
+			const secondsRemaining: number = Math.ceil(event.ticksRemaining / 2) / 10;
+			event.player.onScreenDisplay.setActionBar(
+				`§eYou will respawn in §c${secondsRemaining}§e seconds!`,
+			);
+		});
+		t.eliminationManager.onSpawn.subscribe((event: PlayerSpawnAfterEvent): void => {
+			world.sendMessage("onSpawn");
+			if (!event.initialSpawn) {
+				event.player.onScreenDisplay.setTitle("§aRESPAWNED!");
+			}
+			event.player.setGameMode(GameMode.Adventure);
+		});
+		t.eliminationManager.onPlayerElimination.subscribe((event: PlayerEliminationEvent): void => {
+			world.sendMessage(`${t.colorCode}${event.playerName}§r has been eliminated!`);
+			if (event.player !== null) {
+				event.player.setGameMode(GameMode.Spectator);
+			}
+		});
+		t.eliminationManager.onFinalElimination.subscribe((_manager: EliminationManager): void => {
+			world.sendMessage(`${t.displayName} ${t.colorCode}Team§r has been eliminated!`);
+		});
 	}
 	for (const p of world.getAllPlayers()) {
 		joinTeam(p);
 	}
 });
+
+const deathTimeTracker = new DeathTimeTracker();
+deathTimeTracker.init();
+const respawns = new EliminationManagerAutoRespawn(deathTimeTracker);
+respawns.init();

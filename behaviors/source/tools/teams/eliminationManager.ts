@@ -45,12 +45,15 @@ export class EliminationManager {
 	}
 
 	private handleDisconnect = (event: PlayerLeaveAfterEvent): void => {
-		this.clearRespawnInterval(event.playerId);
+		this.removePlayer(event.playerId);
 		this.onPlayerElimination.triggerEvent({
 			player: null,
 			playerId: event.playerId,
 			playerName: event.playerName,
 		});
+		if (this._players.isEmpty) {
+			this.onFinalElimination.triggerEvent(this);
+		}
 	};
 
 	private clearRespawnInterval(playerId: string): void {
@@ -85,12 +88,15 @@ export class EliminationManager {
 		EliminationManager._globalPlayers.set(player.id, this);
 	}
 
-	public removePlayer(player: Player | string): void {
+	// Removes player without triggering events
+	public removePlayer(player: Player | string): boolean {
+		if (!this._players.remove(player)) {
+			return false;
+		}
 		const id = typeof player === "string" ? player : player.id;
 		this.clearRespawnInterval(id);
-		if (this._players.remove(player)) {
-			EliminationManager._globalPlayers.delete(id);
-		}
+		EliminationManager._globalPlayers.delete(id);
+		return true;
 	}
 
 	public clearPlayers(): void {
@@ -104,10 +110,9 @@ export class EliminationManager {
 	}
 
 	public eliminate(player: Player): void {
-		if (!this._players.remove(player)) {
+		if (!this.removePlayer(player)) {
 			return;
 		}
-		this.clearRespawnInterval(player.id);
 		this.onPlayerElimination.triggerEvent({
 			player: player,
 			playerId: player.id,
@@ -119,17 +124,17 @@ export class EliminationManager {
 	}
 
 	public eliminateAll(): void {
-		const players: Player[] = this._players.getAll();
+		const oldPlayerCount: number = this._players.size;
 		this.clearAllRespawnIntervals();
-		this._players.clear();
-		for (const p of players) {
+		for (const p of this._players.getAll()) {
 			this.onPlayerElimination.triggerEvent({
 				player: p,
 				playerId: p.id,
 				playerName: p.name,
 			});
 		}
-		if (players.length > 0) {
+		this._players.clear();
+		if (oldPlayerCount > 0) {
 			this.onFinalElimination.triggerEvent(this);
 		}
 	}
@@ -148,8 +153,7 @@ export class EliminationManager {
 		}
 	}
 
-	// ticksToSubtract to account for time spent respawning
-	// e.g. time before PlayerSpawnEvent is triggered
+	// ticksToSubtract to account for time spent on respawning ui
 	public respawn(player: Player, ticksToSubtract = 0): void {
 		if (this._respawnIntervalIds.has(player.id) || !this._players.has(player)) {
 			return;
@@ -159,7 +163,8 @@ export class EliminationManager {
 			return;
 		}
 		if (this.respawnTimeTicks <= 0) {
-			this.spawn(player);
+			teleportLocation(player, this.spawnPoint);
+			this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 			return;
 		}
 		let ticksRemaining = this.respawnTimeTicks - ticksToSubtract;
@@ -175,7 +180,8 @@ export class EliminationManager {
 			}
 			if (ticksRemaining <= 0) {
 				this.clearRespawnInterval(player.id);
-				this.spawn(player);
+				teleportLocation(player, this.spawnPoint);
+				this.onSpawn.triggerEvent({ initialSpawn: false, player: player });
 				return;
 			}
 			this.onRespawnTick.triggerEvent({

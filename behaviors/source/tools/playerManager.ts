@@ -63,6 +63,10 @@ export class PlayerManager {
 		return players;
 	}
 
+	public getPlayerIds(): SetIterator<string> {
+		return this._playerIds.values();
+	}
+
 	private handleDisconnect = (event: PlayerLeaveAfterEvent): void => {
 		if (!this._playerIds.delete(event.playerId)) {
 			return;
