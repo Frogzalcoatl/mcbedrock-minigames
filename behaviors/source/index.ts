@@ -28,12 +28,20 @@ import { DeathLocationTracker, deathLocationTeleport } from "./tools/deathLocati
 import { DeathTimeTracker } from "./tools/deathTimeTracker";
 import { beamFromEntity } from "./tools/helpers/beam";
 import { throwFireballFromEntity } from "./tools/helpers/fireball";
+import { entityLeap } from "./tools/helpers/leap";
+import { deathMessageFormat } from "./tools/helpers/textFormatting";
 import {
 	type ItemCooldownCompleteEvent,
 	ItemEventManager,
 	type ItemUseRejectEvent,
 } from "./tools/itemEventManager";
 import { JavaGoldenApple } from "./tools/javaGoldenApple";
+import {
+	type CombatEnterEvent,
+	type CombatExitEvent,
+	KillTracker,
+	type KillTrackerEvent,
+} from "./tools/killTracker";
 import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
@@ -182,7 +190,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 		throwFireballFromEntity(event.source, MinecraftEntityTypes.Fireball, 10);
 	});
 	items.registerItemSwing(fireball, (event: PlayerSwingStartAfterEvent): void => {
-		event.player.sendMessage(`${event.player.name} swung da fireball!`);
+		event.player.sendMessage(`${event.player.nameTag} swung da fireball!`);
 	});
 	const wand = new ItemStack(MinecraftItemTypes.Stick);
 	items.registerItemUse(wand, 20, (event: ItemUseAfterEvent): void => {
@@ -199,6 +207,11 @@ world.afterEvents.worldLoad.subscribe(() => {
 				);
 			},
 		);
+	});
+	const feather = new ItemStack(MinecraftItemTypes.Feather);
+	items.registerItemUse(feather, 100, (event: ItemUseAfterEvent): void => {
+		entityLeap(event.source, 5, 0.5);
+		event.source.playSound("random.orb");
 	});
 });
 
@@ -231,10 +244,9 @@ world.afterEvents.worldLoad.subscribe(() => {
 		}
 		t.eliminationManager.spawnPoint.pos.y = -63;
 		t.eliminationManager.spawnPoint.facing.y = -63;
-		t.eliminationManager.canRespawn = false;
-		t.eliminationManager.respawnTimeTicks = 5;
+		t.eliminationManager.canRespawn = true;
+		t.eliminationManager.respawnTimeTicks = 100;
 		t.eliminationManager.onRespawnTick.subscribe((event: PlayerRespawnEvent): void => {
-			world.sendMessage("onRespawnTick");
 			if (event.isInitialTick) {
 				event.player.setGameMode(GameMode.Spectator);
 				const deathLocation = deathLocationTracker.getDeathLocation(event.player.id);
@@ -249,7 +261,6 @@ world.afterEvents.worldLoad.subscribe(() => {
 			);
 		});
 		t.eliminationManager.onSpawn.subscribe((event: PlayerSpawnAfterEvent): void => {
-			world.sendMessage("onSpawn");
 			if (!event.initialSpawn) {
 				event.player.onScreenDisplay.setTitle("§aRESPAWNED!");
 			}
@@ -274,3 +285,17 @@ const deathTimeTracker = new DeathTimeTracker();
 deathTimeTracker.init();
 const respawns = new EliminationManagerAutoRespawn(deathTimeTracker);
 respawns.init();
+
+const killTracker = new KillTracker(140);
+killTracker.init();
+killTracker.onCombatEnter.subscribe((event: CombatEnterEvent): void => {
+	world.sendMessage(`Combat Enter: ${event.player.nameTag} -> ${event.opponent?.nameTag}`);
+});
+killTracker.onCombatExit.subscribe((event: CombatExitEvent): void => {
+	world.sendMessage(`Combat Exit: ${event.player.nameTag} -> ${event.lastOpponent?.nameTag}`);
+});
+killTracker.onKill.subscribe((event: KillTrackerEvent): void => {
+	world.sendMessage(
+		deathMessageFormat(event.deadPlayer.name, event.killer?.nameTag ?? null, event.cause ?? null),
+	);
+});
