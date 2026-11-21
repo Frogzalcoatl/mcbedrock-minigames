@@ -1,17 +1,16 @@
 import {
 	type Entity,
 	EntityComponentTypes,
-	type EntityDieAfterEvent,
 	type EntityEquippableComponent,
 	type EntityInventoryComponent,
 	EquipmentSlot,
 	type ItemLockMode,
 	type ItemStack,
-	Player,
 	type PlayerLeaveAfterEvent,
 	world,
 } from "@minecraft/server";
 import { applyEnchant, setDurability } from "../shared/componentUtils";
+import { setEquipmentSafe, setItemSafe } from "../shared/setItemSafe";
 
 export type KitInventory = { item: ItemStack; slot: number }[];
 
@@ -50,21 +49,36 @@ export class KitManager {
 		const equippable: EntityEquippableComponent | undefined = entity.getComponent(
 			EntityComponentTypes.Equippable,
 		);
-		if (equippable !== undefined) {
-			// if a kit equipment slot is undefined, the slot is cleared.
-			equippable.setEquipment(EquipmentSlot.Head, kit.helmet);
-			equippable.setEquipment(EquipmentSlot.Chest, kit.chestplate);
-			equippable.setEquipment(EquipmentSlot.Legs, kit.leggings);
-			equippable.setEquipment(EquipmentSlot.Feet, kit.boots);
-			equippable.setEquipment(EquipmentSlot.Offhand, kit.offhand);
-		}
 		const inventory: EntityInventoryComponent | undefined = entity.getComponent(
 			EntityComponentTypes.Inventory,
 		);
+		if (equippable !== undefined) {
+			// if a kit equipment slot proeprty is undefined, the slot is cleared.
+			if (kit.helmet) {
+				setEquipmentSafe(equippable, EquipmentSlot.Head, kit.helmet, inventory, entity);
+			}
+			if (kit.chestplate) {
+				setEquipmentSafe(equippable, EquipmentSlot.Chest, kit.chestplate, inventory, entity);
+			}
+			if (kit.leggings) {
+				setEquipmentSafe(equippable, EquipmentSlot.Legs, kit.leggings, inventory, entity);
+			}
+			if (kit.boots) {
+				setEquipmentSafe(equippable, EquipmentSlot.Feet, kit.boots, inventory, entity);
+			}
+			if (kit.offhand) {
+				setEquipmentSafe(equippable, EquipmentSlot.Offhand, kit.offhand, inventory, entity);
+			}
+		}
 		if (inventory !== undefined) {
 			for (const entry of kit.inventory) {
 				if (inventory.container.size > entry.slot) {
-					inventory.container.setItem(entry.slot, entry.item);
+					setItemSafe(inventory.container, entry.item, entry.slot, {
+						dimension: entity.dimension,
+						x: entity.location.x,
+						y: entity.location.y,
+						z: entity.location.z,
+					});
 				}
 			}
 		}
@@ -89,23 +103,15 @@ export class KitManager {
 		this._entityKits.delete(event.playerId);
 	};
 
-	private entityDie = (event: EntityDieAfterEvent): void => {
-		if (event.deadEntity instanceof Player === false) {
-			this._entityKits.delete(event.deadEntity.id);
-		}
-	};
-
 	public init(): void {
 		if (!this._isInitialized) {
 			world.afterEvents.playerLeave.subscribe(this.playerLeave);
-			world.afterEvents.entityDie.subscribe(this.entityDie);
 		}
 	}
 
 	public shutdown(): void {
 		if (this._isInitialized) {
 			world.afterEvents.playerLeave.unsubscribe(this.playerLeave);
-			world.afterEvents.entityDie.unsubscribe(this.entityDie);
 		}
 	}
 }
