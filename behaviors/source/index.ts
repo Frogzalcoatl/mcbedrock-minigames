@@ -6,6 +6,7 @@ import {
 	CommandPermissionLevel,
 	type Entity,
 	EntityComponentTypes,
+	EquipmentSlot,
 	GameMode,
 	ItemStack,
 	type ItemUseAfterEvent,
@@ -317,7 +318,11 @@ killTracker.onCombatExit.subscribe((event: CombatExitEvent): void => {
 });
 killTracker.onKill.subscribe((event: KillTrackerEvent): void => {
 	world.sendMessage(
-		deathMessageFormat(event.deadPlayer.name, event.killer?.nameTag ?? null, event.cause ?? null),
+		deathMessageFormat(
+			event.deadPlayer.nameTag,
+			event.killer?.nameTag ?? null,
+			event.cause ?? null,
+		),
 	);
 });
 
@@ -345,6 +350,14 @@ async function selectKit(player: Player): Promise<void> {
 		const inventory = player.getComponent(EntityComponentTypes.Inventory);
 		if (inventory !== undefined) {
 			inventory.container.clearAll();
+		}
+		const equippable = player.getComponent(EntityComponentTypes.Equippable);
+		if (equippable !== undefined) {
+			equippable.setEquipment(EquipmentSlot.Head);
+			equippable.setEquipment(EquipmentSlot.Chest);
+			equippable.setEquipment(EquipmentSlot.Legs);
+			equippable.setEquipment(EquipmentSlot.Feet);
+			equippable.setEquipment(EquipmentSlot.Offhand);
 		}
 		kits.set(player, kit);
 		player.sendMessage(`Selected Kit: ${kit.name}`);
