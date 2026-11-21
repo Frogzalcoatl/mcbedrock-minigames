@@ -5,6 +5,7 @@ import "./miscEvents";
 import {
 	CommandPermissionLevel,
 	type Entity,
+	EntityComponentTypes,
 	GameMode,
 	ItemStack,
 	type ItemUseAfterEvent,
@@ -42,6 +43,8 @@ import {
 	KillTracker,
 	type KillTrackerEvent,
 } from "./tools/killTracker";
+import { kitSelectionForm } from "./tools/kits/form";
+import { type Kit, KitManager, kitArmorDurability } from "./tools/kits/manager";
 import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
@@ -186,13 +189,12 @@ items.onCooldownComplete.subscribe((event: ItemCooldownCompleteEvent): void => {
 
 world.afterEvents.worldLoad.subscribe(() => {
 	const fireball = new ItemStack(MinecraftItemTypes.FireCharge);
+	fireball.nameTag = "§rFireball";
 	items.registerItemUse(fireball, 0, (event: ItemUseAfterEvent): void => {
 		throwFireballFromEntity(event.source, MinecraftEntityTypes.Fireball, 10);
 	});
-	items.registerItemSwing(fireball, (event: PlayerSwingStartAfterEvent): void => {
-		event.player.sendMessage(`${event.player.nameTag} swung da fireball!`);
-	});
 	const wand = new ItemStack(MinecraftItemTypes.Stick);
+	wand.nameTag = "§rWand";
 	items.registerItemUse(wand, 20, (event: ItemUseAfterEvent): void => {
 		beamFromEntity(
 			event.source,
@@ -208,11 +210,30 @@ world.afterEvents.worldLoad.subscribe(() => {
 			},
 		);
 	});
-	const feather = new ItemStack(MinecraftItemTypes.Feather);
-	items.registerItemUse(feather, 100, (event: ItemUseAfterEvent): void => {
+	const leap = new ItemStack(MinecraftItemTypes.Feather);
+	leap.nameTag = "§rLeap";
+	items.registerItemUse(leap, 100, (event: ItemUseAfterEvent): void => {
 		entityLeap(event.source, 5, 0.5);
 		event.source.playSound("random.orb");
 	});
+	const kitSelectItem = new ItemStack(MinecraftItemTypes.TotemOfUndying);
+	kitSelectItem.nameTag = "§rKit Selection";
+	items.registerItemUse(kitSelectItem, 0, (event: ItemUseAfterEvent): void => {
+		selectKit(event.source);
+	});
+	items.registerItemSwing(kitSelectItem, (event: PlayerSwingStartAfterEvent): void => {
+		selectKit(event.player);
+	});
+	for (const p of world.getAllPlayers()) {
+		const inventory = p.getComponent(EntityComponentTypes.Inventory);
+		if (inventory !== undefined) {
+			inventory.container.clearAll();
+			inventory.container.addItem(fireball);
+			inventory.container.addItem(wand);
+			inventory.container.addItem(leap);
+			inventory.container.addItem(kitSelectItem);
+		}
+	}
 });
 
 const deathLocationTracker = new DeathLocationTracker();
@@ -299,3 +320,33 @@ killTracker.onKill.subscribe((event: KillTrackerEvent): void => {
 		deathMessageFormat(event.deadPlayer.name, event.killer?.nameTag ?? null, event.cause ?? null),
 	);
 });
+
+const kits = new KitManager();
+kits.init();
+
+const starterKit: Kit = {
+	icon: "textures/items/wood_sword",
+	inventory: [],
+	name: "Starter Kit",
+};
+world.afterEvents.worldLoad.subscribe(() => {
+	starterKit.helmet = new ItemStack(MinecraftItemTypes.LeatherHelmet);
+	starterKit.chestplate = new ItemStack(MinecraftItemTypes.LeatherChestplate);
+	starterKit.leggings = new ItemStack(MinecraftItemTypes.LeatherLeggings);
+	starterKit.boots = new ItemStack(MinecraftItemTypes.LeatherBoots);
+	starterKit.inventory.push({ item: new ItemStack(MinecraftItemTypes.WoodenSword), slot: 0 });
+	kitArmorDurability(starterKit, "unbreakable");
+});
+
+async function selectKit(player: Player): Promise<void> {
+	player.playSound("random.pop", { pitch: 0.5 });
+	const kit: Kit | undefined = await kitSelectionForm([starterKit], player);
+	if (kit !== undefined) {
+		const inventory = player.getComponent(EntityComponentTypes.Inventory);
+		if (inventory !== undefined) {
+			inventory.container.clearAll();
+		}
+		kits.set(player, kit);
+		player.sendMessage(`Selected Kit: ${kit.name}`);
+	}
+}
