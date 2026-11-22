@@ -1,7 +1,15 @@
-// import "./commands/index";
-// import "./games/index";
+/*
+This file should import and test everything in behaviors/source/tools/. Once every tool is complete
+and tested, they will be used for this minigames map, and any others I create in the future.
+
+Files in behaviors/source/tools/shared/ do not need to be imported and tested, as they are
+dependencies for other tools.
+
+Additionally, files in behaviors/source/tools/structureSchemas/ are tested in
+behaviors/source/structures/ to avoid cluttering this file's imports with json files.
+*/
+
 import "./structures/index";
-import "./miscEvents";
 import {
 	CommandPermissionLevel,
 	type Entity,
@@ -15,7 +23,6 @@ import {
 	PlayerPermissionLevel,
 	type PlayerSpawnAfterEvent,
 	type PlayerSwingStartAfterEvent,
-	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
@@ -49,10 +56,7 @@ import { type Kit, KitManager, kitArmorDurability } from "./tools/kits/manager";
 import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
-import {
-	type SimulatedPlayerDisconnectEvent,
-	SimulatedPlayerManager,
-} from "./tools/simulatedPlayers/manager";
+import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
 import type {
 	EliminationManager,
 	PlayerEliminationEvent,
@@ -69,6 +73,7 @@ import {
 
 const chatCooldowns = new ChatCooldownManager(10);
 chatCooldowns.init();
+
 chatCooldowns.onChatAccept.subscribe((event: ChatCooldownAcceptEvent): void => {
 	event.cancelVanillaEvent = true;
 	world.sendMessage(
@@ -88,11 +93,6 @@ chatCooldowns.isBypassed = (player: Player): boolean => {
 };
 
 const simulatedPlayers = new SimulatedPlayerManager(PACK_NAMESPACE, true);
-simulatedPlayers.init();
-simulatedPlayers.onDisconnect.subscribe((event: SimulatedPlayerDisconnectEvent): void => {
-	world.sendMessage(`§e${event.playerName}§r§e left the game`);
-});
-
 registerSimulatedPlayerCommands(simulatedPlayers, CommandPermissionLevel.Admin);
 
 const javaGoldenApple = new JavaGoldenApple();
@@ -176,7 +176,6 @@ world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent): void => {
 });
 
 const items = new ItemEventManager();
-
 items.init();
 
 items.onUseReject.subscribe((event: ItemUseRejectEvent): void => {
@@ -215,7 +214,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 	leap.nameTag = "§rLeap";
 	items.registerItemUse(leap, 100, (event: ItemUseAfterEvent): void => {
 		entityLeap(event.source, 5, 0.5);
-		event.source.playSound("random.orb");
+		event.source.playSound("armor.equip_leather");
 	});
 	const kitSelectItem = new ItemStack(MinecraftItemTypes.TotemOfUndying);
 	kitSelectItem.nameTag = "§rKit Selection";
@@ -241,8 +240,6 @@ const deathLocationTracker = new DeathLocationTracker();
 deathLocationTracker.init();
 
 const teams: Team[] = getDefaultTeamOrders(2, 1);
-system.run(() => {});
-
 function joinTeam(player: Player): void {
 	for (const t of teams) {
 		if (t.join(player)) {
@@ -310,12 +307,15 @@ respawns.init();
 
 const killTracker = new KillTracker(140);
 killTracker.init();
+
 killTracker.onCombatEnter.subscribe((event: CombatEnterEvent): void => {
-	world.sendMessage(`Combat Enter: ${event.player.nameTag} -> ${event.opponent?.nameTag}`);
+	world.sendMessage(`Combat Enter: ${event.player.nameTag} -> ${event.hitBy?.nameTag}`);
 });
+
 killTracker.onCombatExit.subscribe((event: CombatExitEvent): void => {
 	world.sendMessage(`Combat Exit: ${event.player.nameTag} -> ${event.lastOpponent?.nameTag}`);
 });
+
 killTracker.onKill.subscribe((event: KillTrackerEvent): void => {
 	world.sendMessage(
 		deathMessageFormat(
@@ -334,6 +334,7 @@ const starterKit: Kit = {
 	inventory: [],
 	name: "Starter Kit",
 };
+
 world.afterEvents.worldLoad.subscribe(() => {
 	starterKit.helmet = new ItemStack(MinecraftItemTypes.LeatherHelmet);
 	starterKit.chestplate = new ItemStack(MinecraftItemTypes.LeatherChestplate);
