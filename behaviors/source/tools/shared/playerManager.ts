@@ -27,12 +27,8 @@ export class PlayerManager {
 		}
 	}
 
-	private resolveId(target: Player | string): string {
-		return typeof target === "string" ? target : target.id;
-	}
-
 	public remove(player: Player | string): boolean {
-		const id: string = this.resolveId(player);
+		const id: string = typeof player === "string" ? player : player.id;
 		if (!this._playerIds.delete(id)) {
 			return false;
 		}
@@ -43,7 +39,7 @@ export class PlayerManager {
 	}
 
 	public has(player: Player | string): boolean {
-		const id: string = this.resolveId(player);
+		const id: string = typeof player === "string" ? player : player.id;
 		return this._playerIds.has(id);
 	}
 
@@ -77,7 +73,7 @@ export class PlayerManager {
 		this.onDisconnect.triggerEvent(event);
 	};
 
-	// is run automatically when first player is added but still public just in case
+	// init is run automatically when first player is added, but still public in case caller needs to run it manually for whatever reason.
 	public init(): void {
 		if (!this._isInitialized) {
 			world.afterEvents.playerLeave.subscribe(this.handleDisconnect);
@@ -85,6 +81,7 @@ export class PlayerManager {
 		}
 	}
 
+	// shutdown is run automatically when final player is removed, but still public in case caller wants to run it manually for whatever reason.
 	public shutdown(): void {
 		if (this._isInitialized) {
 			world.afterEvents.playerLeave.unsubscribe(this.handleDisconnect);
