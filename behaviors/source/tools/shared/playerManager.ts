@@ -1,5 +1,5 @@
 import { type Entity, Player, type PlayerLeaveAfterEvent, world } from "@minecraft/server";
-import { EventSignal } from "./shared/eventSignal";
+import { EventSignal } from "./eventSignal";
 
 export class PlayerManager {
 	public readonly onDisconnect: EventSignal<PlayerLeaveAfterEvent>;

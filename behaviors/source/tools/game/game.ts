@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/style/useNamingConvention: GameJoinResult enum style */
 import type { Player, PlayerLeaveAfterEvent } from "@minecraft/server";
-import { PlayerManager } from "../../tools/playerManager";
 import type { TeleportLocation } from "../../tools/shared/locations";
+import { PlayerManager } from "../shared/playerManager";
 
 // biome-ignore assist/source/useSortedKeys: enum style
 export const GameJoinResult = {

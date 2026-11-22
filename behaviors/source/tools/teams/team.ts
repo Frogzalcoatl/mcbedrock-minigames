@@ -1,8 +1,8 @@
 import { type Player, world } from "@minecraft/server";
-import { PlayerManager } from "../playerManager";
 import { ColorCode } from "../shared/colorCodes";
 import { DyeColorId } from "../shared/dyeColorId";
 import type { TeleportLocation } from "../shared/locations";
+import { PlayerManager } from "../shared/playerManager";
 import { EliminationManager, type PlayerEliminationEvent } from "./eliminationManager";
 
 export class Team {

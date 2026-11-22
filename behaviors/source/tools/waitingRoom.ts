@@ -1,8 +1,8 @@
 /** biome-ignore-all lint/style/useNamingConvention: using enum title casing in an object */
 
 import { type Player, type PlayerLeaveAfterEvent, system } from "@minecraft/server";
-import { PlayerManager } from "./playerManager";
 import { EventSignal } from "./shared/eventSignal";
+import { PlayerManager } from "./shared/playerManager";
 
 // biome-ignore assist/source/useSortedKeys: Maintaining order since this is an enum
 export const WaitingRoomState = {

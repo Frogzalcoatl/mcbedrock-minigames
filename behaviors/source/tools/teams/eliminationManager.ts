@@ -4,9 +4,9 @@ import {
 	type PlayerSpawnAfterEvent,
 	system,
 } from "@minecraft/server";
-import { PlayerManager } from "../playerManager";
 import { EventSignal } from "../shared/eventSignal";
 import { type TeleportLocation, teleportLocation } from "../shared/locations";
+import { PlayerManager } from "../shared/playerManager";
 
 export interface PlayerRespawnEvent {
 	isInitialTick: boolean;
