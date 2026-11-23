@@ -1,5 +1,4 @@
 import {
-	type Dimension,
 	type Entity,
 	EntityComponentTypes,
 	type EntityLoadAfterEvent,
@@ -7,23 +6,32 @@ import {
 	type EntityTameMountComponent,
 	type Player,
 	system,
-	type Vector3,
 	world,
 } from "@minecraft/server";
 import type { MinecraftEntityTypes } from "@minecraft/vanilla-data";
-import { spreadParticles } from "./shared/particles";
+import { EventSignal } from "./shared/eventSignal";
+
+/*
+Spawn mounts for a player to be removed after X ticks
+If the world is closed while a player is on a temporary mount, the mount entity is removed when
+world is restarted.
+*/
 
 const MOUNT_PROPERTY_ID: string = "frogzalcoatl:is_temporary_mount";
 
-function despawnEffects(pos: Vector3, dimension: Dimension): void {
-	dimension.playSound("random.fizz", pos);
-	spreadParticles("minecraft:dust_plume", dimension, pos, 1, 1, 20);
+// fromCleanup === true when entity is removed after the world is closed and reopened.
+export interface MountDespawnBeforeEvent {
+	fromWorldRestart: boolean;
+	mount: Entity;
+	rider?: Player;
 }
 
 export class TemporaryMountManager {
+	public readonly despawnBeforeEvent: EventSignal<MountDespawnBeforeEvent>;
 	private _isInitialized: boolean;
 
 	public constructor() {
+		this.despawnBeforeEvent = new EventSignal();
 		this._isInitialized = false;
 	}
 
@@ -32,6 +40,7 @@ export class TemporaryMountManager {
 			event.entity.isValid &&
 			event.entity.getDynamicProperty(MOUNT_PROPERTY_ID) !== undefined
 		) {
+			this.despawnBeforeEvent.triggerEvent({ fromWorldRestart: true, mount: event.entity });
 			event.entity.remove();
 		}
 	};
@@ -54,12 +63,13 @@ export class TemporaryMountManager {
 		mountType: MinecraftEntityTypes,
 		player: Player,
 		durationTicks: number,
+		mountSpawnEvent = "minecraft:spawn_adult",
 	): Entity | undefined {
 		if (!this._isInitialized) {
 			this.init();
 		}
 		const mountEntity: Entity = player.dimension.spawnEntity(mountType, player.location, {
-			spawnEvent: "minecraft:spawn_adult",
+			spawnEvent: mountSpawnEvent,
 		});
 		mountEntity.setDynamicProperty(MOUNT_PROPERTY_ID, true);
 		const tameMount: EntityTameMountComponent | undefined = mountEntity.getComponent(
@@ -86,8 +96,17 @@ export class TemporaryMountManager {
 			if (isDismounted || isExpired) {
 				system.clearRun(intervalId);
 				if (mountEntity.isValid) {
-					despawnEffects(mountEntity.location, mountEntity.dimension);
-					mountEntity.remove();
+					const event: MountDespawnBeforeEvent = {
+						fromWorldRestart: false,
+						mount: mountEntity,
+					};
+					if (player.isValid) {
+						event.rider = player;
+					}
+					this.despawnBeforeEvent.triggerEvent(event);
+					if (mountEntity.isValid) {
+						mountEntity.remove();
+					}
 				}
 			}
 		});

@@ -12,6 +12,7 @@ behaviors/source/structures/ to avoid cluttering this file's imports with json f
 import "./structures/index";
 import {
 	CommandPermissionLevel,
+	type DimensionLocation,
 	type Entity,
 	EntityComponentTypes,
 	EquipmentSlot,
@@ -23,6 +24,7 @@ import {
 	PlayerPermissionLevel,
 	type PlayerSpawnAfterEvent,
 	type PlayerSwingStartAfterEvent,
+	system,
 	type Vector3,
 	world,
 } from "@minecraft/server";
@@ -55,7 +57,7 @@ import { kitSelectionForm } from "./tools/kits/form";
 import { type Kit, KitManager, kitArmorDurability } from "./tools/kits/manager";
 import { ProjectileTracker } from "./tools/projectileTracker";
 import { teleportLocationDefault } from "./tools/shared/locations";
-import { beamParticles } from "./tools/shared/particles";
+import { beamParticles, spreadParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
 import { SimulatedPlayerManager } from "./tools/simulatedPlayers/manager";
 import type {
@@ -66,6 +68,7 @@ import type {
 import { EliminationManagerAutoRespawn } from "./tools/teams/eliminationManagerAutoRespawn";
 import { Team } from "./tools/teams/team";
 import { getDefaultTeamOrders } from "./tools/teams/teamOrders";
+import { type MountDespawnBeforeEvent, TemporaryMountManager } from "./tools/temporaryMountManager";
 import {
 	WaitingRoom,
 	type WaitingRoomJoinEvent,
@@ -231,6 +234,21 @@ world.afterEvents.worldLoad.subscribe(() => {
 		const removed: number = projectileTracker.removeTrackedProjectiles();
 		event.source.sendMessage(`Removed ${removed} projectile${removed !== 1 ? "s" : ""}`);
 	});
+	const horseMount = new ItemStack(MinecraftItemTypes.PhantomMembrane);
+	horseMount.nameTag = "§rTemporary Horse";
+	items.registerItemUse(horseMount, 200, (event: ItemUseAfterEvent): void => {
+		const horse = mounts.spawn(MinecraftEntityTypes.Horse, event.source, 150);
+		if (horse === undefined) {
+			return;
+		}
+		system.runTimeout(() => {
+			// Must wait 1 tick for the inventory component to exist
+			const inventory = horse.getComponent(EntityComponentTypes.Inventory);
+			if (inventory !== undefined) {
+				inventory.container.addItem(new ItemStack(MinecraftItemTypes.Saddle));
+			}
+		}, 1);
+	});
 	for (const p of world.getAllPlayers()) {
 		const inventory = p.getComponent(EntityComponentTypes.Inventory);
 		if (inventory !== undefined) {
@@ -240,6 +258,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 			inventory.container.addItem(leap);
 			inventory.container.addItem(kitSelectItem);
 			inventory.container.addItem(killProjectiles);
+			inventory.container.addItem(horseMount);
 		}
 	}
 });
@@ -385,4 +404,20 @@ world.afterEvents.worldLoad.subscribe(() => {
 
 world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent) => {
 	projectileTracker.trackPlayer(event.playerId);
+});
+
+const mounts = new TemporaryMountManager();
+mounts.init();
+mounts.despawnBeforeEvent.subscribe((event: MountDespawnBeforeEvent): void => {
+	if (event.fromWorldRestart) {
+		return;
+	}
+	const location: DimensionLocation = {
+		dimension: event.mount.dimension,
+		x: event.mount.location.x,
+		y: event.mount.location.y,
+		z: event.mount.location.z,
+	};
+	location.dimension.playSound("random.fizz", event.mount.location);
+	spreadParticles("minecraft:dust_plume", location.dimension, location, 1, 1, 20);
 });
