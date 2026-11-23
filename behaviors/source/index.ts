@@ -53,6 +53,7 @@ import {
 } from "./tools/killTracker";
 import { kitSelectionForm } from "./tools/kits/form";
 import { type Kit, KitManager, kitArmorDurability } from "./tools/kits/manager";
+import { ProjectileTracker } from "./tools/projectileTracker";
 import { teleportLocationDefault } from "./tools/shared/locations";
 import { beamParticles } from "./tools/shared/particles";
 import { registerSimulatedPlayerCommands } from "./tools/simulatedPlayers/commands";
@@ -224,6 +225,12 @@ world.afterEvents.worldLoad.subscribe(() => {
 	items.registerItemSwing(kitSelectItem, (event: PlayerSwingStartAfterEvent): void => {
 		selectKit(event.player);
 	});
+	const killProjectiles = new ItemStack(MinecraftItemTypes.Quartz);
+	killProjectiles.nameTag = "§rKill Tracked Projectiles";
+	items.registerItemUse(killProjectiles, 0, (event: ItemUseAfterEvent): void => {
+		const removed: number = projectileTracker.removeTrackedProjectiles();
+		event.source.sendMessage(`Removed ${removed} projectile${removed !== 1 ? "s" : ""}`);
+	});
 	for (const p of world.getAllPlayers()) {
 		const inventory = p.getComponent(EntityComponentTypes.Inventory);
 		if (inventory !== undefined) {
@@ -232,6 +239,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 			inventory.container.addItem(wand);
 			inventory.container.addItem(leap);
 			inventory.container.addItem(kitSelectItem);
+			inventory.container.addItem(killProjectiles);
 		}
 	}
 });
@@ -365,3 +373,16 @@ async function selectKit(player: Player): Promise<void> {
 		player.sendMessage(`Selected Kit: ${kit.name}`);
 	}
 }
+
+const projectileTracker = new ProjectileTracker([MinecraftEntityTypes.ThrownTrident]);
+projectileTracker.init();
+
+world.afterEvents.worldLoad.subscribe(() => {
+	for (const p of world.getAllPlayers()) {
+		projectileTracker.trackPlayer(p.id);
+	}
+});
+
+world.afterEvents.playerJoin.subscribe((event: PlayerJoinAfterEvent) => {
+	projectileTracker.trackPlayer(event.playerId);
+});

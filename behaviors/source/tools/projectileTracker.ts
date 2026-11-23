@@ -10,10 +10,15 @@ import {
 	world,
 } from "@minecraft/server";
 
+/*
+Maps projectile entities to player ids to remove them when the player disconnects, or at will by
+the caller.
+*/
+
 const TRACKED_PROPERTY_ID: string = "frogzalcoatl:tracked_projectile";
 
 export class ProjectileTracker {
-	public readonly projectileTypeIds: Set<string>;
+	public readonly projectileTypeIds: Set<string>; // entity type ids
 	private readonly _trackedPlayerIds: Set<string>;
 	private readonly _projectiles: Map<string, string>; // [projectileId, playerId]
 	private _isInitialized: boolean;
@@ -25,15 +30,16 @@ export class ProjectileTracker {
 		this._isInitialized = false;
 	}
 
-	public trackPlayer(player: Player): void {
-		this._trackedPlayerIds.add(player.id);
+	public trackPlayer(playerId: string): void {
+		this._trackedPlayerIds.add(playerId);
 	}
 
 	public untrackPlayer(playerId: string): void {
 		this._trackedPlayerIds.delete(playerId);
 	}
 
-	public removeTrackedProjectiles(playerId: string): void {
+	public removePlayerProjectiles(playerId: string): number {
+		let removed = 0;
 		for (const [projectileId, ownerId] of this._projectiles) {
 			if (ownerId !== playerId) {
 				continue;
@@ -42,8 +48,23 @@ export class ProjectileTracker {
 			const entity: Entity | undefined = world.getEntity(projectileId);
 			if (entity?.isValid) {
 				entity.remove();
+				removed++;
 			}
 		}
+		return removed;
+	}
+
+	public removeTrackedProjectiles(): number {
+		let removed = 0;
+		for (const [projectileId] of this._projectiles) {
+			const entity: Entity | undefined = world.getEntity(projectileId);
+			if (entity?.isValid) {
+				entity.remove();
+				removed++;
+			}
+		}
+		this._projectiles.clear();
+		return removed;
 	}
 
 	private entityRemove = (event: EntityRemoveBeforeEvent): void => {
@@ -78,7 +99,7 @@ export class ProjectileTracker {
 
 	private playerLeave = (event: PlayerLeaveAfterEvent): void => {
 		this.untrackPlayer(event.playerId);
-		this.removeTrackedProjectiles(event.playerId);
+		this.removePlayerProjectiles(event.playerId);
 	};
 
 	public init(): void {
