@@ -1,4 +1,4 @@
-import type { EntityDamageCause } from "@minecraft/server";
+import { EntityDamageCause } from "@minecraft/server";
 
 export function formatTimeSeconds(seconds: number): string {
 	const hours: number = Math.floor(seconds / 3600);
@@ -19,7 +19,7 @@ export function formatTimeSeconds(seconds: number): string {
 export function deathMessageFormat(
 	deadName: string,
 	killerName: string | null,
-	_cause: EntityDamageCause | null,
+	_cause: EntityDamageCause = EntityDamageCause.void,
 	colorCode = "§7",
 ): string {
 	if (killerName === null) {

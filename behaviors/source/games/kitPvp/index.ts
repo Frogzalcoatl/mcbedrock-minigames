@@ -229,7 +229,7 @@ class KitPvp extends Game {
 
 	public leave(playerId: string): void {
 		this.removePlayer(playerId);
-		this._killTracker.removePlayer(playerId);
+		this._killTracker.clearHitter(playerId);
 	}
 }
 

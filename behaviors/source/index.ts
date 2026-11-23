@@ -46,10 +46,10 @@ import {
 } from "./tools/itemEventManager";
 import { JavaGoldenApple } from "./tools/javaGoldenApple";
 import {
-	type CombatEnterEvent,
-	type CombatExitEvent,
+	type HitterClearEvent,
+	type HitterSetEvent,
 	KillTracker,
-	type KillTrackerEvent,
+	type KillTrackerDeathEvent,
 } from "./tools/killTracker";
 import { kitSelectionForm } from "./tools/kits/form";
 import { type Kit, KitManager, kitArmorDurability } from "./tools/kits/manager";
@@ -308,22 +308,23 @@ respawns.init();
 const killTracker = new KillTracker(140);
 killTracker.init();
 
-killTracker.onCombatEnter.subscribe((event: CombatEnterEvent): void => {
-	world.sendMessage(`Combat Enter: ${event.player.nameTag} -> ${event.hitBy?.nameTag}`);
+killTracker.onHitterSet.subscribe((event: HitterSetEvent): void => {
+	world.sendMessage(`Hitter Set: ${event.hitter.nameTag} on ${event.player.nameTag}`);
 });
 
-killTracker.onCombatExit.subscribe((event: CombatExitEvent): void => {
-	world.sendMessage(`Combat Exit: ${event.player.nameTag} -> ${event.lastOpponent?.nameTag}`);
+killTracker.onHitterClear.subscribe((event: HitterClearEvent): void => {
+	const player = world.getEntity(event.playerId);
+	const oldHitter = world.getEntity(event.oldHitterId);
+	world.sendMessage(`Hitter Cleared: ${oldHitter?.nameTag} on ${player?.nameTag}`);
 });
 
-killTracker.onKill.subscribe((event: KillTrackerEvent): void => {
-	world.sendMessage(
-		deathMessageFormat(
-			event.deadPlayer.nameTag,
-			event.killer?.nameTag ?? null,
-			event.cause ?? null,
-		),
-	);
+killTracker.onDeath.subscribe((event: KillTrackerDeathEvent): void => {
+	const deadName: string = world.getEntity(event.deadPlayerId)?.nameTag ?? event.deadPlayerName;
+	let killerName: string | null = null;
+	if (event.killerId !== undefined) {
+		killerName = world.getEntity(event.killerId)?.nameTag ?? null;
+	}
+	world.sendMessage(deathMessageFormat(deadName, killerName, event.cause, "§7"));
 });
 
 const kits = new KitManager();
