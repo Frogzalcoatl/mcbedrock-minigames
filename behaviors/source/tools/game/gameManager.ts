@@ -34,7 +34,7 @@ export class GameManager {
 		}
 		const selectedType: GameType | undefined = this.types[resp.selection];
 		if (selectedType === undefined) {
-			player.sendMessage(`§cUnable to get selected room type at index ${resp.selection}`);
+			player.sendMessage(`§cUnable to get selected game type at index ${resp.selection}`);
 			return;
 		}
 		const queueResult: boolean = await selectedType.queue(player);

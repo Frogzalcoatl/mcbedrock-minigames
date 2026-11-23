@@ -33,6 +33,10 @@ export abstract class Game {
 		return this._players.size;
 	}
 
+	public get isEmpty(): boolean {
+		return this._players.isEmpty;
+	}
+
 	private handleDisconnect = (event: PlayerLeaveAfterEvent): void => {
 		Game._globalPlayerIds.delete(event.playerId);
 		this.leave(event.playerId);
