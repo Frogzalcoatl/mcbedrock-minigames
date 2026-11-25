@@ -22,7 +22,7 @@ export function beamParticles(
 	const changeByX: number = (distanceX / distance) * spacing;
 	const changeByY: number = (distanceY / distance) * spacing;
 	const changeByZ: number = (distanceZ / distance) * spacing;
-	const current: Vector3 = startPos;
+	const current: Vector3 = { ...startPos };
 	for (let distanceTraveled = 0; distanceTraveled < distance; distanceTraveled += spacing) {
 		if (dimension.isChunkLoaded(current)) {
 			dimension.spawnParticle(particle, current);

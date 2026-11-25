@@ -131,7 +131,6 @@ export function registerSimulatedPlayerCommands(
 				system.run(() => {
 					for (const p of playerSelector) {
 						if (p.isValid && p instanceof SimulatedPlayer) {
-							manager.onDisconnect.triggerEvent({ playerId: p.id, playerName: p.name });
 							p.disconnect();
 						}
 					}

@@ -51,7 +51,7 @@ export class EliminationManagerAutoRespawn {
 		if (shutdownDeathTimeTracker) {
 			this.deathTimeTracker.shutdown();
 		}
-		if (!this._isInitialized) {
+		if (this._isInitialized) {
 			world.afterEvents.entityDie.unsubscribe(this.entityDie);
 			world.afterEvents.playerSpawn.unsubscribe(this.playerSpawn);
 			this._isInitialized = false;
